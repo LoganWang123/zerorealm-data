@@ -64,9 +64,10 @@ sources:
     score: 80
     interval: daily
     retry: 2
-    timeout: 30
+    timeout: 60
+    js_render: true
     user_agent: zerorealm-bot/1.0
-    enabled: false  # 也是JS渲染
+    enabled: false  # Playwright仍0条，需调URL
 
   - id: tmtpost_rss
     name: 钛媒体
@@ -114,8 +115,8 @@ sources:
     enabled: false  # SPA，需Playwright
 
   - id: ebrun_alt
-    name: 亿邦动力-资讯列表
-    url: https://www.ebrun.com/ebnews/list
+    name: 亿邦动力
+    url: https://www.ebrun.com/
     type: web
     parser: list
     category: news
@@ -124,9 +125,10 @@ sources:
     score: 78
     interval: daily
     retry: 2
-    timeout: 30
+    timeout: 60
+    js_render: true
     user_agent: zerorealm-bot/1.0
-    enabled: false  # 超时，可能也是SPA
+    enabled: true
 
   # ═══════════════════════════════════════════
   # L0+L2 运营商（Operator）—— 直接竞对
@@ -188,9 +190,10 @@ sources:
     score: 90
     interval: daily
     retry: 2
-    timeout: 30
+    timeout: 60
+    js_render: true
     user_agent: zerorealm-bot/1.0
-    enabled: false  # SPA，需Playwright
+    enabled: false  # Playwright仍0条，需自定义选择器
 
   - id: hema_web
     name: 盒马
@@ -380,9 +383,10 @@ sources:
     score: 90
     interval: daily
     retry: 2
-    timeout: 30
+    timeout: 60
+    js_render: true
     user_agent: zerorealm-bot/1.0
-    enabled: false  # JS渲染，需Playwright
+    enabled: false  # Playwright仍0条，需自定义选择器
 
   - id: quectel_web
     name: 移远通信

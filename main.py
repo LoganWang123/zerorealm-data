@@ -12,6 +12,7 @@ import yaml
 from crawlers.base import RawItem
 from crawlers.rss_crawler import RSSCrawler
 from crawlers.html_crawler import HTMLCrawler
+from crawlers.js_crawler import JSCrawler
 from processors.dedup import filter_duplicates
 from processors.boost import apply_boost
 from output.writer import write_raw_json, write_clean_markdown
@@ -36,10 +37,13 @@ def load_config() -> tuple[list[dict], dict]:
 def get_crawler(source_config: dict, run_id: str):
     """Factory: return appropriate crawler based on source type."""
     source_type = source_config.get("type", "web")
+    js_render = source_config.get("js_render", False)
 
     if source_type == "rss":
         return RSSCrawler(source_config, run_id)
     elif source_type == "web":
+        if js_render:
+            return JSCrawler(source_config, run_id)
         return HTMLCrawler(source_config, run_id)
     else:
         raise ValueError(f"Unsupported source type: {source_type}")
