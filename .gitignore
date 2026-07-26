@@ -4,6 +4,12 @@ data/
 # logs
 logs/
 
+# env
+.env
+
+# output
+output_daily/
+
 # python
 __pycache__/
 *.py[cod]
