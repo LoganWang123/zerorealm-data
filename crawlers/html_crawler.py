@@ -1,6 +1,7 @@
 """HTML web crawler using requests + BeautifulSoup."""
 
 import asyncio
+import urllib3
 from urllib.parse import urljoin
 
 import requests
@@ -9,6 +10,24 @@ from dateutil import parser as date_parser
 
 from crawlers.base import BaseCrawler, RawItem
 from utils.helpers import now_iso
+
+# Suppress InsecureRequestWarning when ssl_verify=false
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# Browser-level default headers for anti-crawl evasion
+BROWSER_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+    "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Connection": "keep-alive",
+    "Upgrade-Insecure-Requests": "1",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Sec-Fetch-User": "?1",
+    "Cache-Control": "max-age=0",
+}
 
 
 class HTMLCrawler(BaseCrawler):
@@ -19,20 +38,31 @@ class HTMLCrawler(BaseCrawler):
         self.parser_type = source_config.get("parser", "list")
         # Source-specific CSS selectors (can be overridden in sources.yaml)
         self.selectors = source_config.get("selectors", {})
+        # SSL verification control (disable for self-signed / mismatched certs)
+        self.ssl_verify = source_config.get("ssl_verify", True)
+        # Whether to use browser-level headers (for anti-crawl sites)
+        self.browser_headers = source_config.get("browser_headers", True)
 
     async def fetch(self) -> list[RawItem]:
         """Fetch and parse HTML page."""
-        headers = {
-            "User-Agent": self.user_agent,
-            "Accept": "text/html,application/xhtml+xml",
-            "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
-        }
+        if self.browser_headers:
+            headers = {**BROWSER_HEADERS}
+            # Override UA if explicitly configured
+            if self.user_agent != "zerorealm-bot/1.0":
+                headers["User-Agent"] = self.user_agent
+        else:
+            headers = {
+                "User-Agent": self.user_agent,
+                "Accept": "text/html,application/xhtml+xml",
+                "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+            }
 
         response = await asyncio.to_thread(
             requests.get,
             self.url,
             headers=headers,
             timeout=self.timeout,
+            verify=self.ssl_verify,
         )
 
         if response.status_code != 200:

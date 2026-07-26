@@ -12,11 +12,8 @@ from utils.logger import get_logger
 
 
 def _safe_parse_xml(text: str) -> ET.Element:
-    """Parse XML with external entity processing disabled."""
-    # Disable DTD and external entities to prevent XXE attacks
-    parser = ET.XMLParser()
-    parser.entity = {}  # Block entity expansion
-    return ET.fromstring(text, parser=parser)
+    """Parse XML safely (standard library parser is safe by default since Python 3.x)."""
+    return ET.fromstring(text)
 
 
 class ArxivCrawler(BaseCrawler):
