@@ -48,10 +48,10 @@ sources:
     priority: P0
     score: 80
     interval: daily
-    retry: 3
+    retry: 2
     timeout: 30
     user_agent: zerorealm-bot/1.0
-    enabled: true
+    enabled: false  # RSS格式错误(mismatched tag)，暂禁用
 
   - id: tmtpost_rss
     name: 钛媒体
@@ -206,10 +206,10 @@ sources:
     priority: P0
     score: 90
     interval: daily
-    retry: 3
+    retry: 2
     timeout: 30
     user_agent: zerorealm-bot/1.0
-    enabled: true
+    enabled: false  # SSL错误
 
   - id: hahaha_web
     name: 哈哈零兽
@@ -221,10 +221,10 @@ sources:
     priority: P0
     score: 88
     interval: daily
-    retry: 3
+    retry: 2
     timeout: 30
     user_agent: zerorealm-bot/1.0
-    enabled: true
+    enabled: false  # SSL错误
 
   - id: f5_web
     name: F5未来商店
@@ -236,10 +236,10 @@ sources:
     priority: P0
     score: 85
     interval: daily
-    retry: 3
+    retry: 2
     timeout: 30
     user_agent: zerorealm-bot/1.0
-    enabled: true
+    enabled: false  # SSL证书不匹配
 
   - id: qinggou_web
     name: 轻购云
