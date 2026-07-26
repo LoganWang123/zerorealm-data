@@ -1,12 +1,13 @@
-feedparser==6.0.11
-beautifulsoup4==4.12.3
-lxml==5.3.0
-PyYAML==6.0.2
-python-dateutil==2.9.0
-requests==2.32.3
-openai==1.59.0
+feedparser>=6.0
+beautifulsoup4>=4.12
+lxml>=5.0
+PyYAML>=6.0
+python-dateutil>=2.9
+requests>=2.31
+openai>=1.50
+playwright>=1.40
 
 # dev
-black==24.10.0
-ruff==0.8.6
-pytest==8.3.4
+black>=24.0
+ruff>=0.8
+pytest>=8.0
