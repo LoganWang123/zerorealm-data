@@ -13,6 +13,7 @@ from crawlers.base import RawItem
 from crawlers.rss_crawler import RSSCrawler
 from crawlers.html_crawler import HTMLCrawler
 from processors.dedup import filter_duplicates
+from processors.boost import apply_boost
 from output.writer import write_raw_json, write_clean_markdown
 from output.digest import generate_digest
 from utils.logger import setup_logger, get_logger
@@ -85,6 +86,10 @@ async def crawl_all(sources: list[dict], settings: dict, run_id: str, source_fil
     # Dedup
     new_items, dup_count = filter_duplicates(all_items, base_dir)
     logger.info(f"[dedup] {len(all_items)} total, {dup_count} duplicates, {len(new_items)} new")
+
+    # Boost scoring
+    if new_items:
+        new_items = apply_boost(new_items)
 
     # Write output
     for item in new_items:

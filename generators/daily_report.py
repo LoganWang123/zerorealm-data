@@ -46,8 +46,17 @@ def format_materials(items: list[dict]) -> str:
         summary = item.get("summary", "")[:200]
         url = item.get("url", "")
         category = item.get("metadata", {}).get("category", "news")
+        boost_level = item.get("metadata", {}).get("boost_level", "normal")
+        boost_score = item.get("metadata", {}).get("boost_score", 0)
 
-        lines.append(f"{i}. [{source_name}] {title}")
+        # Mark boosted items
+        prefix = ""
+        if boost_level == "star":
+            prefix = "⭐"
+        elif boost_level == "priority":
+            prefix = "▲"
+
+        lines.append(f"{i}. {prefix}[{source_name}] {title}")
         if summary:
             # Strip HTML tags from summary
             import re
@@ -55,7 +64,9 @@ def format_materials(items: list[dict]) -> str:
             if clean_summary:
                 lines.append(f"   摘要: {clean_summary[:150]}")
         lines.append(f"   链接: {url}")
-        lines.append(f"   分类: {category}")
+        if boost_score > 0:
+            matched = item.get("metadata", {}).get("boost_matched", [])
+            lines.append(f"   相关度: {boost_score}分 | 命中: {', '.join(matched[:5])}")
         lines.append("")
 
     return "\n".join(lines)
