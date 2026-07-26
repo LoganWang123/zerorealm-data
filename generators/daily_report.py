@@ -21,7 +21,7 @@ SOURCE_NAMES = {
 
 
 def load_daily_items(base_dir: str = "data", date: str | None = None) -> list[dict]:
-    """Load all raw JSON items for a given date."""
+    """Load all raw JSON items for a given date and apply boost scoring."""
     if not date:
         date = datetime.now(CST).strftime("%Y/%m/%d")
     elif "-" in date:
@@ -33,6 +33,28 @@ def load_daily_items(base_dir: str = "data", date: str | None = None) -> list[di
     for filepath in glob.glob(pattern):
         with open(filepath, "r", encoding="utf-8") as f:
             items.append(json.load(f))
+
+    # Apply boost scoring if not already present
+    if items and "boost_score" not in items[0].get("metadata", {}):
+        from processors.boost import score_item, load_boost_config
+        try:
+            config = load_boost_config()
+            for item in items:
+                from crawlers.base import RawItem
+                raw = RawItem(**item)
+                score, matched = score_item(raw, config)
+                item["metadata"]["boost_score"] = score
+                item["metadata"]["boost_matched"] = matched
+                if score >= 10:
+                    item["metadata"]["boost_level"] = "star"
+                elif score >= 5:
+                    item["metadata"]["boost_level"] = "priority"
+                else:
+                    item["metadata"]["boost_level"] = "normal"
+            # Sort by boost score
+            items.sort(key=lambda x: x.get("metadata", {}).get("boost_score", 0), reverse=True)
+        except Exception:
+            pass  # Boost config not available, skip
 
     return items
 
