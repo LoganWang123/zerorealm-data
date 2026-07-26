@@ -93,10 +93,10 @@ sources:
     priority: P0
     score: 78
     interval: daily
-    retry: 3
+    retry: 2
     timeout: 30
     user_agent: zerorealm-bot/1.0
-    enabled: true
+    enabled: false  # SPA，需Playwright
 
   # ═══════════════════════════════════════════
   # L0+L2 运营商（Operator）—— 直接竞对
@@ -157,10 +157,10 @@ sources:
     priority: P0
     score: 90
     interval: daily
-    retry: 3
+    retry: 2
     timeout: 30
     user_agent: zerorealm-bot/1.0
-    enabled: true
+    enabled: false  # SPA，需Playwright
 
   - id: hema_web
     name: 盒马
@@ -172,10 +172,10 @@ sources:
     priority: P0
     score: 90
     interval: daily
-    retry: 3
+    retry: 2
     timeout: 30
     user_agent: zerorealm-bot/1.0
-    enabled: true
+    enabled: false  # SPA，需Playwright
 
   - id: dingdong_web
     name: 叮咚买菜
@@ -187,10 +187,10 @@ sources:
     priority: P0
     score: 85
     interval: daily
-    retry: 3
+    retry: 2
     timeout: 30
     user_agent: zerorealm-bot/1.0
-    enabled: true
+    enabled: false  # SPA，需Playwright
 
   # ═══════════════════════════════════════════
   # L0+L2 设备商（Vendor）—— 技术趋势源
@@ -251,10 +251,10 @@ sources:
     priority: P0
     score: 85
     interval: daily
-    retry: 3
+    retry: 2
     timeout: 30
     user_agent: zerorealm-bot/1.0
-    enabled: true
+    enabled: false  # 可能停运，无内容
 
   - id: zhongji_web
     name: 中吉
@@ -349,10 +349,10 @@ sources:
     priority: P0
     score: 90
     interval: daily
-    retry: 3
+    retry: 2
     timeout: 30
     user_agent: zerorealm-bot/1.0
-    enabled: true
+    enabled: false  # JS渲染，需Playwright
 
   - id: quectel_web
     name: 移远通信
@@ -617,6 +617,130 @@ sources:
     timeout: 30
     user_agent: zerorealm-bot/1.0
     enabled: true
+
+  # ═══════════════════════════════════════════
+  # L1 补充媒体（传统 HTML，稳定可采）
+  # ═══════════════════════════════════════════
+
+  - id: ccfa_web
+    name: 中国连锁经营协会
+    url: https://www.ccfa.org.cn/portal/cn/index.jsp
+    type: web
+    parser: list
+    category: news
+    industry_role: media
+    priority: P0
+    score: 92
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: people_web
+    name: 人民网-商业频道
+    url: http://finance.people.com.cn/GB/70846/index.html
+    type: web
+    parser: list
+    category: news
+    industry_role: media
+    priority: P0
+    score: 95
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: chinanews_web
+    name: 中国新闻网-财经
+    url: https://www.chinanews.com.cn/finance/
+    type: web
+    parser: list
+    category: news
+    industry_role: media
+    priority: P0
+    score: 90
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: nbd_web
+    name: 每日经济新闻
+    url: https://www.nbd.com.cn/columns/318
+    type: web
+    parser: list
+    category: news
+    industry_role: media
+    priority: P0
+    score: 82
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: jiemian_web
+    name: 界面新闻-商业
+    url: https://www.jiemian.com/lists/2.html
+    type: web
+    parser: list
+    category: news
+    industry_role: media
+    priority: P0
+    score: 80
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: xinhua_web
+    name: 新华网-财经
+    url: http://www.news.cn/fortune/
+    type: web
+    parser: list
+    category: news
+    industry_role: media
+    priority: P0
+    score: 95
+    interval: daily
+    retry: 2
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: false  # 0条产出，JS渲染
+
+  - id: 21jingji_web
+    name: 21世纪经济报道
+    url: https://www.21jingji.com/channel/finance
+    type: web
+    parser: list
+    category: news
+    industry_role: media
+    priority: P0
+    score: 82
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: cbt_web
+    name: 中国商报
+    url: https://www.cbt.com.cn/
+    type: web
+    parser: list
+    category: news
+    industry_role: media
+    priority: P0
+    score: 85
+    interval: daily
+    retry: 2
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: false  # SSL证书错误
 
   # ═══════════════════════════════════════════
   # L4 社区信号（反爬较重，M3+ 启用）
