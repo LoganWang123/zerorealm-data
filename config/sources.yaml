@@ -15,9 +15,9 @@ sources:
 
   - id: ubox_web
     name: 友宝官网
-    url: https://www.ubox.cn/news
+    url: https://www.ubox.cn/
     type: web
-    parser: article
+    parser: list
     category: company
     priority: P0
     score: 95
@@ -40,3 +40,45 @@ sources:
     timeout: 60
     user_agent: zerorealm-bot/1.0
     enabled: true
+
+  - id: bianlifeng_web
+    name: 便利蜂
+    url: https://www.bianlifeng.com/
+    type: web
+    parser: list
+    category: company
+    priority: P0
+    score: 90
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: meituan_web
+    name: 美团
+    url: https://about.meituan.com/news
+    type: web
+    parser: list
+    category: company
+    priority: P0
+    score: 90
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: qianzhan_web
+    name: 前瞻产业研究院
+    url: https://www.qianzhan.com/analyst/column/270.html
+    type: web
+    parser: list
+    category: news
+    priority: P1
+    score: 75
+    interval: daily
+    retry: 2
+    timeout: 15
+    user_agent: zerorealm-bot/1.0
+    enabled: false  # 反爬较重，超时，暂禁用
