@@ -51,7 +51,22 @@ sources:
     retry: 2
     timeout: 30
     user_agent: zerorealm-bot/1.0
-    enabled: false  # RSS格式错误(mismatched tag)，暂禁用
+    enabled: false  # 0条，JS渲染
+
+  - id: huxiu_web
+    name: 虎嗅-网页版
+    url: https://www.huxiu.com/channel/104.html
+    type: web
+    parser: list
+    category: news
+    industry_role: media
+    priority: P0
+    score: 80
+    interval: daily
+    retry: 2
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: false  # 也是JS渲染
 
   - id: tmtpost_rss
     name: 钛媒体
@@ -97,6 +112,21 @@ sources:
     timeout: 30
     user_agent: zerorealm-bot/1.0
     enabled: false  # SPA，需Playwright
+
+  - id: ebrun_alt
+    name: 亿邦动力-资讯列表
+    url: https://www.ebrun.com/ebnews/list
+    type: web
+    parser: list
+    category: news
+    industry_role: media
+    priority: P0
+    score: 78
+    interval: daily
+    retry: 2
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: false  # 超时，可能也是SPA
 
   # ═══════════════════════════════════════════
   # L0+L2 运营商（Operator）—— 直接竞对
@@ -741,6 +771,126 @@ sources:
     timeout: 30
     user_agent: zerorealm-bot/1.0
     enabled: false  # SSL证书错误
+
+  # ═══════════════════════════════════════════
+  # L2 融资情报（Capital）
+  # ═══════════════════════════════════════════
+
+  - id: pedaily_web
+    name: 投资界
+    url: https://news.pedaily.cn/
+    type: web
+    parser: list
+    category: news
+    industry_role: capital
+    priority: P0
+    score: 82
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: itjuzi_web
+    name: IT桔子
+    url: https://www.itjuzi.com/
+    type: web
+    parser: list
+    category: news
+    industry_role: capital
+    priority: P0
+    score: 85
+    interval: daily
+    retry: 2
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: false  # 反爬/登录墙
+
+  - id: lieyun_web
+    name: 猎云网
+    url: https://www.lieyunwang.com/
+    type: web
+    parser: list
+    category: news
+    industry_role: capital
+    priority: P0
+    score: 78
+    interval: daily
+    retry: 2
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: false  # DNS解析失败，可能停运
+
+  # ═══════════════════════════════════════════
+  # L2 招标情报
+  # ═══════════════════════════════════════════
+
+  - id: ccgp_web
+    name: 中国政府采购网
+    url: http://www.ccgp.gov.cn/
+    type: web
+    parser: list
+    category: news
+    industry_role: channel
+    priority: P1
+    score: 95
+    interval: daily
+    retry: 2
+    timeout: 15
+    user_agent: zerorealm-bot/1.0
+    enabled: false  # 超时，待优化
+
+  # ═══════════════════════════════════════════
+  # L3 技术情报（arXiv / 专利）
+  # ═══════════════════════════════════════════
+
+  - id: arxiv_ai_rss
+    name: arXiv cs.AI
+    url: http://arxiv.org/rss/cs.AI
+    type: rss
+    parser: rss
+    category: news
+    industry_role: technology
+    industry_segment: ai
+    priority: P1
+    score: 70
+    interval: daily
+    retry: 2
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: false  # 国内网络超时，需代理
+
+  - id: arxiv_cv_rss
+    name: arXiv cs.CV
+    url: http://arxiv.org/rss/cs.CV
+    type: rss
+    parser: rss
+    category: news
+    industry_role: technology
+    industry_segment: ai_vision
+    priority: P1
+    score: 70
+    interval: daily
+    retry: 2
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: false  # 国内网络超时，需代理
+
+  - id: cnipa_web
+    name: 国家知识产权局
+    url: https://www.cnipa.gov.cn/col/col74/index.html
+    type: web
+    parser: list
+    category: news
+    industry_role: technology
+    industry_segment: patent
+    priority: P1
+    score: 90
+    interval: daily
+    retry: 2
+    timeout: 15
+    user_agent: zerorealm-bot/1.0
+    enabled: false  # 待验证
 
   # ═══════════════════════════════════════════
   # L4 社区信号（反爬较重，M3+ 启用）
