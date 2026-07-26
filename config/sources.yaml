@@ -1,0 +1,42 @@
+sources:
+  - id: 36kr_rss
+    name: 36氪
+    url: https://36kr.com/feed
+    type: rss
+    parser: rss
+    category: news
+    priority: P0
+    score: 80
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: ubox_web
+    name: 友宝官网
+    url: https://www.ubox.cn/news
+    type: web
+    parser: article
+    category: company
+    priority: P0
+    score: 95
+    interval: daily
+    retry: 3
+    timeout: 60
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: linkshop_web
+    name: 联商网
+    url: https://www.linkshop.com/
+    type: web
+    parser: list
+    category: news
+    priority: P0
+    score: 80
+    interval: daily
+    retry: 3
+    timeout: 60
+    user_agent: zerorealm-bot/1.0
+    enabled: true

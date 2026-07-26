@@ -1,0 +1,14 @@
+output:
+  base_dir: data
+  date_format: "%Y/%m/%d"
+
+logging:
+  level: INFO
+  dir: logs
+
+dedup:
+  strategy: id_check
+
+digest:
+  priority_sources:
+    - ubox_web
