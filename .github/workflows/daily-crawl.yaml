@@ -1,0 +1,35 @@
+name: Daily Crawl
+
+on:
+  schedule:
+    - cron: '0 22 * * *'   # UTC 22:00 = 北京 06:00
+    - cron: '10 22 * * *'  # 06:10 补采
+    - cron: '20 22 * * *'  # 06:20 补采
+  workflow_dispatch:
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run crawler
+        run: python main.py
+
+      - name: Upload output
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: crawl-${{ github.run_number }}
+          path: |
+            data/
+            logs/
+          retention-days: 30
