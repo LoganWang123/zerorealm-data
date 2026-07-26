@@ -1,4 +1,13 @@
+# ZeroRealm AI 数据源注册表
+# 按产业链分层：L0官方 → L1媒体 → L2竞对 → L3技术 → L4社区
+# industry_role: operator / vendor / technology / supplier / channel / service / media
+
 sources:
+
+  # ═══════════════════════════════════════════
+  # L1 行业媒体（新闻与分析）
+  # ═══════════════════════════════════════════
+
   - id: 36kr_rss
     name: 36氪
     url: https://36kr.com/feed
@@ -14,21 +23,6 @@ sources:
     user_agent: zerorealm-bot/1.0
     enabled: true
 
-  - id: ubox_web
-    name: 友宝官网
-    url: https://www.ubox.cn/
-    type: web
-    parser: list
-    category: company
-    industry_role: operator
-    priority: P0
-    score: 95
-    interval: daily
-    retry: 3
-    timeout: 60
-    user_agent: zerorealm-bot/1.0
-    enabled: true
-
   - id: linkshop_web
     name: 联商网
     url: https://www.linkshop.com/
@@ -38,6 +32,85 @@ sources:
     industry_role: media
     priority: P0
     score: 80
+    interval: daily
+    retry: 3
+    timeout: 60
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: huxiu_rss
+    name: 虎嗅
+    url: https://www.huxiu.com/rss/0.xml
+    type: rss
+    parser: rss
+    category: news
+    industry_role: media
+    priority: P0
+    score: 80
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: tmtpost_rss
+    name: 钛媒体
+    url: https://www.tmtpost.com/rss.xml
+    type: rss
+    parser: rss
+    category: news
+    industry_role: media
+    priority: P0
+    score: 75
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: winshang_web
+    name: 赢商网
+    url: https://www.winshang.com/
+    type: web
+    parser: list
+    category: news
+    industry_role: media
+    priority: P0
+    score: 78
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: ebrun_web
+    name: 亿邦动力
+    url: https://www.ebrun.com/
+    type: web
+    parser: list
+    category: news
+    industry_role: media
+    priority: P0
+    score: 78
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  # ═══════════════════════════════════════════
+  # L0+L2 运营商（Operator）—— 直接竞对
+  # ═══════════════════════════════════════════
+
+  - id: ubox_web
+    name: 友宝
+    url: https://www.ubox.cn/
+    type: web
+    parser: list
+    category: company
+    industry_role: operator
+    priority: P0
+    score: 95
     interval: daily
     retry: 3
     timeout: 60
@@ -74,6 +147,473 @@ sources:
     user_agent: zerorealm-bot/1.0
     enabled: true
 
+  - id: jddj_web
+    name: 京东到家
+    url: https://www.jddj.com/
+    type: web
+    parser: list
+    category: company
+    industry_role: operator
+    priority: P0
+    score: 90
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: hema_web
+    name: 盒马
+    url: https://www.freshhema.com/
+    type: web
+    parser: list
+    category: company
+    industry_role: operator
+    priority: P0
+    score: 90
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: dingdong_web
+    name: 叮咚买菜
+    url: https://www.100.me/
+    type: web
+    parser: list
+    category: company
+    industry_role: operator
+    priority: P0
+    score: 85
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  # ═══════════════════════════════════════════
+  # L0+L2 设备商（Vendor）—— 技术趋势源
+  # ═══════════════════════════════════════════
+
+  - id: yunna_web
+    name: 云拿科技
+    url: https://www.yunna.tech/
+    type: web
+    parser: list
+    category: company
+    industry_role: vendor
+    priority: P0
+    score: 90
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: hahaha_web
+    name: 哈哈零兽
+    url: https://www.hahazero.com/
+    type: web
+    parser: list
+    category: company
+    industry_role: vendor
+    priority: P0
+    score: 88
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: f5_web
+    name: F5未来商店
+    url: https://www.f5store.com/
+    type: web
+    parser: list
+    category: company
+    industry_role: vendor
+    priority: P0
+    score: 85
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: qinggou_web
+    name: 轻购云
+    url: https://www.qinggouyun.com/
+    type: web
+    parser: list
+    category: company
+    industry_role: vendor
+    priority: P0
+    score: 85
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: zhongji_web
+    name: 中吉
+    url: https://www.zhongji.com/
+    type: web
+    parser: list
+    category: company
+    industry_role: vendor
+    priority: P0
+    score: 85
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: fushi_web
+    name: 富士冰山
+    url: https://www.fujibing.com/
+    type: web
+    parser: list
+    category: company
+    industry_role: vendor
+    priority: P0
+    score: 88
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  # ═══════════════════════════════════════════
+  # L0+L2 运营商补充（Operator）
+  # ═══════════════════════════════════════════
+
+  - id: fengzu_web
+    name: 丰e足食
+    url: https://www.fengzu.com/
+    type: web
+    parser: list
+    category: company
+    industry_role: operator
+    priority: P0
+    score: 92
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: false  # SSL证书问题，待修复
+
+  # ═══════════════════════════════════════════
+  # L0+L2 技术提供商（Technology）
+  # ═══════════════════════════════════════════
+
+  - id: sensetime_web
+    name: 商汤科技
+    url: https://www.sensetime.com/cn/news
+    type: web
+    parser: list
+    category: company
+    industry_role: technology
+    priority: P0
+    score: 88
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: megvii_web
+    name: 旷视科技
+    url: https://www.megvii.com/news
+    type: web
+    parser: list
+    category: company
+    industry_role: technology
+    priority: P0
+    score: 88
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: hikvision_web
+    name: 海康威视
+    url: https://www.hikvision.com/cn/news/
+    type: web
+    parser: list
+    category: company
+    industry_role: technology
+    priority: P0
+    score: 90
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: quectel_web
+    name: 移远通信
+    url: https://www.quectel.com/cn/news
+    type: web
+    parser: list
+    category: company
+    industry_role: technology
+    priority: P0
+    score: 85
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: tuya_web
+    name: 涂鸦智能
+    url: https://www.tuya.com/cn/news
+    type: web
+    parser: list
+    category: company
+    industry_role: technology
+    priority: P0
+    score: 85
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  # ═══════════════════════════════════════════
+  # L0+L2 商品/供应链（Supplier）
+  # ═══════════════════════════════════════════
+
+  - id: nongfu_web
+    name: 农夫山泉
+    url: https://www.nongfuspring.com/
+    type: web
+    parser: list
+    category: company
+    industry_role: brand
+    priority: P0
+    score: 90
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: cocacola_web
+    name: 可口可乐中国
+    url: https://www.coca-cola.com.cn/news
+    type: web
+    parser: list
+    category: company
+    industry_role: brand
+    priority: P0
+    score: 88
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: genki_web
+    name: 元气森林
+    url: https://www.genkiforest.com/news
+    type: web
+    parser: list
+    category: company
+    industry_role: brand
+    priority: P0
+    score: 90
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: uni_president_web
+    name: 统一企业
+    url: https://www.uni-president.com.cn/news
+    type: web
+    parser: list
+    category: company
+    industry_role: brand
+    priority: P0
+    score: 85
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: wantwant_web
+    name: 旺旺集团
+    url: https://www.want-want.com/news
+    type: web
+    parser: list
+    category: company
+    industry_role: brand
+    priority: P0
+    score: 85
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: yili_web
+    name: 伊利集团
+    url: https://www.yili.com/news
+    type: web
+    parser: list
+    category: company
+    industry_role: brand
+    priority: P0
+    score: 88
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: mengniu_web
+    name: 蒙牛乳业
+    url: https://www.mengniu.com.cn/news
+    type: web
+    parser: list
+    category: company
+    industry_role: brand
+    priority: P0
+    score: 88
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: masterkong_web
+    name: 康师傅
+    url: https://www.masterkong.com.cn/news
+    type: web
+    parser: list
+    category: company
+    industry_role: brand
+    priority: P0
+    score: 85
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: 3squirrels_web
+    name: 三只松鼠
+    url: https://www.3songshu.com/news
+    type: web
+    parser: list
+    category: company
+    industry_role: brand
+    priority: P0
+    score: 82
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: easupply_web
+    name: 怡亚通
+    url: https://www.easupply.com/news
+    type: web
+    parser: list
+    category: company
+    industry_role: supplier
+    priority: P1
+    score: 80
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  # ═══════════════════════════════════════════
+  # L0+L2 场景/点位方（Channel）
+  # ═══════════════════════════════════════════
+
+  - id: vanke_web
+    name: 万科
+    url: https://www.vanke.com/news
+    type: web
+    parser: list
+    category: company
+    industry_role: channel
+    priority: P1
+    score: 88
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: crland_web
+    name: 华润置地
+    url: https://www.crland.com.cn/news
+    type: web
+    parser: list
+    category: company
+    industry_role: channel
+    priority: P1
+    score: 88
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  # ═══════════════════════════════════════════
+  # L0 政策（Policy）
+  # ═══════════════════════════════════════════
+
+  - id: mofcom_web
+    name: 商务部
+    url: https://www.mofcom.gov.cn/xwfb/rdxw
+    type: web
+    parser: list
+    category: policy
+    industry_role: media
+    priority: P1
+    score: 100
+    interval: daily
+    retry: 2
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  # ═══════════════════════════════════════════
+  # L3 技术情报（GitHub / arXiv）
+  # ═══════════════════════════════════════════
+
+  - id: github_trending
+    name: GitHub Trending (Retail AI)
+    url: https://github.com/trending?since=daily&spoken_language_code=zh
+    type: web
+    parser: list
+    category: news
+    industry_role: technology
+    priority: P1
+    score: 70
+    interval: daily
+    retry: 2
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  # ═══════════════════════════════════════════
+  # L4 社区信号（反爬较重，M3+ 启用）
+  # ═══════════════════════════════════════════
+
   - id: qianzhan_web
     name: 前瞻产业研究院
     url: https://www.qianzhan.com/analyst/column/270.html
@@ -87,4 +627,34 @@ sources:
     retry: 2
     timeout: 15
     user_agent: zerorealm-bot/1.0
-    enabled: false  # 反爬较重，超时，暂禁用
+    enabled: false  # 反爬较重，超时
+
+  - id: zhihu_retail
+    name: 知乎-无人零售话题
+    url: https://www.zhihu.com/topic/20171018/top-answers
+    type: web
+    parser: list
+    category: news
+    industry_role: media
+    priority: P2
+    score: 60
+    interval: weekly
+    retry: 2
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: false  # 反爬重，M3+ 启用
+
+  - id: weixin_retail
+    name: 公众号-零售行业
+    url: ""
+    type: web
+    parser: list
+    category: news
+    industry_role: media
+    priority: P2
+    score: 60
+    interval: daily
+    retry: 1
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: false  # 需要专项方案，第二年
