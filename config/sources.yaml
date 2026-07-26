@@ -5,6 +5,7 @@ sources:
     type: rss
     parser: rss
     category: news
+    industry_role: media
     priority: P0
     score: 80
     interval: daily
@@ -19,6 +20,7 @@ sources:
     type: web
     parser: list
     category: company
+    industry_role: operator
     priority: P0
     score: 95
     interval: daily
@@ -33,6 +35,7 @@ sources:
     type: web
     parser: list
     category: news
+    industry_role: media
     priority: P0
     score: 80
     interval: daily
@@ -47,6 +50,7 @@ sources:
     type: web
     parser: list
     category: company
+    industry_role: operator
     priority: P0
     score: 90
     interval: daily
@@ -61,6 +65,7 @@ sources:
     type: web
     parser: list
     category: company
+    industry_role: operator
     priority: P0
     score: 90
     interval: daily
@@ -75,6 +80,7 @@ sources:
     type: web
     parser: list
     category: news
+    industry_role: media
     priority: P1
     score: 75
     interval: daily
