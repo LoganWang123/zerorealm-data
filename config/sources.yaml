@@ -395,6 +395,7 @@ sources:
     parser: list
     category: company
     industry_role: brand
+    industry_segment: beverage
     priority: P0
     score: 90
     interval: daily
@@ -410,6 +411,7 @@ sources:
     parser: list
     category: company
     industry_role: brand
+    industry_segment: beverage
     priority: P0
     score: 88
     interval: daily
@@ -425,6 +427,7 @@ sources:
     parser: list
     category: company
     industry_role: brand
+    industry_segment: beverage
     priority: P0
     score: 90
     interval: daily
@@ -470,6 +473,7 @@ sources:
     parser: list
     category: company
     industry_role: brand
+    industry_segment: dairy
     priority: P0
     score: 88
     interval: daily
@@ -485,6 +489,7 @@ sources:
     parser: list
     category: company
     industry_role: brand
+    industry_segment: dairy
     priority: P0
     score: 88
     interval: daily
@@ -500,6 +505,7 @@ sources:
     parser: list
     category: company
     industry_role: brand
+    industry_segment: instant_food
     priority: P0
     score: 85
     interval: daily
@@ -515,6 +521,7 @@ sources:
     parser: list
     category: company
     industry_role: brand
+    industry_segment: snack
     priority: P0
     score: 82
     interval: daily
@@ -529,7 +536,8 @@ sources:
     type: web
     parser: list
     category: company
-    industry_role: supplier
+    industry_role: distributor
+    industry_segment: distribution
     priority: P1
     score: 80
     interval: daily
