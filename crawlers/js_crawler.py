@@ -22,13 +22,18 @@ class JSCrawler(BaseCrawler):
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
             page = await browser.new_page(
-                user_agent=self.user_agent,
+                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
                 locale="zh-CN",
             )
 
             try:
-                await page.goto(self.url, timeout=self.timeout * 1000, wait_until="networkidle")
-                # Wait a bit more for dynamic content
+                await page.goto(self.url, timeout=self.timeout * 1000, wait_until="domcontentloaded")
+                # Wait for network to settle
+                await page.wait_for_timeout(3000)
+                # Scroll to trigger lazy loading
+                await page.evaluate("window.scrollTo(0, document.body.scrollHeight / 2)")
+                await page.wait_for_timeout(2000)
+                await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
                 await page.wait_for_timeout(2000)
                 html = await page.content()
             finally:

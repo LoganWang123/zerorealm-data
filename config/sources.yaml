@@ -840,9 +840,10 @@ sources:
     score: 95
     interval: daily
     retry: 2
-    timeout: 15
+    timeout: 60
+    js_render: true
     user_agent: zerorealm-bot/1.0
-    enabled: false  # 超时，待优化
+    enabled: true
 
   # ═══════════════════════════════════════════
   # L3 技术情报（arXiv / 专利）
@@ -850,9 +851,9 @@ sources:
 
   - id: arxiv_ai_rss
     name: arXiv cs.AI
-    url: http://arxiv.org/rss/cs.AI
-    type: rss
-    parser: rss
+    url: http://export.arxiv.org/api/query
+    type: api_arxiv
+    parser: api
     category: news
     industry_role: technology
     industry_segment: ai
@@ -860,15 +861,15 @@ sources:
     score: 70
     interval: daily
     retry: 2
-    timeout: 30
+    timeout: 60
     user_agent: zerorealm-bot/1.0
-    enabled: false  # 国内网络超时，需代理
+    enabled: true
 
   - id: arxiv_cv_rss
     name: arXiv cs.CV
-    url: http://arxiv.org/rss/cs.CV
-    type: rss
-    parser: rss
+    url: http://export.arxiv.org/api/query
+    type: api_arxiv
+    parser: api
     category: news
     industry_role: technology
     industry_segment: ai_vision
@@ -876,9 +877,9 @@ sources:
     score: 70
     interval: daily
     retry: 2
-    timeout: 30
+    timeout: 60
     user_agent: zerorealm-bot/1.0
-    enabled: false  # 国内网络超时，需代理
+    enabled: true
 
   - id: cnipa_web
     name: 国家知识产权局
@@ -916,19 +917,19 @@ sources:
     enabled: false  # 反爬较重，超时
 
   - id: zhihu_retail
-    name: 知乎-无人零售话题
-    url: https://www.zhihu.com/topic/20171018/top-answers
-    type: web
-    parser: list
+    name: 知乎热榜
+    url: https://www.zhihu.com/api/v3/feed/topstory/hot-lists/total
+    type: api_zhihu
+    parser: api
     category: news
     industry_role: media
-    priority: P2
+    priority: P1
     score: 60
-    interval: weekly
+    interval: daily
     retry: 2
     timeout: 30
     user_agent: zerorealm-bot/1.0
-    enabled: false  # 反爬重，M3+ 启用
+    enabled: false  # 反爬严格，API超时，需cookie
 
   - id: weixin_retail
     name: 公众号-零售行业
