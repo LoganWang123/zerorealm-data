@@ -707,8 +707,8 @@ def news_item(title: str, excerpt: str, source_name: str, index: int,
     # 来源行
     if source_url:
         source_line = (
-            f'<a style="font-size:12px;color:{ACCENT};text-decoration:none;" '
-            f'href="{source_url}">📎 {source_name} → 原文</a>'
+            f'<span style="font-size:12px;color:#999;">'
+            f'📎 来源：{source_name}</span>'
         )
     else:
         source_line = f'<span style="font-size:12px;color:#999;">来源：{source_name}</span>'
@@ -1136,12 +1136,7 @@ def quick_news_list(items: list) -> str:
             source_name = item.get("source_name", "")
             source_url = item.get("source_url", "")
             source_html = ""
-            if source_url:
-                source_html = (
-                    f' <a style="font-size:11px;color:{ACCENT};text-decoration:none;"'
-                    f' href="{source_url}">[{source_name}]</a>'
-                )
-            elif source_name:
+            if source_name:
                 source_html = f' <span style="font-size:11px;color:#999;">[{source_name}]</span>'
             rows_html += (
                 f'<p style="margin:0 0 4px;font-size:14px;color:#333;'
