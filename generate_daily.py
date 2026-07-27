@@ -15,6 +15,10 @@ import argparse
 import os
 import sys
 
+from dotenv import load_dotenv
+
+load_dotenv()  # Load .env before any env var checks
+
 from utils.logger import setup_logger, get_logger
 from utils.helpers import generate_run_id
 

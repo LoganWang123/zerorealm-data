@@ -8,7 +8,13 @@ logging:
 
 dedup:
   strategy: id_check
+  semantic_threshold: 0.6   # TF-IDF cosine similarity for title clustering
 
 digest:
   priority_sources:
     - ubox_web
+
+quality:
+  # threshold: 50    # uncomment to filter low-quality items in crawl pipeline
+  pass_score: 70
+  review_score: 50

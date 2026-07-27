@@ -1,0 +1,205 @@
+# NER Golden Set — 标注数据
+# 用于评估 NER 抽取准确率（Precision / Recall / F1）
+# 格式：每条包含 input（标题+摘要）和 expected（期望实体/事件）
+
+cases:
+  - id: gs_001
+    input:
+      title: "友宝在线完成C轮融资，估值超50亿元"
+      source: "36kr_rss"
+      summary: "友宝在线宣布完成C轮融资，由某知名投资机构领投。"
+    expected:
+      entities:
+        - text: "友宝"
+          type: "company"
+      events:
+        - type: "financing"
+          subject: "友宝"
+
+  - id: gs_002
+    input:
+      title: "丰e足食与美团达成战略合作，入驻美团平台"
+      source: "fengzu_web"
+      summary: "丰e足食宣布与美团达成战略合作，其自助智能零售终端将全面入驻美团。"
+    expected:
+      entities:
+        - text: "丰e足食"
+          type: "company"
+        - text: "美团"
+          type: "company"
+      events:
+        - type: "cooperation"
+          subject: "丰e足食"
+
+  - id: gs_003
+    input:
+      title: "九部门联合发布零售业创新发展顶层设计"
+      source: "ccfa_web"
+      summary: "商务部等9部门联合印发《关于加快零售业创新发展的意见》。"
+    expected:
+      entities:
+        - text: "商务部"
+          type: "company"
+      events:
+        - type: "policy"
+          subject: "商务部"
+
+  - id: gs_004
+    input:
+      title: "元气森林发布新品，进军即饮咖啡赛道"
+      source: "genki_web"
+      summary: "元气森林推出全新即饮咖啡产品线。"
+    expected:
+      entities:
+        - text: "元气森林"
+          type: "company"
+      events:
+        - type: "product_launch"
+          subject: "元气森林"
+
+  - id: gs_005
+    input:
+      title: "商汤科技发布新一代视觉识别芯片"
+      source: "sensetime_web"
+      summary: "商汤科技发布面向零售场景的新一代AI视觉识别芯片。"
+    expected:
+      entities:
+        - text: "商汤"
+          type: "company"
+        - text: "视觉识别"
+          type: "technology"
+      events:
+        - type: "product_launch"
+          subject: "商汤"
+
+  - id: gs_006
+    input:
+      title: "智能柜行业迎来爆发期，2026年市场规模预计突破百亿"
+      source: "linkshop_web"
+      summary: "智能柜市场在2026年迎来爆发期，市场规模预计突破百亿元。"
+    expected:
+      entities:
+        - text: "智能柜"
+          type: "product"
+      events: []
+
+  - id: gs_007
+    input:
+      title: "可口可乐加码在华投资，西部中原沿海布局升级"
+      source: "cocacola_web"
+      summary: "可口可乐宣布加大在华投资，升级西部、中原及沿海地区的生产与分销布局。"
+    expected:
+      entities:
+        - text: "可口可乐"
+          type: "company"
+      events:
+        - type: "expansion"
+          subject: "可口可乐"
+
+  - id: gs_008
+    input:
+      title: "海康威视中标某市智慧零售项目，金额超2亿元"
+      source: "hikvision_web"
+      summary: "海康威视中标某市智慧零售终端采购项目。"
+    expected:
+      entities:
+        - text: "海康威视"
+          type: "company"
+      events:
+        - type: "expansion"
+          subject: "海康威视"
+
+  - id: gs_009
+    input:
+      title: "顺丰发布SRC标准体系，筑牢供应链数智化底座"
+      source: "sf_express_web"
+      summary: "顺丰发布SRC标准体系，旨在以精准感知技术提升供应链数智化水平。"
+    expected:
+      entities:
+        - text: "顺丰"
+          type: "company"
+      events:
+        - type: "product_launch"
+          subject: "顺丰"
+
+  - id: gs_010
+    input:
+      title: "希音披露聆讯后资料集，2025年营收418亿美元"
+      source: "36kr_rss"
+      summary: "希音（SHEIN）向港交所披露聆讯后资料集。"
+    expected:
+      entities:
+        - text: "希音"
+          type: "company"
+      events:
+        - type: "financing"
+          subject: "希音"
+
+  - id: gs_011
+    input:
+      title: "市场监管总局批准发布一批重要国家标准"
+      source: "samr_web"
+      summary: "市场监管总局批准发布一批重要国家标准，涉及多个行业领域。"
+    expected:
+      entities:
+        - text: "市场监管总局"
+          type: "company"
+      events:
+        - type: "policy"
+          subject: "市场监管总局"
+
+  - id: gs_012
+    input:
+      title: "移远通信发布新一代IoT模组，支持5G RedCap"
+      source: "quectel_web"
+      summary: "移远通信发布面向智能零售终端的新一代IoT通信模组。"
+    expected:
+      entities:
+        - text: "移远通信"
+          type: "company"
+        - text: "IoT"
+          type: "technology"
+      events:
+        - type: "product_launch"
+          subject: "移远通信"
+
+  - id: gs_013
+    input:
+      title: "伊利集团与某无人零售平台签署年度供货协议"
+      source: "yili_web"
+      summary: "伊利集团与某无人零售平台签署年度供货协议。"
+    expected:
+      entities:
+        - text: "伊利"
+          type: "company"
+      events:
+        - type: "cooperation"
+          subject: "伊利"
+
+  - id: gs_014
+    input:
+      title: "万科旗下物业引入智能柜，覆盖超500个社区"
+      source: "vanke_web"
+      summary: "万科物业宣布在超500个社区引入智能柜服务。"
+    expected:
+      entities:
+        - text: "万科"
+          type: "company"
+        - text: "智能柜"
+          type: "product"
+      events:
+        - type: "expansion"
+          subject: "万科"
+
+  - id: gs_015
+    input:
+      title: "涂鸦智能发布零售AIoT解决方案"
+      source: "tuya_web"
+      summary: "涂鸦智能发布面向零售行业的AIoT整体解决方案。"
+    expected:
+      entities:
+        - text: "涂鸦智能"
+          type: "company"
+      events:
+        - type: "product_launch"
+          subject: "涂鸦智能"

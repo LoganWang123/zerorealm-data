@@ -1,4 +1,8 @@
-"""Daily report generator: crawled data → LLM → MDX."""
+"""Daily report generator: crawled data → LLM → MDX.
+
+Refactored to use AI Runtime (LLMClient + PromptRegistry).
+Falls back to legacy hardcoded prompts when config/prompts/ is missing.
+"""
 
 import json
 import os
@@ -6,9 +10,7 @@ import glob
 from datetime import datetime
 
 import yaml
-from openai import OpenAI
 
-from generators.prompts import DAILY_REPORT_SYSTEM, DAILY_REPORT_USER
 from utils.logger import get_logger
 from utils.helpers import CST
 
@@ -60,16 +62,28 @@ def load_daily_items(base_dir: str = "data", date: str | None = None) -> list[di
 
 
 def format_materials(items: list[dict]) -> str:
-    """Format items as readable materials for LLM prompt."""
+    """Format items as readable materials for LLM prompt.
+
+    Enriched with NER entities/events, quality score, and dedup info
+    when available in metadata.
+    """
+    import re
+
     lines = []
     for i, item in enumerate(items, 1):
+        meta = item.get("metadata", {})
         source_name = SOURCE_NAMES.get(item.get("source", ""), item.get("source", ""))
         title = item.get("title", "")
         summary = item.get("summary", "")[:200]
         url = item.get("url", "")
-        category = item.get("metadata", {}).get("category", "news")
-        boost_level = item.get("metadata", {}).get("boost_level", "normal")
-        boost_score = item.get("metadata", {}).get("boost_score", 0)
+        boost_level = meta.get("boost_level", "normal")
+        boost_score = meta.get("boost_score", 0)
+        quality_score = meta.get("quality_score")
+        dedup_role = meta.get("dedup_role")
+
+        # Skip semantic duplicates (keep only representatives)
+        if dedup_role == "duplicate":
+            continue
 
         # Mark boosted items
         prefix = ""
@@ -80,53 +94,90 @@ def format_materials(items: list[dict]) -> str:
 
         lines.append(f"{i}. {prefix}[{source_name}] {title}")
         if summary:
-            # Strip HTML tags from summary
-            import re
             clean_summary = re.sub(r"<[^>]+>", "", summary).strip()
             if clean_summary:
                 lines.append(f"   摘要: {clean_summary[:150]}")
         lines.append(f"   链接: {url}")
+
+        # Boost info
         if boost_score > 0:
-            matched = item.get("metadata", {}).get("boost_matched", [])
+            matched = meta.get("boost_matched", [])
             lines.append(f"   相关度: {boost_score}分 | 命中: {', '.join(matched[:5])}")
+
+        # Quality score
+        if quality_score is not None:
+            lines.append(f"   质量分: {quality_score}/100")
+
+        # NER entities & events (when available)
+        ner = meta.get("ner", {})
+        if ner:
+            entities = ner.get("entities", [])
+            events = ner.get("events", [])
+            topics = ner.get("topics", [])
+            if entities:
+                ent_strs = [f"{e['text']}({e['type']})" for e in entities[:5]]
+                lines.append(f"   实体: {', '.join(ent_strs)}")
+            if events:
+                evt_strs = [f"{e['subject']}{e['action']}" for e in events[:3]]
+                lines.append(f"   事件: {'; '.join(evt_strs)}")
+            if topics:
+                lines.append(f"   主题: {', '.join(topics[:4])}")
+
         lines.append("")
 
     return "\n".join(lines)
 
 
 def call_llm(materials: str, count: int, issue: int, date: str) -> str:
-    """Call LLM API to generate daily report."""
+    """Call LLM API to generate daily report via AI Runtime."""
     logger = get_logger()
 
-    client = OpenAI(
-        api_key=os.environ.get("LLM_API_KEY", ""),
-        base_url=os.environ.get("LLM_BASE_URL", "https://api.openai.com/v1"),
-    )
+    from ai_runtime.client import LLMClient
+    from ai_runtime.prompt_registry import PromptRegistry
 
-    model = os.environ.get("LLM_MODEL", "gpt-4o-mini")
+    # Try PromptRegistry first, fall back to legacy hardcoded prompts
+    registry = PromptRegistry()
+    tpl = registry.get("daily_report")
 
-    user_prompt = DAILY_REPORT_USER.format(
-        count=count,
-        issue=issue,
-        date=date,
-        materials=materials,
-    )
+    if tpl is not None:
+        system, user = tpl.render(
+            count=count, issue=issue, date=date, materials=materials,
+        )
+        model = tpl.model
+        temperature = tpl.temperature
+        max_tokens = tpl.max_tokens
+        prompt_name = "daily_report"
+        prompt_version = tpl.version
+    else:
+        # Legacy fallback
+        from generators.prompts import DAILY_REPORT_SYSTEM, DAILY_REPORT_USER
 
-    logger.info(f"[daily] Calling LLM ({model}) with {count} items...")
+        system = DAILY_REPORT_SYSTEM
+        user = DAILY_REPORT_USER.format(
+            count=count, issue=issue, date=date, materials=materials,
+        )
+        model = None  # use env default
+        temperature = 0.3
+        max_tokens = 4000
+        prompt_name = None
+        prompt_version = None
 
-    response = client.chat.completions.create(
+    client = LLMClient()
+    logger.info("[daily] Calling LLM (%s) with %d items...", model or client.model, count)
+
+    resp = client.chat(
+        task="daily_report",
+        system=system,
+        user=user,
         model=model,
-        messages=[
-            {"role": "system", "content": DAILY_REPORT_SYSTEM},
-            {"role": "user", "content": user_prompt},
-        ],
-        temperature=0.3,
-        max_tokens=4000,
+        temperature=temperature,
+        max_tokens=max_tokens,
+        prompt_name=prompt_name,
+        prompt_version=prompt_version,
     )
 
-    content = response.choices[0].message.content
-    logger.info(f"[daily] LLM response: {len(content)} chars")
-    return content
+    logger.info("[daily] LLM response: %d chars", len(resp.content))
+    return resp.content
 
 
 def parse_llm_response(response: str) -> dict:

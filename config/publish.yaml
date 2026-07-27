@@ -1,0 +1,21 @@
+wechat:
+  title_prefix: "零域日报"
+  author: "ZeroRealm AI"
+  copyright: "原创"
+  digest_source: summary
+
+cover:
+  width: 900
+  height: 383
+  bg_color: "#1a1a2e"
+  accent_color: "#4a90d9"
+  font: "assets/fonts/NotoSansSC-Bold.otf"
+
+pipeline:
+  validate: true
+  retry: 3
+  retry_backoff: [1, 2, 4]
+
+logging:
+  dir: logs
+  format: json

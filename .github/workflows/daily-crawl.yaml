@@ -1,16 +1,19 @@
-name: Daily Crawl
+name: Daily Pipeline
 
 on:
   schedule:
-    - cron: '0 22 * * *'   # UTC 22:00 = 北京 06:00
-    - cron: '10 22 * * *'  # 06:10 补采
-    - cron: '20 22 * * *'  # 06:20 补采
+    - cron: '0 22 * * *'   # UTC 22:00 = 北京 06:00 采集
   workflow_dispatch:
+    inputs:
+      date:
+        description: 'Report date (YYYY-MM-DD), defaults to today'
+        required: false
+        type: string
 
 jobs:
-  crawl:
+  pipeline:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -19,20 +22,45 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r requirements.txt python-dotenv
 
       - name: Install Playwright browsers
         run: python -m playwright install chromium --with-deps
 
       - name: Run crawler
         run: python main.py
+        env:
+          LLM_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          LLM_BASE_URL: https://api.deepseek.com/v1
+          LLM_MODEL: deepseek-chat
 
-      - name: Upload output
+      - name: Generate daily report
+        run: |
+          DATE=${{ inputs.date || '' }}
+          if [ -z "$DATE" ]; then
+            DATE=$(TZ=Asia/Shanghai date +%Y-%m-%d)
+          fi
+          python generate_daily.py --date "$DATE"
+        env:
+          LLM_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          LLM_BASE_URL: https://api.deepseek.com/v1
+          LLM_MODEL: deepseek-chat
+
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: crawl-${{ github.run_number }}
+          name: daily-${{ github.run_number }}
           path: |
             data/
+            output_daily/
             logs/
           retention-days: 30
+
+      - name: Commit daily report
+        run: |
+          git config user.name "ZeroRealm Bot"
+          git config user.email "bot@zerorealm.ai"
+          git add output_daily/ data/digest/
+          git diff --cached --quiet || git commit -m "feat(daily): auto report $(TZ=Asia/Shanghai date +%Y-%m-%d)"
+          git push

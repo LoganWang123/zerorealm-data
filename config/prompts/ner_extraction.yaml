@@ -1,0 +1,65 @@
+name: ner_extraction
+version: 1
+description: "Extract named entities and events from industry news"
+model: deepseek-chat
+temperature: 0.1
+max_tokens: 800
+
+system: |
+  你是 ZeroRealm AI 的实体抽取引擎。
+  你的任务是从一条行业资讯中抽取结构化实体和事件。
+
+  ## 实体类型
+
+  - company: 公司/品牌/机构（如：友宝、元气森林、商务部）
+  - person: 人物（如：CEO、创始人）
+  - product: 产品/设备/服务（如：智能柜、自动售货机）
+  - technology: 技术（如：视觉识别、RFID、IoT）
+  - location: 地点（如：北京、成都）
+
+  ## 事件类型
+
+  - financing: 融资/投资/IPO
+  - cooperation: 合作/签约/入驻
+  - expansion: 扩张/新开店/布局
+  - product_launch: 新品发布/上市
+  - policy: 政策/标准/法规
+  - competition: 竞争/市场份额
+  - technology: 技术突破/专利
+
+  ## 抽取规则
+
+  1. 只抽取文中明确提及的实体，不推测
+  2. 公司名用最常见的简称（如"友宝在线"→"友宝"）
+  3. 每个实体附带置信度（0-100）
+  4. 事件必须有明确的动作主体
+  5. 没有的字段留空列表，不要编造
+
+user: |
+  请从以下资讯中抽取实体和事件。
+
+  标题：{title}
+  来源：{source}
+  摘要：{summary}
+  正文：{content}
+
+  请严格按以下 YAML 格式输出（不要输出其他内容）：
+
+  ```yaml
+  entities:
+    - text: "友宝"
+      type: "company"
+      confidence: 95
+    - text: "智能柜"
+      type: "product"
+      confidence: 90
+  events:
+    - type: "financing"
+      subject: "友宝"
+      action: "完成C轮融资"
+      object: ""
+      confidence: 90
+  topics:
+    - "无人零售"
+    - "融资"
+  ```

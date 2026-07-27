@@ -16,6 +16,8 @@ from crawlers.js_crawler import JSCrawler
 from crawlers.api_crawler import ArxivCrawler, ZhihuHotCrawler
 from processors.dedup import filter_duplicates
 from processors.boost import apply_boost
+from processors.quality import apply_quality
+from processors.semantic_dedup import apply_semantic_dedup
 from output.writer import write_raw_json, write_clean_markdown
 from output.digest import generate_digest
 from utils.logger import setup_logger, get_logger
@@ -99,6 +101,24 @@ async def crawl_all(sources: list[dict], settings: dict, run_id: str, source_fil
     # Boost scoring
     if new_items:
         new_items = apply_boost(new_items)
+
+    # Quality scoring (rule-based, zero LLM cost)
+    quality_threshold = settings.get("quality", {}).get("threshold")
+    if new_items:
+        new_items = apply_quality(new_items, threshold=quality_threshold)
+
+    # Semantic dedup (TF-IDF title similarity, zero LLM cost)
+    sem_threshold = settings.get("dedup", {}).get("semantic_threshold", 0.6)
+    if new_items:
+        new_items, dup_groups = apply_semantic_dedup(new_items, threshold=sem_threshold)
+
+    # Persist to Supabase (when configured)
+    from storage.db import is_db_available
+    if is_db_available() and new_items:
+        from storage.signals import SignalRepository
+        repo = SignalRepository()
+        saved = repo.save_batch(new_items)
+        logger.info(f"[db] Persisted {saved} signals to Supabase")
 
     # Write output
     for item in new_items:
