@@ -100,6 +100,8 @@ class ArticleParser:
                         action=item.get("action", ""),
                         tags=item.get("tags", []),
                         angle=item.get("angle", ""),
+                        level=item.get("level", ""),
+                        impact=item.get("impact", {}),
                     )
                     for item in raw_sections
                 ]
@@ -137,6 +139,7 @@ class ArticleParser:
             content=pred_data.get("content", "") if pred_data else "",
             confidence=int(pred_data.get("confidence", 3)) if pred_data else 3,
             basis=pred_data.get("basis", "") if pred_data else "",
+            confidence_pct=int(pred_data.get("confidence_pct", 0)) if pred_data else 0,
         )
 
         now = datetime.now(timezone.utc).isoformat()

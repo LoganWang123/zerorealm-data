@@ -146,20 +146,22 @@ class WechatRenderer(BaseRenderer):
                 dp.number, dp.label, dp.interpretation
             ))
 
-        # 10. 🔮 未来30天预测（V4新增）
+        # 10. 🔮 未来30~90天预测（V4.1: 置信度百分比）
         prediction = getattr(article, "prediction", None)
         if prediction:
             if isinstance(prediction, dict):
                 parts.append(templates.prediction_block(
                     prediction.get("content", ""),
-                    prediction.get("confidence", 3),
+                    prediction.get("confidence", 0),
                     prediction.get("basis", ""),
+                    confidence_pct=prediction.get("confidence_pct", 0),
                 ))
             else:
                 parts.append(templates.prediction_block(
                     getattr(prediction, "content", ""),
-                    getattr(prediction, "confidence", 3),
+                    getattr(prediction, "confidence", 0),
                     getattr(prediction, "basis", ""),
+                    confidence_pct=getattr(prediction, "confidence_pct", 0),
                 ))
 
         # 11. 🔄 不同视角
@@ -206,13 +208,26 @@ class WechatRenderer(BaseRenderer):
             if isinstance(tags_raw, list):
                 tags_list = tags_raw
             elif isinstance(tags_raw, dict):
-                # 新格式：{industry: "xx", topics: ["a", "b"]}
                 tags_list = []
                 if tags_raw.get("industry"):
                     tags_list.append(tags_raw["industry"])
                 tags_list.extend(tags_raw.get("topics", []))
             elif hasattr(tags_raw, "industry"):
                 tags_list = [tags_raw.industry] + list(getattr(tags_raw, "topics", []))
+
+        # V4.1: 获取 impact
+        impact_raw = getattr(item, "impact", None)
+        impact_dict = None
+        if impact_raw:
+            if isinstance(impact_raw, dict):
+                impact_dict = impact_raw
+            elif hasattr(impact_raw, "operators"):
+                impact_dict = {
+                    "operators": impact_raw.operators,
+                    "device_makers": impact_raw.device_makers,
+                    "brands": impact_raw.brands,
+                    "investors": impact_raw.investors,
+                }
 
         return templates.news_item(
             title=getattr(item, "title", ""),
@@ -224,6 +239,8 @@ class WechatRenderer(BaseRenderer):
             importance=getattr(item, "importance", ""),
             tags=tags_list,
             angle=getattr(item, "angle", ""),
+            impact=impact_dict,
+            level=getattr(item, "level", ""),
         )
 
     def _process_media(self, html: str) -> list[MediaReference]:

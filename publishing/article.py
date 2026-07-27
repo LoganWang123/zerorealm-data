@@ -52,6 +52,8 @@ class ArticleItem:
     action: str = ""  # immediate/this_week/observe (v3.1)
     tags: dict | list = field(default_factory=list)  # 两层: {industry, topics} (v3.1)
     angle: str = ""  # 分析角度 (v4): 为什么/谁受影响/三个月后/谁赚钱/谁行动/反面
+    level: str = ""  # 层级 (v4.1): core/important/quick
+    impact: dict = field(default_factory=dict)  # 影响对象 (v4.1): {operators, device_makers, brands, investors}
 
 
 @dataclass
@@ -103,11 +105,12 @@ class IndustryTemp:
 
 @dataclass
 class Prediction:
-    """未来30天预测 (v4)."""
+    """未来30~90天预测 (v4.1)."""
 
     content: str = ""
-    confidence: int = 3  # 1~5星
+    confidence: int = 3  # 1~5星 (deprecated in v4.1)
     basis: str = ""
+    confidence_pct: int = 0  # 置信度百分比 (v4.1)
 
 
 @dataclass

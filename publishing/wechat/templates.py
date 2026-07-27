@@ -116,31 +116,44 @@ def industry_temp_block(temps: dict) -> str:
         f'<p style="margin:0 0 10px;font-size:14px;font-weight:bold;color:#fff;">'
         f"🌡 今日行业温度</p>"
         f"{rows_html}"
+        f'<p style="margin:10px 0 0;font-size:11px;color:#8888aa;">'
+        f"ZeroRealm Index：综合新闻数量×重要性权重生成</p>"
         f"</div>"
     )
 
 
 def signal_brand_block(signal_no: int, signal_text: str) -> str:
-    """📡 ZeroRealm Signal No.XXX（V4新增，品牌IP栏目）."""
+    """📡 ZeroRealm Signal #XXX（V4.1: 三位数编号）."""
     if not signal_text:
         return ""
+    # V4.1: 三位数编号 #003
+    no_str = f"#{signal_no:03d}"
     return (
         f'<div style="margin:28px 0;padding:18px;text-align:center;'
         f'border:2px solid {PRIMARY};border-radius:10px;'
         f'background:linear-gradient(135deg,#fafafa 0%,#f0f0f0 100%);">'
         f'<p style="margin:0 0 4px;font-size:11px;color:#999;letter-spacing:2px;">'
-        f"📡 ZeroRealm Signal No.{signal_no}</p>"
+        f"📡 ZeroRealm Signal {no_str}</p>"
         f'<p style="margin:0;font-size:17px;font-weight:bold;color:{PRIMARY};'
         f'line-height:1.6;">{signal_text}</p>'
         f"</div>"
     )
 
 
-def prediction_block(content: str, confidence: int, basis: str = "") -> str:
-    """🔮 未来30天预测（V4新增，别人没有，最值钱）."""
+def prediction_block(content: str, confidence: int = 0, basis: str = "",
+                     confidence_pct: int = 0) -> str:
+    """🔮 未来30~90天预测（V4.1: 置信度百分比）."""
     if not content:
         return ""
-    stars = "⭐" * min(confidence, 5) + "☆" * max(0, 5 - confidence)
+    # V4.1: 优先用百分比，兼容旧版星级
+    if confidence_pct > 0:
+        conf_html = (
+            f'<span style="font-size:16px;font-weight:bold;color:#6a1b9a;">'
+            f"{confidence_pct}%</span> Confidence"
+        )
+    else:
+        stars = "⭐" * min(confidence, 5) + "☆" * max(0, 5 - confidence)
+        conf_html = f"置信度：{stars}"
     basis_html = ""
     if basis:
         basis_html = (
@@ -151,11 +164,11 @@ def prediction_block(content: str, confidence: int, basis: str = "") -> str:
         f'<div style="margin:28px 0;padding:16px 18px;'
         f'background:#f3e5f5;border-radius:8px;border:1px solid #ce93d8;">'
         f'<p style="margin:0 0 8px;font-size:14px;font-weight:bold;color:#6a1b9a;">'
-        f"🔮 未来30天预测</p>"
+        f"🔮 未来30~90天预测</p>"
         f'<p style="margin:0 0 6px;font-size:15px;color:#444;line-height:1.7;">'
         f"{content}</p>"
         f'<p style="margin:0;font-size:13px;color:#9c27b0;">'
-        f"置信度：{stars}</p>"
+        f"{conf_html}</p>"
         f"{basis_html}"
         f"</div>"
     )
@@ -278,11 +291,9 @@ def section_header(title: str) -> str:
 def news_item(title: str, excerpt: str, source_name: str, index: int,
               source_url: str = "", insight: str = "",
               importance: str = "", tags: list[str] | None = None,
-              angle: str = "") -> str:
-    """单条新闻样式 V4：重要度 + 角度 + 标题 + 摘要 + 深度分析 + Tags + 来源.
-
-    V4变更：insight 不再用固定【判断】标签的 regex 替换，直接渲染自然段落。
-    """
+              angle: str = "", impact: dict | None = None,
+              level: str = "") -> str:
+    """单条新闻样式 V4.1：重要度 + 角度 + 标题 + 摘要 + 深度分析 + 影响对象 + Tags + 来源."""
     # 重要度标记
     importance_badge = ""
     if importance == "A":
@@ -352,6 +363,28 @@ def news_item(title: str, excerpt: str, source_name: str, index: int,
         )
         tags_html = f'<p style="margin:8px 0 0;">{tag_spans}</p>'
 
+    # 影响对象（V4.1新增）
+    impact_html = ""
+    if impact and isinstance(impact, dict):
+        def stars(n: int) -> str:
+            return "★" * min(int(n), 5) + "☆" * max(0, 5 - int(n))
+        impact_labels = [
+            ("运营商", impact.get("operators", 0)),
+            ("设备商", impact.get("device_makers", 0)),
+            ("品牌方", impact.get("brands", 0)),
+            ("投资人", impact.get("investors", 0)),
+        ]
+        impact_items = "".join(
+            f'<span style="display:inline-block;margin-right:12px;font-size:12px;color:#555;">'
+            f'{label} <span style="color:#ff9800;">{stars(val)}</span></span>'
+            for label, val in impact_labels if val > 0
+        )
+        if impact_items:
+            impact_html = (
+                f'<p style="margin:8px 0 0;font-size:12px;color:#888;">'
+                f'🎯 影响：{impact_items}</p>'
+            )
+
     return (
         f'<div style="margin-bottom:28px;padding-bottom:24px;'
         f'border-bottom:1px dashed #e8e8e8;">'
@@ -360,6 +393,7 @@ def news_item(title: str, excerpt: str, source_name: str, index: int,
         f'<p style="margin:0 0 6px;font-size:15px;color:#555;line-height:1.7;">'
         f"{excerpt}</p>"
         f"{insight_html}"
+        f"{impact_html}"
         f"{tags_html}"
         f'<p style="margin:8px 0 0;">{source_line}</p>'
         f"</div>"
