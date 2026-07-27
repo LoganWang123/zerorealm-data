@@ -254,6 +254,9 @@ def generate_mdx(parsed: dict, issue: int, date: str) -> str:
     # V4.4 fields
     if parsed.get("first_principle"):
         fm["first_principle"] = parsed["first_principle"]
+    # V5.0 fields
+    if parsed.get("overseas_signal"):
+        fm["overseas_signal"] = parsed["overseas_signal"]
     if parsed.get("exclusive_data"):
         fm["exclusive_data"] = parsed["exclusive_data"]
     if parsed.get("data_point"):

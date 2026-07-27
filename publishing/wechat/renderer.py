@@ -132,11 +132,18 @@ class WechatRenderer(BaseRenderer):
                 for idx, item in enumerate(sections, 1):
                     parts.append(self._render_news_item(item, idx))
 
-        # 9. 💡 Opportunity + ⚠️ Risk（V4.2新增）
+        # 9. 💡 Opportunity + ⚠️ Risk
         opportunity = getattr(article, "opportunity", "")
         risk = getattr(article, "risk", "")
         if opportunity or risk:
             parts.append(templates.opportunity_risk_block(opportunity, risk))
+
+        # 9.5 🌍 海外信号（V5.0新增）
+        overseas = getattr(article, "overseas_signal", None)
+        if overseas and isinstance(overseas, dict):
+            parts.append(templates.overseas_signal_block(
+                overseas.get("trend", ""), overseas.get("why_china", "")
+            ))
 
         # 10. 💎 First Principle（V4.4新增）
         fp = getattr(article, "first_principle", None)

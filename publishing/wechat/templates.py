@@ -88,28 +88,58 @@ def ceo_radar_block(items: list[str]) -> str:
 
 
 def decision_block(decision: dict) -> str:
-    """🎯 Decision（V4.3新增，角色化决策）."""
+    """🎯 ZeroRealm Decision（V5.0: Action + Why + KPI）."""
     if not decision:
         return ""
     roles = [
-        ("🏪 运营商", decision.get("operators", "")),
-        ("🔧 设备商", decision.get("device_makers", "")),
-        ("🏷️ 品牌方", decision.get("brands", "")),
-        ("💰 投资人", decision.get("investors", "")),
+        ("🏪 运营商", decision.get("operators", {})),
+        ("🔧 设备商", decision.get("device_makers", {})),
+        ("🏷️ 品牌方", decision.get("brands", {})),
+        ("💰 投资人", decision.get("investors", {})),
     ]
-    rows_html = "".join(
-        f'<p style="margin:0 0 8px;font-size:14px;color:#333;line-height:1.5;">'
-        f'<strong>{label}：</strong>{action}</p>'
-        for label, action in roles if action
-    )
+    rows_html = ""
+    for label, data in roles:
+        if isinstance(data, dict) and data.get("action"):
+            rows_html += (
+                f'<p style="margin:0 0 4px;font-size:14px;color:#333;line-height:1.5;">'
+                f'<strong>{label}：</strong>{data["action"]}</p>'
+                f'<p style="margin:0 0 8px;font-size:12px;color:#888;padding-left:16px;">'
+                f'Why: {data.get("why", "")} | KPI: {data.get("kpi", "")}</p>'
+            )
+        elif isinstance(data, str) and data:
+            rows_html += (
+                f'<p style="margin:0 0 8px;font-size:14px;color:#333;line-height:1.5;">'
+                f'<strong>{label}：</strong>{data}</p>'
+            )
     if not rows_html:
         return ""
     return (
         f'<div style="margin:0 0 24px;padding:14px 18px;'
         f'background:#e8f5e9;border-radius:10px;border:1px solid #a5d6a7;">'
         f'<p style="margin:0 0 10px;font-size:14px;font-weight:bold;color:{GREEN};">'
-        f"🎯 今日 Decision</p>"
+        f"🎯 ZeroRealm Decision</p>"
         f"{rows_html}"
+        f"</div>"
+    )
+
+
+def overseas_signal_block(trend: str, why_china: str) -> str:
+    """🌍 海外信号（V5.0新增）."""
+    if not trend:
+        return ""
+    why_html = ""
+    if why_china:
+        why_html = (
+            f'<p style="margin:6px 0 0;font-size:13px;color:#1565c0;">'
+            f'🇨🇳 对中国意味着：{why_china}</p>'
+        )
+    return (
+        f'<div style="margin:28px 0;padding:14px 18px;'
+        f'background:#e3f2fd;border-radius:8px;border:1px solid #90caf9;">'
+        f'<p style="margin:0 0 6px;font-size:14px;font-weight:bold;color:#1565c0;">'
+        f"🌍 海外信号</p>"
+        f'<p style="margin:0;font-size:14px;color:#333;line-height:1.6;">{trend}</p>'
+        f"{why_html}"
         f"</div>"
     )
 

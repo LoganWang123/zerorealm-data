@@ -153,6 +153,8 @@ class Article:
     watchlist: list[str] = field(default_factory=list)  # 本周监控名单
     # v4.4 fields
     first_principle: dict = field(default_factory=dict)  # ZeroRealm Principle
+    # v5.0 fields
+    overseas_signal: dict = field(default_factory=dict)  # 海外信号
 
 
 def generate_uuid(source: str, date: str, issue: int) -> str:

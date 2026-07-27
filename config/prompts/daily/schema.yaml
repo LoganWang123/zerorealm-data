@@ -1,44 +1,40 @@
-# ZeroRealm Daily Report V4.4 — Output Schema
-# 核心：咨询级洞察 + First Principle + Why It Matters + 品牌栏目
+# ZeroRealm Daily Report V5.0 — Output Schema（定版，不再改）
 
 schema: |
-  ## 日报结构（严格按此顺序）
+  ## 固定日报结构（11个栏目，不再改）
 
   1. **wechat_title**: 标题（数字+变化+冲突，≤50字）
-  2. **signal_no**: Signal编号（渲染为 #004）
-  3. **signal**: ZeroRealm Signal（一句话核心主题，≤40字）
-  4. **ceo_radar**: ZeroRealm Radar（3条，本周必须关注）
-  5. **decision**: ZeroRealm Decision（角色化）
-     - operators / device_makers / brands / investors（各一句话）
-  6. **trend**: Signal展开（100~150字，三层分离）
+  2. **signal_no**: Signal编号（#004）
+  3. **signal**: ZeroRealm Signal（一句截图传播的话）
+  4. **ceo_radar**: CEO Radar（3条，本周关注）
+  5. **decision**: Decision（Action + Why + KPI）
+     - operators: {action, why, kpi}
+     - device_makers: {action, why, kpi}
+     - brands: {action, why, kpi}
+     - investors: {action, why, kpi}
+  6. **trend**: 趋势（100~150字，一个核心判断）
   7. **industry_temp**: ZeroRealm Index（0~100，5维度）
-  8. **sections**: 证据（2条核心 + 3条快讯）
-     核心（2条）：
-     - title / excerpt / level:"core" / angle
-     - why_it_matters: 一句话说明为什么重要（V4.4新增）
-     - insight: 300~400字，咨询级洞察，必须有"别人没提到"的新观点
-     - importance / confidence / action / impact / tags / source
-     快讯（3条）：
-     - title / excerpt(≤50字) / level:"quick" / tags / source
-  9. **first_principle**: ZeroRealm Principle（V4.4新增）
-     - no: 编号（如18）
-     - content: 一句话行业底层规律
-  10. **opportunity**: 今日机会（一句话）
-  11. **risk**: 今日风险（一句话）
-  12. **one_chart**: ZeroRealm Chart（文本柱状图）
-  13. **data_point**: One Number
-  14. **prediction**: ZeroRealm Prediction
-     - content / confidence_pct / evidence[] / risk_note
-  15. **counter_view**: ZeroRealm Counter View
-  16. **watchlist**: ZeroRealm Watchlist（3~5个）
-  17. **discussion**: 互动（挑衅性问题，不是选择题）
-  18. **exclusive_data**: 监测数据
-  19. **tomorrow**: 明日关注
+  8. **sections**: 证据（2条核心 + 2~3条快讯）
+     核心：title / excerpt / why_it_matters / insight(300~400字，一个观点讲透) /
+           importance / confidence / action / impact / tags / source
+     快讯：title / excerpt(≤50字) / tags / source
+  9. **overseas_signal**: 海外信号（V5.0新增）
+     - trend: 海外品牌共同在做什么（一句话）
+     - why_china: 为什么中国值得关注（一句话）
+  10. **first_principle**: ZeroRealm Principle #XXX
+  11. **opportunity**: 机会（一句话）
+  12. **risk**: 风险（一句话）
+  13. **prediction**: Prediction（概率 + ✓依据 + ✗阻碍 + Trigger）
+  14. **counter_view**: Counter View（为什么这个观点可能错）
+  15. **watchlist**: Watchlist（item + trigger）
+  16. **discussion**: 互动（挑衅性问题）
+  17. **exclusive_data**: 监测数据
+  18. **tomorrow**: 明日关注
 
-  ## V4.4 关键变更
+  ## V5.0 定版变更
 
-  - 新增 first_principle（ZeroRealm Principle #XXX）
-  - 新增 why_it_matters（每条核心证据一句话）
-  - insight 必须是咨询级（别人没想到的观点）
-  - discussion 改为挑衅性问题（不是选择题）
-  - 所有栏目品牌化（ZeroRealm前缀）
+  - decision: Action + Why + KPI 格式
+  - 新增 overseas_signal（海外信号，趋势不是新闻）
+  - 每条核心新闻只讲一个观点（讲透）
+  - 固定分析框架：Fact→Why→Impact→Decision→Prediction→Trigger
+  - 20%事实 / 60%洞察 / 20%决策

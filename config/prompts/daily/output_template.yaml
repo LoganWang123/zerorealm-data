@@ -1,4 +1,4 @@
-# ZeroRealm Daily Report V4.5 — Output YAML Template
+# ZeroRealm Daily Report V5.0 — Output YAML Template（定版）
 
 output_template: |
   请严格按以下 YAML 格式输出（不要输出其他内容）：
@@ -6,36 +6,41 @@ output_template: |
   ```yaml
   wechat_title: "12000家新华书店入驻闪购，AI Agent开始替你下单"
   signal_no: 4
-  signal: "即时零售进入低频消费时代，零售入口从APP迁移到Agent。"
+  signal: "APP不是入口，Agent才是入口。"
   ceo_radar:
     - "京东是否上线图书小时达"
     - "美团AI Agent开放API时间表"
     - "高校文创SKU首周销量数据"
   decision:
-    operators: "本周新增哈利波特/LABUBU/哪吒三个SKU到高校柜，看7天GMV"
-    device_makers: "留2层格口支持20×20cm包装，适配文创/IP产品"
-    brands: "找泡泡玛特授权商或高校原创文创工作室，获取报价"
-    investors: "关注即时零售品类扩张赛道Pre-A轮项目"
-  trend: "Signal展开（100~150字，三层分离）"
+    operators:
+      action: "新增LABUBU/哪吒到高校柜"
+      why: "验证IP消费在即时零售场景的可行性"
+      kpi: "7天动销率>30%"
+    device_makers:
+      action: "留2层格口支持20×20cm包装"
+      why: "适配文创/IP产品尺寸"
+      kpi: "改造成本<50元/柜"
+    brands:
+      action: "找泡泡玛特授权商或高校原创文创工作室"
+      why: "建立IP周边供应链"
+      kpi: "获取3家报价"
+    investors:
+      action: "关注即时零售品类扩张赛道Pre-A轮"
+      why: "配送网络成熟后品类扩张是确定性趋势"
+      kpi: "本月看5个项目"
+  trend: "趋势（100~150字，一个核心判断，三层分离）"
   industry_temp:
     ai_retail: 82
     instant_retail: 76
     smart_cabinet: 45
     funding: 31
     policy: 55
-    yesterday:
-      ai_retail: 76
-      instant_retail: 72
-      smart_cabinet: 43
-      funding: 30
-      policy: 55
   sections:
     - title: "核心证据1（≤30字）"
       excerpt: "事实（≤60字，标注来源）"
       level: "core"
-      angle: "为什么发生"
-      why_it_matters: "一句话：为什么重要（反常识角度）"
-      insight: "300~400字。开头一句'别人会传播'的话。然后三层分离。无来源数字用定性描述。"
+      why_it_matters: "反常识一句话：为什么重要"
+      insight: "300~400字。只讲一个观点，讲透。开头一句'别人会传播'的话。无来源数字用定性描述。"
       importance: "A"
       confidence: "High"
       action: "immediate"
@@ -52,9 +57,8 @@ output_template: |
     - title: "核心证据2"
       excerpt: "事实（标注来源）"
       level: "core"
-      angle: "谁受影响"
-      why_it_matters: "一句话：为什么重要"
-      insight: "300~400字，反常识，角度不同。"
+      why_it_matters: "反常识一句话"
+      insight: "300~400字，一个观点讲透，角度不同。"
       importance: "A"
       confidence: "High"
       action: "this_week"
@@ -71,8 +75,6 @@ output_template: |
     - title: "快讯1"
       excerpt: "一句话事实+影响（≤50字）"
       level: "quick"
-      angle: ""
-      insight: ""
       importance: "C"
       confidence: "Medium"
       action: "observe"
@@ -81,28 +83,14 @@ output_template: |
         topics: ["零售科技"]
       source_url: "url"
       source_name: "来源"
+  overseas_signal:
+    trend: "海外品牌集体用怀旧营销+AI个性化重塑门店体验"
+    why_china: "中国智能柜可借鉴：用AI Agent做个性化推荐，用IP做情感连接"
   first_principle:
     no: 18
     content: "配送网络成熟后，新品类扩张的边际成本趋近于零。"
   opportunity: "高校文创柜：即时零售+高频客流+高毛利，窗口期约3个月"
   risk: "非食品SKU库存周转可能下降，需设退货率预警线"
-  one_chart:
-    title: "即时零售品类渗透进度"
-    rows:
-      - label: "餐饮"
-        value: 90
-      - label: "生鲜"
-        value: 70
-      - label: "医药"
-        value: 55
-      - label: "图书"
-        value: 20
-      - label: "文创"
-        value: 10
-  data_point:
-    number: "12000家"
-    label: "新华书店入驻闪购（据亿邦动力）"
-    interpretation: "即时零售第一次覆盖文化消费，品类从高频向低频扩展。"
   prediction:
     content: "ZeroRealm判断：京东具有较高概率跟进图书即时零售。"
     confidence_pct: 72
@@ -113,7 +101,7 @@ output_template: |
     blockers:
       - "✗ 尚未公开测试"
     risk_note: "如果图书GMV不达标，可能不会大规模推广"
-  counter_view: "品类扩张不等于所有品类都适合即时零售，低频品类的库存风险被低估。"
+  counter_view: "如果图书订单不足、骑手成本上涨，即时零售扩张速度会下降。品类扩张不是无条件的。"
   watchlist:
     - item: "京东图书小时达"
       trigger: "上线100城"
@@ -121,9 +109,7 @@ output_template: |
       trigger: "开放第三方调用"
     - item: "盒马品类扩张"
       trigger: "新增图书/文创品类"
-    - item: "友宝文创测试"
-      trigger: "公开SKU数据"
-  discussion: "如果你是友宝CEO，今天最应该害怕什么？是AI Agent吃掉智能柜的流量，还是即时零售让你的点位变得多余？留言说说。"
+  discussion: "如果你是友宝CEO，今天最应该害怕什么？是AI Agent吃掉智能柜的流量，还是即时零售让你的点位变得多余？"
   exclusive_data:
     sources_monitored: 47
     total_items: 321

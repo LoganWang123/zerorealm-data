@@ -204,4 +204,6 @@ class ArticleParser:
             watchlist=data.get("watchlist", []),
             # v4.4 fields
             first_principle=data.get("first_principle", {}),
+            # v5.0 fields
+            overseas_signal=data.get("overseas_signal", {}),
         )
