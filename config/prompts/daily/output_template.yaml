@@ -1,6 +1,4 @@
-# ZeroRealm Daily Report V4.1 — Output YAML Template
-# 修改此文件 = 修改输出格式，不影响写作规则
-# V4.1: CEO Decision + 影响对象 + Signal#003 + 2+2+3 + 置信度百分比
+# ZeroRealm Daily Report V4.2 — Output YAML Template
 
 output_template: |
   请严格按以下 YAML 格式输出（不要输出其他内容）：
@@ -8,27 +6,26 @@ output_template: |
   ```yaml
   wechat_title: "12000家新华书店入驻闪购，AI Agent开始替你下单"
   signal_no: 3
+  signal: "即时零售进入低频消费时代，零售入口从APP迁移到Agent。"
+  ceo_radar:
+    - "京东是否上线图书小时达"
+    - "美团AI Agent开放API时间表"
+    - "高校文创SKU首周销量数据"
   ceo_action:
-    - "是否启动：校园柜文创SKU测试项目？"
-    - "是否建立：AI Agent接口预研小组？"
-    - "是否增加：高校点位密度？"
-  trend: "今日趋势判断（100~200字，数据必须有来源）"
+    - "本周在高校点位新增3个文创SKU，7日后看GMV变化"
+  trend: "Signal展开（100~150字，解释为什么这是今天的主题，用证据支撑）"
   industry_temp:
     ai_retail: 82
     instant_retail: 76
     smart_cabinet: 45
     funding: 31
     policy: 55
-  summary:
-    - "要点1（≤25字，动词开头）"
-    - "要点2（≤25字，动词开头）"
-    - "要点3（≤25字，动词开头）"
   sections:
-    - title: "核心新闻标题（≤30字）"
+    - title: "核心证据1标题（≤30字）"
       excerpt: "事实（≤60字）"
       level: "core"
       angle: "为什么发生"
-      insight: "500~700字深度分析。数据必须有来源，无来源用定性描述。自然段落，不用固定标签。"
+      insight: "300~500字，一段讲完。必须有证据链（数据/商业模型/案例）。不拆多段。"
       importance: "A"
       confidence: "High"
       action: "immediate"
@@ -42,12 +39,12 @@ output_template: |
         topics: ["SKU", "品类扩张"]
       source_url: "url"
       source_name: "来源"
-    - title: "重点新闻标题"
-      excerpt: "事实（≤60字）"
-      level: "important"
-      angle: "谁最受影响"
-      insight: "200~300字关键洞察。"
-      importance: "B"
+    - title: "核心证据2标题"
+      excerpt: "事实"
+      level: "core"
+      angle: "谁受影响"
+      insight: "300~500字，一段讲完。角度必须和第1条不同。"
+      importance: "A"
       confidence: "High"
       action: "this_week"
       impact:
@@ -60,24 +57,48 @@ output_template: |
         topics: ["AI Agent"]
       source_url: "url"
       source_name: "来源"
-    - title: "快讯标题"
-      excerpt: "一句话事实（≤30字）"
+    - title: "快讯1"
+      excerpt: "一句话事实+影响（≤50字）"
       level: "quick"
       angle: ""
       insight: ""
       importance: "C"
       confidence: "Medium"
       action: "observe"
-      impact:
-        operators: 2
-        device_makers: 1
-        brands: 2
-        investors: 1
       tags:
         industry: "无人零售"
         topics: ["零售科技"]
       source_url: "url"
       source_name: "来源"
+  opportunity: "高校文创柜：即时零售+高频客流+高毛利，窗口期约3个月"
+  risk: "非食品SKU库存周转可能下降，需设退货率预警线"
+  one_chart:
+    title: "即时零售品类渗透进度"
+    rows:
+      - label: "餐饮"
+        value: 90
+      - label: "生鲜"
+        value: 70
+      - label: "医药"
+        value: 55
+      - label: "图书"
+        value: 20
+      - label: "文创"
+        value: 10
+  data_point:
+    number: "12000家"
+    label: "新华书店入驻闪购（据亿邦动力）"
+    interpretation: "即时零售第一次覆盖文化消费，品类从高频向低频扩展。"
+  prediction:
+    content: "ZeroRealm判断：京东具有较高概率跟进图书即时零售。"
+    confidence_pct: 72
+    evidence:
+      - "京东图书全国库存体系"
+      - "达达配送网络已覆盖"
+      - "京东已布局小时达"
+    risk_note: "如果图书GMV不达标，可能不会大规模推广"
+  counter_view: "品类扩张不等于所有品类都适合即时零售，低频品类的库存风险被低估。"
+  discussion: "如果你的柜子只能增加一个新品类：①文创 ②IP周边 ③应急用品 ④美妆小样。留言告诉我们。"
   exclusive_data:
     sources_monitored: 47
     total_items: 321
@@ -87,18 +108,7 @@ output_template: |
     new_products: 5
     hot_keywords: ["即时零售", "AI Agent", "品类扩张"]
     one_line: "即时零售品类边界加速消融，AI Agent从参谋变为执行者。"
-  data_point:
-    number: "12000家"
-    label: "新华书店入驻美团闪购的门店数（据亿邦动力报道）"
-    interpretation: "即时零售正在从餐饮生鲜向文化消费渗透，品类边界加速消失。"
-  prediction:
-    content: "ZeroRealm判断：未来30~90天，京东或盒马具有较高概率跟进图书/文创即时零售。"
-    confidence_pct: 72
-    basis: "美团闪购已验证模式，京东有图书基因和配送网络。"
-  counter_view: "当所有人都在说品类扩张是利好时，我们注意到：非食品品类的即时零售退货率显著高于食品，运营商需警惕库存风险。"
-  signal: "品类扩张只是开始，AI Agent才是零售效率的真正引擎。"
-  discussion: "如果你的柜子只能增加一个新品类，你会选：①文创 ②IP周边 ③应急用品 ④美妆小样。留言告诉我们。"
   tomorrow:
     - "关注美团闪购'1小时书店'首周订单数据"
-    - "关注京东/盒马是否跟进图书即时零售"
+    - "关注京东是否跟进图书即时零售"
   ```

@@ -1,77 +1,78 @@
-# ZeroRealm Daily Report V4.1 — Output Schema
-# 修改此文件 = 修改输出结构，不影响写作风格/Insight模板
-# V4.1: CEO Decision + 影响对象 + Signal#003 + 2+2+3结构 + 置信度百分比
+# ZeroRealm Daily Report V4.2 — Output Schema
+# 核心：主题驱动 + CEO Radar + Opportunity/Risk + One Chart
 
 schema: |
-  ## 日报结构（严格按此顺序输出）
+  ## 日报结构（严格按此顺序）
 
-  1. **wechat_title**: 公众号标题
-     必须同时包含：数字 + 变化 + 冲突
-     示例："12000家新华书店入驻闪购，AI Agent开始替你下单"
-     示例："即时零售迎来新物种：图书；AI Agent进入执行时代"
-     要求：≤50字，含SEO关键词，不用"No.X"
+  1. **wechat_title**: 标题（数字+变化+冲突，≤50字）
 
-  2. **signal_no**: ZeroRealm Signal 编号（整数，渲染为三位数 #003）
+  2. **signal_no**: Signal编号（整数，渲染为 #003）
 
-  3. **ceo_action**: CEO今日决策（3个Decision，不是Task）
-     格式：是否启动/是否建立/是否增加
+  3. **signal**: 今日Signal（一句话核心主题，≤40字，品牌IP）
+     这是每天最重要的一句话。所有新闻都是它的证据。
+
+  4. **ceo_radar**: CEO Radar（3条，每条一句话，本周必须关注）
+     格式：一句话，具体事件/节点
      示例：
-     - "是否启动：校园柜文创SKU测试项目？"
-     - "是否建立：AI Agent接口预研小组？"
-     - "是否增加：高校点位密度？"
+     - "京东是否上线图书小时达"
+     - "AI Agent开放API时间表"
+     - "高校文创SKU首周销量"
 
-  4. **trend**: 今日趋势（100~200字，含数据支撑，数据必须有来源）
+  5. **ceo_action**: CEO今日任务（1~2条，可执行任务）
+     必须有：对象+动作+时间+预期
+     示例："本周在高校点位新增3个文创SKU，7日后看GMV变化"
 
-  5. **industry_temp**: 行业温度（0~100分）
-     - ai_retail / instant_retail / smart_cabinet / funding / policy
-     计算规则：每条相关新闻基础分15，A级×2，B级×1.5，上限100
+  6. **trend**: Signal展开（100~150字，解释为什么这是今天的主题）
 
-  6. **summary**: 今日三分钟（恰好3条，每条≤25字，动词开头）
+  7. **industry_temp**: 行业温度（0~100，5个维度）
 
-  7. **sections**: 精选资讯（2+2+3结构）
-     统一列表，每条包含：
-     - title: ≤30字
-     - excerpt: 事实（核心/重点≤60字，快讯≤30字）
-     - level: core/important/quick（核心/重点/快讯）
-     - angle: 分析角度（仅核心/重点需要）
-     - insight: 深度分析（核心500~700字，重点200~300字，快讯无）
-     - importance: A/B/C
-     - confidence: High/Medium/Low
-     - action: immediate/this_week/observe
-     - impact: 影响对象（仅核心/重点）
-       - operators: 1~5
-       - device_makers: 1~5
-       - brands: 1~5
-       - investors: 1~5
-     - tags: {industry, topics}
-     - source_url / source_name
+  8. **sections**: 证据（2条核心 + 3条快讯）
+     核心（2条）：
+     - title / excerpt / level:"core" / angle
+     - insight: 300~500字（一段讲完，不拆多段）
+     - importance / confidence / action / impact / tags / source
+     快讯（3条）：
+     - title / excerpt(≤50字) / level:"quick"
+     - insight: ""（无分析）
+     - importance:"C" / tags / source
 
-  8. **exclusive_data**: ZeroRealm 独家监测（真实系统数据）
-     - sources_monitored / total_items / industry_events
-     - funding_events / partnership_events / new_products
-     - hot_keywords（3~5个）
-     - one_line（一句话总结）
+  9. **opportunity**: 今日机会（一句话）
+     示例："高校文创柜：即时零售+高频客流+高毛利，窗口期约3个月"
 
-  9. **data_point**: 今日数据（1个关键数字 + 解读，数字必须有来源）
+  10. **risk**: 今日风险（一句话）
+     示例："非食品SKU库存周转可能下降，需设退货率预警线"
 
-  10. **prediction**: 未来30~90天预测
-      - content: 用"ZeroRealm判断"引导，禁止断言
-      - confidence_pct: 置信度百分比（如72）
-      - basis: 预测依据
+  11. **one_chart**: 一张图（文本柱状图，5~7行）
+     示例：
+     title: "即时零售品类渗透进度"
+     rows:
+       - label: "餐饮" value: 90
+       - label: "生鲜" value: 70
+       - label: "医药" value: 55
+       - label: "图书" value: 20
+       - label: "文创" value: 10
 
-  11. **counter_view**: 不同视角（每期固定1条，品牌IP）
+  12. **data_point**: One Number（1个数字+一句话为什么重要）
 
-  12. **signal**: ZeroRealm Signal（一句话，≤40字，品牌IP）
+  13. **prediction**: 预测（ZeroRealm判断 + 依据清单 + 置信度）
+     - content: "ZeroRealm判断：..."
+     - confidence_pct: 72
+     - evidence: ["京东图书全国库存", "达达配送网络", "已布局小时达"]
+     - risk_note: "如果图书GMV不达标，可能不会推广"
 
-  13. **discussion**: 今日互动（选择题格式，①②③④）
+  14. **counter_view**: 反面观点（1条，品牌IP）
 
-  14. **tomorrow**: 明日关注（1~2个事件）
+  15. **discussion**: 互动（选择题 ①②③④）
 
-  ## V4.1 关键变更
+  16. **exclusive_data**: 监测数据（真实系统统计）
 
-  - ceo_action: Task → Decision（是否启动/建立/增加）
-  - sections: 新增 level 字段（core/important/quick）
-  - sections: 新增 impact 字段（影响对象 1~5星）
-  - prediction: confidence → confidence_pct（百分比）
-  - signal_no: 渲染为三位数 #003（不是 No.3）
-  - wechat_title: 必须含 数字+变化+冲突
+  17. **tomorrow**: 明日关注（1~2条）
+
+  ## V4.2 关键变更
+
+  - 主题驱动：Signal → Evidence → Impact → Action
+  - 篇幅：2500~3500字（硬性）
+  - 新增：ceo_radar / opportunity / risk / one_chart
+  - 核心证据只有2条（不是6~7条）
+  - 快讯3条（一句话，无分析）
+  - prediction新增evidence清单和risk_note

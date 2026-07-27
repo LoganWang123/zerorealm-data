@@ -225,20 +225,27 @@ def generate_mdx(parsed: dict, issue: int, date: str) -> str:
     wechat_title = parsed.get("wechat_title", "")
     title = wechat_title if wechat_title else f"零域日报 No.{issue}"
 
-    # Build frontmatter with v4 fields
+    # Build frontmatter with v4.2 fields
     fm = {
         "title": title,
         "date": date_str,
         "issue": issue,
         "signal_no": parsed.get("signal_no", issue),
+        "signal": parsed.get("signal", ""),
+        "ceo_radar": parsed.get("ceo_radar", []),
         "ceo_action": parsed.get("ceo_action", []),
-        "summary": parsed.get("summary", []),
         "trend": parsed.get("trend", ""),
         "industry_temp": parsed.get("industry_temp", {}),
         "sections": parsed.get("sections", []),
     }
 
-    # Optional v4 fields
+    # Optional v4.2 fields
+    if parsed.get("opportunity"):
+        fm["opportunity"] = parsed["opportunity"]
+    if parsed.get("risk"):
+        fm["risk"] = parsed["risk"]
+    if parsed.get("one_chart"):
+        fm["one_chart"] = parsed["one_chart"]
     if parsed.get("exclusive_data"):
         fm["exclusive_data"] = parsed["exclusive_data"]
     if parsed.get("data_point"):
@@ -247,14 +254,14 @@ def generate_mdx(parsed: dict, issue: int, date: str) -> str:
         fm["prediction"] = parsed["prediction"]
     if parsed.get("counter_view"):
         fm["counter_view"] = parsed["counter_view"]
-    if parsed.get("signal"):
-        fm["signal"] = parsed["signal"]
     if parsed.get("discussion"):
         fm["discussion"] = parsed["discussion"]
     if parsed.get("tomorrow"):
         fm["tomorrow"] = parsed["tomorrow"]
 
-    # Backward compat: keep heat_index if present
+    # Backward compat
+    if parsed.get("summary"):
+        fm["summary"] = parsed["summary"]
     if parsed.get("heat_index"):
         fm["heat_index"] = parsed["heat_index"]
     if parsed.get("opinion"):

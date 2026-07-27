@@ -138,10 +138,15 @@ class Article:
     signal: str | Signal = field(default_factory=Signal)  # V4: str一句话 / 旧:Signal对象
     # v4 fields
     signal_no: int = 0  # ZeroRealm Signal 编号
-    ceo_action: list[str] = field(default_factory=list)  # CEO今日行动清单
+    ceo_action: list[str] = field(default_factory=list)  # CEO今日任务
     industry_temp: IndustryTemp = field(default_factory=IndustryTemp)  # 行业温度
     prediction: Prediction = field(default_factory=Prediction)  # 未来30天预测
     exclusive_data: dict = field(default_factory=dict)  # ZeroRealm Exclusive 数据
+    # v4.2 fields
+    ceo_radar: list[str] = field(default_factory=list)  # CEO Radar
+    opportunity: str = ""  # 今日机会
+    risk: str = ""  # 今日风险
+    one_chart: dict = field(default_factory=dict)  # One Chart
 
 
 def generate_uuid(source: str, date: str, issue: int) -> str:

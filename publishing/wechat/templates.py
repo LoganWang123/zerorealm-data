@@ -68,6 +68,86 @@ def ceo_action_block(actions: list[str]) -> str:
     )
 
 
+def ceo_radar_block(items: list[str]) -> str:
+    """🚨 CEO Radar（V4.2新增，本周必须关注）."""
+    if not items:
+        return ""
+    items_html = "".join(
+        f'<p style="margin:0 0 8px;font-size:14px;color:#333;line-height:1.5;">'
+        f'<span style="color:#e53935;font-weight:bold;">{i+1}.</span> {item}</p>'
+        for i, item in enumerate(items)
+    )
+    return (
+        f'<div style="margin:0 0 24px;padding:14px 18px;'
+        f'background:#fff3e0;border-radius:10px;border:1px solid #ffcc80;">'
+        f'<p style="margin:0 0 10px;font-size:14px;font-weight:bold;color:#e65100;">'
+        f"🚨 CEO Radar · 本周必须关注</p>"
+        f"{items_html}"
+        f"</div>"
+    )
+
+
+def opportunity_risk_block(opportunity: str, risk: str) -> str:
+    """💡 Opportunity + ⚠️ Risk（V4.2新增）."""
+    parts = []
+    if opportunity:
+        parts.append(
+            f'<p style="margin:0 0 8px;font-size:14px;color:#1b5e20;line-height:1.6;">'
+            f'<strong>💡 机会：</strong>{opportunity}</p>'
+        )
+    if risk:
+        parts.append(
+            f'<p style="margin:0;font-size:14px;color:#b71c1c;line-height:1.6;">'
+            f'<strong>⚠️ 风险：</strong>{risk}</p>'
+        )
+    if not parts:
+        return ""
+    return (
+        f'<div style="margin:28px 0;padding:14px 18px;'
+        f'background:{LIGHT_BG};border-radius:8px;border:1px solid #e0e0e0;">'
+        + "".join(parts)
+        + f"</div>"
+    )
+
+
+def one_chart_block(chart_data: dict) -> str:
+    """📊 One Chart（V4.2新增，文本柱状图）."""
+    if not chart_data:
+        return ""
+    title = chart_data.get("title", "")
+    rows = chart_data.get("rows", [])
+    if not rows:
+        return ""
+
+    rows_html = ""
+    for row in rows:
+        label = row.get("label", "")
+        value = int(row.get("value", 0))
+        filled = min(round(value / 10), 10)
+        bar = "█" * filled + "░" * (10 - filled)
+        if value >= 70:
+            color = "#e53935"
+        elif value >= 40:
+            color = "#ff9800"
+        else:
+            color = "#42a5f5"
+        rows_html += (
+            f'<p style="margin:0 0 6px;font-size:13px;color:#555;">'
+            f'{label} '
+            f'<span style="color:{color};font-family:monospace;">{bar}</span> '
+            f'<span style="color:{color};font-weight:bold;">{value}</span></p>'
+        )
+
+    return (
+        f'<div style="margin:28px 0;padding:16px 18px;'
+        f'background:{LIGHT_BG};border-radius:8px;">'
+        f'<p style="margin:0 0 10px;font-size:14px;font-weight:bold;color:{PRIMARY};">'
+        f"📊 {title}</p>"
+        f"{rows_html}"
+        f"</div>"
+    )
+
+
 def industry_temp_block(temps: dict) -> str:
     """🌡 行业温度（V4新增，替代旧版星级热度指数）.
 

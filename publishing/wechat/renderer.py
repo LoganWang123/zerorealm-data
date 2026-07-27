@@ -67,7 +67,7 @@ class WechatRenderer(BaseRenderer):
         )
 
     def _build_html(self, article: Article, context: RenderContext) -> str:
-        """构建完整 HTML (V4: 行业决策解释器)."""
+        """构建完整 HTML (V4.2: 主题驱动情报产品)."""
         parts: list[str] = []
 
         # 1. 标题区
@@ -76,19 +76,29 @@ class WechatRenderer(BaseRenderer):
         # 2. 开头引导语
         parts.append(templates.intro_block())
 
-        # 3. ✅ CEO今日行动（V4新增，放最前面）
+        # 3. 📡 Signal（V4.2: 放到最前面，品牌IP）
+        signal_text = getattr(article, "signal", "")
+        signal_no = getattr(article, "signal_no", 0)
+        if signal_text and isinstance(signal_text, str):
+            parts.append(templates.signal_brand_block(signal_no, signal_text))
+
+        # 4. 🚨 CEO Radar（V4.2新增）
+        ceo_radar = getattr(article, "ceo_radar", None)
+        if ceo_radar:
+            parts.append(templates.ceo_radar_block(ceo_radar))
+
+        # 5. ✅ CEO今日任务
         ceo_action = getattr(article, "ceo_action", None)
         if ceo_action:
             parts.append(templates.ceo_action_block(ceo_action))
 
-        # 4. 📈 今日趋势
+        # 6. 📈 Signal展开（趋势）
         if getattr(article, "trend", ""):
             parts.append(templates.trend_block(article.trend))
 
-        # 5. 🌡 行业温度（V4新增，替代旧版星级）
+        # 7. 🌡 行业温度
         industry_temp = getattr(article, "industry_temp", None)
         if industry_temp:
-            # 支持 dict 或对象
             if isinstance(industry_temp, dict):
                 temps = industry_temp
             else:
@@ -101,14 +111,10 @@ class WechatRenderer(BaseRenderer):
                 }
             parts.append(templates.industry_temp_block(temps))
 
-        # 6. 📌 今日三分钟
-        if article.summary:
-            parts.append(templates.summary_block(article.summary))
-
-        # 7. 精选深度分析（V4：统一列表，不再分板块）
+        # 8. 📡 证据（sections）
         sections = getattr(article, "sections", [])
         if sections:
-            parts.append(templates.section_header("📡 今日深度"))
+            parts.append(templates.section_header("📡 今日证据"))
 
             # V4: sections 可能是统一列表（新格式）或分板块列表（旧格式兼容）
             if sections and hasattr(sections[0], "type"):
@@ -121,32 +127,25 @@ class WechatRenderer(BaseRenderer):
                 for idx, item in enumerate(sections, 1):
                     parts.append(self._render_news_item(item, idx))
 
-        # 8. 📊 ZeroRealm Exclusive（V4新增）
-        exclusive_data = getattr(article, "exclusive_data", None)
-        if exclusive_data:
-            if isinstance(exclusive_data, dict):
-                data = exclusive_data
-            else:
-                data = {
-                    "sources_monitored": getattr(exclusive_data, "sources_monitored", 0),
-                    "total_items": getattr(exclusive_data, "total_items", 0),
-                    "industry_events": getattr(exclusive_data, "industry_events", 0),
-                    "funding_events": getattr(exclusive_data, "funding_events", 0),
-                    "partnership_events": getattr(exclusive_data, "partnership_events", 0),
-                    "new_products": getattr(exclusive_data, "new_products", 0),
-                    "hot_keywords": getattr(exclusive_data, "hot_keywords", []),
-                    "one_line": getattr(exclusive_data, "one_line", ""),
-                }
-            parts.append(templates.exclusive_data_block(data))
+        # 9. 💡 Opportunity + ⚠️ Risk（V4.2新增）
+        opportunity = getattr(article, "opportunity", "")
+        risk = getattr(article, "risk", "")
+        if opportunity or risk:
+            parts.append(templates.opportunity_risk_block(opportunity, risk))
 
-        # 9. 📊 今日数据
+        # 10. 📊 One Chart（V4.2新增）
+        one_chart = getattr(article, "one_chart", None)
+        if one_chart:
+            parts.append(templates.one_chart_block(one_chart))
+
+        # 11. 📊 One Number
         dp = getattr(article, "data_point", None)
         if dp and getattr(dp, "number", ""):
             parts.append(templates.data_point_block(
                 dp.number, dp.label, dp.interpretation
             ))
 
-        # 10. 🔮 未来30~90天预测（V4.1: 置信度百分比）
+        # 12. 🔮 预测
         prediction = getattr(article, "prediction", None)
         if prediction:
             if isinstance(prediction, dict):
@@ -164,30 +163,37 @@ class WechatRenderer(BaseRenderer):
                     confidence_pct=getattr(prediction, "confidence_pct", 0),
                 ))
 
-        # 11. 🔄 不同视角
+        # 13. 🔄 Counter View
         if getattr(article, "counter_view", ""):
             parts.append(templates.counter_view_block(article.counter_view))
 
-        # 12. 📡 ZeroRealm Signal（V4品牌IP）
-        signal_text = getattr(article, "signal", "")
-        signal_no = getattr(article, "signal_no", 0)
-        if signal_text:
-            # V4: signal 是字符串（一句话），不再是对象
-            if isinstance(signal_text, str):
-                parts.append(templates.signal_brand_block(signal_no, signal_text))
-            else:
-                # 旧格式兼容
-                pass
-
-        # 13. 💬 今日互动（V4：选择题格式）
+        # 14. 💬 互动
         if getattr(article, "discussion", ""):
             parts.append(templates.discussion_block(article.discussion))
 
-        # 14. 📅 明日关注
+        # 15. 📊 ZeroRealm Exclusive
+        exclusive_data = getattr(article, "exclusive_data", None)
+        if exclusive_data:
+            if isinstance(exclusive_data, dict):
+                data = exclusive_data
+            else:
+                data = {
+                    "sources_monitored": getattr(exclusive_data, "sources_monitored", 0),
+                    "total_items": getattr(exclusive_data, "total_items", 0),
+                    "industry_events": getattr(exclusive_data, "industry_events", 0),
+                    "funding_events": getattr(exclusive_data, "funding_events", 0),
+                    "partnership_events": getattr(exclusive_data, "partnership_events", 0),
+                    "new_products": getattr(exclusive_data, "new_products", 0),
+                    "hot_keywords": getattr(exclusive_data, "hot_keywords", []),
+                    "one_line": getattr(exclusive_data, "one_line", ""),
+                }
+            parts.append(templates.exclusive_data_block(data))
+
+        # 16. 📅 明日关注
         if getattr(article, "tomorrow", None):
             parts.append(templates.tomorrow_block(article.tomorrow))
 
-        # 15. 尾部
+        # 17. 尾部
         parts.append(templates.footer(article.author))
 
         # 包裹容器

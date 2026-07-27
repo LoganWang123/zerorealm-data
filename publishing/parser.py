@@ -193,4 +193,9 @@ class ArticleParser:
             industry_temp=industry_temp,
             prediction=prediction,
             exclusive_data=data.get("exclusive_data", {}),
+            # v4.2 fields
+            ceo_radar=data.get("ceo_radar", []),
+            opportunity=data.get("opportunity", ""),
+            risk=data.get("risk", ""),
+            one_chart=data.get("one_chart", {}),
         )
