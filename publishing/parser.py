@@ -15,6 +15,11 @@ from publishing.article import (
     ArticleItem,
     ArticleMeta,
     ArticleSection,
+    DataPoint,
+    HeatIndex,
+    IndustryTemp,
+    Prediction,
+    Signal,
     Lifecycle,
     generate_uuid,
 )
@@ -45,7 +50,7 @@ class ArticleParser:
         return yaml.safe_load(content) or {}
 
     def _build_article(self, data: dict, stem: str) -> Article:
-        """从 dict 构建 Article."""
+        """从 dict 构建 Article (v4: 行业决策解释器)."""
         title = data.get("title", "")
         date = str(data.get("date", ""))
         issue = int(data.get("issue", 1))
@@ -56,18 +61,83 @@ class ArticleParser:
         uuid = generate_uuid(source, date, issue)
 
         # 解析 sections
+        # V4: 统一列表格式（无 type/items 嵌套）
+        # V3: 分板块格式（有 type + items）
         sections = []
-        for sec_data in data.get("sections", []):
-            items = [
-                ArticleItem(
-                    title=item.get("title", ""),
-                    excerpt=item.get("excerpt", ""),
-                    source_url=item.get("source_url", ""),
-                    source_name=item.get("source_name", ""),
-                )
-                for item in sec_data.get("items", [])
-            ]
-            sections.append(ArticleSection(type=sec_data.get("type", ""), items=items))
+        raw_sections = data.get("sections", [])
+        if raw_sections:
+            first = raw_sections[0]
+            if isinstance(first, dict) and "type" in first and "items" in first:
+                # V3 格式：分板块
+                for sec_data in raw_sections:
+                    items = [
+                        ArticleItem(
+                            title=item.get("title", ""),
+                            excerpt=item.get("excerpt", ""),
+                            source_url=item.get("source_url", ""),
+                            source_name=item.get("source_name", ""),
+                            insight=item.get("insight", ""),
+                            importance=item.get("importance", ""),
+                            confidence=item.get("confidence", ""),
+                            action=item.get("action", ""),
+                            tags=item.get("tags", []),
+                            angle=item.get("angle", ""),
+                        )
+                        for item in sec_data.get("items", [])
+                    ]
+                    sections.append(ArticleSection(type=sec_data.get("type", ""), items=items))
+            else:
+                # V4 格式：统一列表
+                sections = [
+                    ArticleItem(
+                        title=item.get("title", ""),
+                        excerpt=item.get("excerpt", ""),
+                        source_url=item.get("source_url", ""),
+                        source_name=item.get("source_name", ""),
+                        insight=item.get("insight", ""),
+                        importance=item.get("importance", ""),
+                        confidence=item.get("confidence", ""),
+                        action=item.get("action", ""),
+                        tags=item.get("tags", []),
+                        angle=item.get("angle", ""),
+                    )
+                    for item in raw_sections
+                ]
+
+        # data_point
+        dp_data = data.get("data_point", {})
+        data_point = DataPoint(
+            number=dp_data.get("number", "") if dp_data else "",
+            label=dp_data.get("label", "") if dp_data else "",
+            interpretation=dp_data.get("interpretation", "") if dp_data else "",
+        )
+
+        # v3: heat_index (backward compat)
+        hi_data = data.get("heat_index", {})
+        heat_index = HeatIndex(
+            ai_retail=int(hi_data.get("ai_retail", 3)) if hi_data else 3,
+            instant_retail=int(hi_data.get("instant_retail", 3)) if hi_data else 3,
+            smart_cabinet=int(hi_data.get("smart_cabinet", 3)) if hi_data else 3,
+            funding=int(hi_data.get("funding", 2)) if hi_data else 2,
+        )
+
+        # v4: industry_temp
+        it_data = data.get("industry_temp", {})
+        industry_temp = IndustryTemp(
+            ai_retail=int(it_data.get("ai_retail", 50)) if it_data else 50,
+            instant_retail=int(it_data.get("instant_retail", 50)) if it_data else 50,
+            smart_cabinet=int(it_data.get("smart_cabinet", 50)) if it_data else 50,
+            funding=int(it_data.get("funding", 30)) if it_data else 30,
+            policy=int(it_data.get("policy", 30)) if it_data else 30,
+        )
+
+        # v4: prediction
+        pred_data = data.get("prediction", {})
+        prediction = Prediction(
+            content=pred_data.get("content", "") if pred_data else "",
+            confidence=int(pred_data.get("confidence", 3)) if pred_data else 3,
+            basis=pred_data.get("basis", "") if pred_data else "",
+        )
 
         now = datetime.now(timezone.utc).isoformat()
 
@@ -78,10 +148,21 @@ class ArticleParser:
             issue=issue,
             created_at=now,
             updated_at=now,
-            schema_version=1,
+            schema_version=4,
             content_revision=1,
             lifecycle=Lifecycle.DRAFT,
         )
+
+        # signal: V4 是字符串，V3.1 是对象
+        raw_signal = data.get("signal", "")
+        if isinstance(raw_signal, dict):
+            signal = Signal(
+                immediate=raw_signal.get("immediate", ""),
+                this_week=raw_signal.get("this_week", ""),
+                this_month=raw_signal.get("this_month", ""),
+            )
+        else:
+            signal = raw_signal  # V4: 一句话字符串
 
         return Article(
             metadata=metadata,
@@ -92,4 +173,21 @@ class ArticleParser:
             cover="",  # 使用默认封面
             author="ZeroRealm AI",
             tags=[source],
+            # v2 fields
+            trend=data.get("trend", ""),
+            data_point=data_point,
+            opinion=data.get("opinion", ""),
+            discussion=data.get("discussion", ""),
+            tomorrow=data.get("tomorrow", []),
+            # v3 fields
+            heat_index=heat_index,
+            # v3.1 fields
+            counter_view=data.get("counter_view", ""),
+            signal=signal,
+            # v4 fields
+            signal_no=int(data.get("signal_no", issue)),
+            ceo_action=data.get("ceo_action", []),
+            industry_temp=industry_temp,
+            prediction=prediction,
+            exclusive_data=data.get("exclusive_data", {}),
         )

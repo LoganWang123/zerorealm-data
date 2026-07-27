@@ -1,0 +1,95 @@
+# ZeroRealm Daily Report V4 — Output Schema
+# 修改此文件 = 修改输出结构，不影响写作风格/Insight模板
+# V4: 新增 CEO Action / 行业温度 / 独家数据 / 预测 / Signal品牌
+
+schema: |
+  ## 日报结构（严格按此顺序输出）
+
+  1. **wechat_title**: 公众号标题
+     格式：【零域日报】核心事件 + 行业趋势关键词（M月D日）
+     示例：【零域日报】即时零售进入文化消费，AI Agent重塑零售终端（7月28日）
+     要求：≤50字，含SEO关键词，不用"No.X"
+
+  2. **signal_no**: ZeroRealm Signal 编号（整数）
+     等于期号 issue number，用于品牌IP积累
+     渲染为 "ZeroRealm Signal No.127"
+
+  3. **ceo_action**: CEO今日行动清单（放最前面，1分钟看完）
+     恰好3条，每条是一个具体可执行的动作
+     格式：动词开头 + 具体对象 + 量化指标
+     示例：
+     - "看一下：校园柜有没有文创SKU，记录现有品类数"
+     - "和采购确认：IP周边供应商报价，对比现有毛利"
+     - "和产品讨论：AI Agent接口方案，评估技术可行性"
+
+  4. **trend**: 今日趋势（100~200字）
+     必须包含：发生了什么 + 为什么 + 数据支撑 + 未来判断
+     不是新闻摘要，是趋势判断。
+
+  5. **industry_temp**: 行业温度（替代旧版星级热度指数）
+     基于当日素材客观计算，0~100分：
+     - ai_retail: AI零售温度（基于AI相关新闻数量×重要性）
+     - instant_retail: 即时零售温度
+     - smart_cabinet: 智能柜/无人零售温度
+     - funding: 融资活跃度
+     - policy: 政策热度
+     计算规则：每条相关新闻基础分15，A级新闻×2，B级×1.5，上限100
+
+  6. **summary**: 今日三分钟（恰好3条，每条≤25字，动词开头）
+
+  7. **sections**: 精选深度分析（总计最多6条）
+     不再按 industry/enterprise/ai_frontier 分板块。
+     改为统一列表，按重要性排序。
+     每条包含：
+     - title: ≤30字，含主体+动作+数字
+     - excerpt: 1~2句，≤60字。只写事实。
+     - angle: 本条使用的分析角度（为什么/谁受影响/三个月后/谁赚钱/谁行动/反面）
+     - insight: 400~600字深度分析（自然段落，不用固定标签）
+     - importance: A/B/C（A=今日必看，B=重要，C=补充）
+     - confidence: High/Medium/Low
+     - action: immediate/this_week/observe
+     - tags:
+       - industry: 1个（智能柜/即时零售/无人零售/便利店/供应链/品牌）
+       - topics: 2~3个
+     - source_url: 原文链接
+     - source_name: 来源名称
+
+  8. **exclusive_data**: ZeroRealm 独家监测（基于当日素材聚合统计）
+     - sources_monitored: 今日监测信息源数量
+     - total_items: 今日采集资讯总数
+     - industry_events: 行业动态数
+     - funding_events: 融资事件数
+     - partnership_events: 合作事件数
+     - new_products: 新品/新服务数
+     - hot_keywords: 今日行业热词（3~5个）
+     - one_line: 一句话总结今日行业脉搏
+
+  9. **data_point**: 今日数据（1个关键数字 + 深度解读）
+     - number: 核心数字
+     - label: 数字含义
+     - interpretation: 深度解读（2~3句，含行业背景）
+
+  10. **prediction**: 未来30天预测（V4新增，别人没有，最值钱）
+      - content: 预测内容（1~2句）
+      - confidence: 1~5星（整数）
+      - basis: 预测依据（1句）
+
+  11. **counter_view**: 不同视角（1条，当市场一致时给出反面思考）
+
+  12. **signal**: ZeroRealm Signal（一句话，品牌IP）
+      犀利、有判断、有立场、≤40字
+      这是每天的品牌签名，一年后会成为IP
+
+  13. **discussion**: 今日互动（选择题格式，提高互动率）
+      格式：先提出问题，再给4个选项
+      示例："如果你的柜子只能增加一个新品类，你会选：①文创 ②IP周边 ③应急用品 ④美妆小样。留言告诉我们。"
+
+  14. **tomorrow**: 明日关注（1~2个值得跟踪的事件/节点）
+
+  ## 重要变更说明
+
+  - sections 不再分 industry/enterprise/ai_frontier 子板块
+  - 所有新闻统一排序，按重要性 A>B>C
+  - insight 不再用【判断】【证据】【原因】【影响】【建议】标签
+  - 每条 insight 使用不同的分析角度（角度轮换制）
+  - 新增 ceo_action / industry_temp / exclusive_data / prediction / signal_no

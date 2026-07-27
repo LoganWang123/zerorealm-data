@@ -46,6 +46,12 @@ class ArticleItem:
     excerpt: str
     source_url: str
     source_name: str
+    insight: str = ""  # 💡 ZeroRealm Insight (v2)
+    importance: str = ""  # A/B/C (v3)
+    confidence: str = ""  # High/Medium/Low (v3.1)
+    action: str = ""  # immediate/this_week/observe (v3.1)
+    tags: dict | list = field(default_factory=list)  # 两层: {industry, topics} (v3.1)
+    angle: str = ""  # 分析角度 (v4): 为什么/谁受影响/三个月后/谁赚钱/谁行动/反面
 
 
 @dataclass
@@ -57,17 +63,82 @@ class ArticleSection:
 
 
 @dataclass
+class DataPoint:
+    """今日数据 (v2)."""
+
+    number: str = ""
+    label: str = ""
+    interpretation: str = ""
+
+
+@dataclass
+class HeatIndex:
+    """今日热度指数 (v3)."""
+
+    ai_retail: int = 3
+    instant_retail: int = 3
+    smart_cabinet: int = 3
+    funding: int = 2
+
+
+@dataclass
+class Signal:
+    """行动信号 (v3.1). [DEPRECATED in V4, kept for backward compat]"""
+
+    immediate: str = ""
+    this_week: str = ""
+    this_month: str = ""
+
+
+@dataclass
+class IndustryTemp:
+    """行业温度 (v4): 0~100 数字温度."""
+
+    ai_retail: int = 50
+    instant_retail: int = 50
+    smart_cabinet: int = 50
+    funding: int = 30
+    policy: int = 30
+
+
+@dataclass
+class Prediction:
+    """未来30天预测 (v4)."""
+
+    content: str = ""
+    confidence: int = 3  # 1~5星
+    basis: str = ""
+
+
+@dataclass
 class Article:
-    """统一内容模型."""
+    """统一内容模型 (v4: 行业决策解释器)."""
 
     metadata: ArticleMeta
     title: str  # "零域日报 No.1"
     date: str  # "2026-07-26"
     summary: list[str] = field(default_factory=list)  # 3 条要点
-    sections: list[ArticleSection] = field(default_factory=list)
+    sections: list = field(default_factory=list)  # V4: 统一列表或分板块
     cover: str = ""  # 封面图路径
     author: str = "ZeroRealm AI"
     tags: list[str] = field(default_factory=list)
+    # v2 fields
+    trend: str = ""  # 今日趋势
+    data_point: DataPoint = field(default_factory=DataPoint)
+    opinion: str = ""  # 🎯 ZeroRealm View [DEPRECATED in V4]
+    discussion: str = ""  # 今日互动
+    tomorrow: list[str] = field(default_factory=list)  # 明日关注
+    # v3 fields
+    heat_index: HeatIndex = field(default_factory=HeatIndex)  # [DEPRECATED in V4]
+    # v3.1 fields
+    counter_view: str = ""  # 不同视角
+    signal: str | Signal = field(default_factory=Signal)  # V4: str一句话 / 旧:Signal对象
+    # v4 fields
+    signal_no: int = 0  # ZeroRealm Signal 编号
+    ceo_action: list[str] = field(default_factory=list)  # CEO今日行动清单
+    industry_temp: IndustryTemp = field(default_factory=IndustryTemp)  # 行业温度
+    prediction: Prediction = field(default_factory=Prediction)  # 未来30天预测
+    exclusive_data: dict = field(default_factory=dict)  # ZeroRealm Exclusive 数据
 
 
 def generate_uuid(source: str, date: str, issue: int) -> str:

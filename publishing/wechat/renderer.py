@@ -1,7 +1,9 @@
-"""WechatRenderer — 微信公众号渲染器.
+"""WechatRenderer — 微信公众号渲染器 V4.
 
 Article + RenderContext → RenderResult（内联 CSS HTML）。
-内部持有 MediaStorage（DI），不通过 Context 传递。
+V4: 行业决策解释器模式
+- 新增 CEO Action / 行业温度 / 独家数据 / 预测 / Signal品牌
+- sections 改为统一列表渲染
 """
 
 from __future__ import annotations
@@ -28,14 +30,13 @@ def strip_html(html: str) -> str:
 
 def count_words(text: str) -> int:
     """统计词数（中文按字符，英文按空格分词）."""
-    # 简单策略：中文字符数 + 英文单词数
     chinese_chars = len(re.findall(r"[\u4e00-\u9fff]", text))
     english_words = len(re.findall(r"[a-zA-Z]+", text))
     return chinese_chars + english_words
 
 
 class WechatRenderer(BaseRenderer):
-    """微信公众号渲染器."""
+    """微信公众号渲染器 V4."""
 
     def __init__(self, media_storage: BaseMediaStorage):
         self._storage = media_storage
@@ -66,32 +67,125 @@ class WechatRenderer(BaseRenderer):
         )
 
     def _build_html(self, article: Article, context: RenderContext) -> str:
-        """构建完整 HTML."""
+        """构建完整 HTML (V4: 行业决策解释器)."""
         parts: list[str] = []
 
-        # 标题区
+        # 1. 标题区
         parts.append(templates.title_header(article.title, article.date))
 
-        # 摘要要点
+        # 2. 开头引导语
+        parts.append(templates.intro_block())
+
+        # 3. ✅ CEO今日行动（V4新增，放最前面）
+        ceo_action = getattr(article, "ceo_action", None)
+        if ceo_action:
+            parts.append(templates.ceo_action_block(ceo_action))
+
+        # 4. 📈 今日趋势
+        if getattr(article, "trend", ""):
+            parts.append(templates.trend_block(article.trend))
+
+        # 5. 🌡 行业温度（V4新增，替代旧版星级）
+        industry_temp = getattr(article, "industry_temp", None)
+        if industry_temp:
+            # 支持 dict 或对象
+            if isinstance(industry_temp, dict):
+                temps = industry_temp
+            else:
+                temps = {
+                    "ai_retail": getattr(industry_temp, "ai_retail", 0),
+                    "instant_retail": getattr(industry_temp, "instant_retail", 0),
+                    "smart_cabinet": getattr(industry_temp, "smart_cabinet", 0),
+                    "funding": getattr(industry_temp, "funding", 0),
+                    "policy": getattr(industry_temp, "policy", 0),
+                }
+            parts.append(templates.industry_temp_block(temps))
+
+        # 6. 📌 今日三分钟
         if article.summary:
             parts.append(templates.summary_block(article.summary))
 
-        # 各板块
-        for section in article.sections:
-            section_title = templates.SECTION_TITLES.get(section.type, section.type)
-            parts.append(templates.section_header(section_title))
+        # 7. 精选深度分析（V4：统一列表，不再分板块）
+        sections = getattr(article, "sections", [])
+        if sections:
+            parts.append(templates.section_header("📡 今日深度"))
 
-            for idx, item in enumerate(section.items, 1):
-                parts.append(
-                    templates.news_item(
-                        title=item.title,
-                        excerpt=item.excerpt,
-                        source_name=item.source_name,
-                        index=idx,
-                    )
-                )
+            # V4: sections 可能是统一列表（新格式）或分板块列表（旧格式兼容）
+            if sections and hasattr(sections[0], "type"):
+                # 旧格式：分板块
+                for section in sections:
+                    for idx, item in enumerate(section.items, 1):
+                        parts.append(self._render_news_item(item, idx))
+            else:
+                # 新格式：统一列表
+                for idx, item in enumerate(sections, 1):
+                    parts.append(self._render_news_item(item, idx))
 
-        # 尾部
+        # 8. 📊 ZeroRealm Exclusive（V4新增）
+        exclusive_data = getattr(article, "exclusive_data", None)
+        if exclusive_data:
+            if isinstance(exclusive_data, dict):
+                data = exclusive_data
+            else:
+                data = {
+                    "sources_monitored": getattr(exclusive_data, "sources_monitored", 0),
+                    "total_items": getattr(exclusive_data, "total_items", 0),
+                    "industry_events": getattr(exclusive_data, "industry_events", 0),
+                    "funding_events": getattr(exclusive_data, "funding_events", 0),
+                    "partnership_events": getattr(exclusive_data, "partnership_events", 0),
+                    "new_products": getattr(exclusive_data, "new_products", 0),
+                    "hot_keywords": getattr(exclusive_data, "hot_keywords", []),
+                    "one_line": getattr(exclusive_data, "one_line", ""),
+                }
+            parts.append(templates.exclusive_data_block(data))
+
+        # 9. 📊 今日数据
+        dp = getattr(article, "data_point", None)
+        if dp and getattr(dp, "number", ""):
+            parts.append(templates.data_point_block(
+                dp.number, dp.label, dp.interpretation
+            ))
+
+        # 10. 🔮 未来30天预测（V4新增）
+        prediction = getattr(article, "prediction", None)
+        if prediction:
+            if isinstance(prediction, dict):
+                parts.append(templates.prediction_block(
+                    prediction.get("content", ""),
+                    prediction.get("confidence", 3),
+                    prediction.get("basis", ""),
+                ))
+            else:
+                parts.append(templates.prediction_block(
+                    getattr(prediction, "content", ""),
+                    getattr(prediction, "confidence", 3),
+                    getattr(prediction, "basis", ""),
+                ))
+
+        # 11. 🔄 不同视角
+        if getattr(article, "counter_view", ""):
+            parts.append(templates.counter_view_block(article.counter_view))
+
+        # 12. 📡 ZeroRealm Signal（V4品牌IP）
+        signal_text = getattr(article, "signal", "")
+        signal_no = getattr(article, "signal_no", 0)
+        if signal_text:
+            # V4: signal 是字符串（一句话），不再是对象
+            if isinstance(signal_text, str):
+                parts.append(templates.signal_brand_block(signal_no, signal_text))
+            else:
+                # 旧格式兼容
+                pass
+
+        # 13. 💬 今日互动（V4：选择题格式）
+        if getattr(article, "discussion", ""):
+            parts.append(templates.discussion_block(article.discussion))
+
+        # 14. 📅 明日关注
+        if getattr(article, "tomorrow", None):
+            parts.append(templates.tomorrow_block(article.tomorrow))
+
+        # 15. 尾部
         parts.append(templates.footer(article.author))
 
         # 包裹容器
@@ -103,16 +197,42 @@ class WechatRenderer(BaseRenderer):
             f"{body}</div>"
         )
 
+    def _render_news_item(self, item, idx: int) -> str:
+        """渲染单条新闻（兼容新旧格式）."""
+        # 获取 tags（可能是对象或列表）
+        tags_raw = getattr(item, "tags", None)
+        tags_list = None
+        if tags_raw:
+            if isinstance(tags_raw, list):
+                tags_list = tags_raw
+            elif isinstance(tags_raw, dict):
+                # 新格式：{industry: "xx", topics: ["a", "b"]}
+                tags_list = []
+                if tags_raw.get("industry"):
+                    tags_list.append(tags_raw["industry"])
+                tags_list.extend(tags_raw.get("topics", []))
+            elif hasattr(tags_raw, "industry"):
+                tags_list = [tags_raw.industry] + list(getattr(tags_raw, "topics", []))
+
+        return templates.news_item(
+            title=getattr(item, "title", ""),
+            excerpt=getattr(item, "excerpt", ""),
+            source_name=getattr(item, "source_name", ""),
+            index=idx,
+            source_url=getattr(item, "source_url", ""),
+            insight=getattr(item, "insight", ""),
+            importance=getattr(item, "importance", ""),
+            tags=tags_list,
+            angle=getattr(item, "angle", ""),
+        )
+
     def _process_media(self, html: str) -> list[MediaReference]:
         """处理正文中的媒体（当前日报无正文图片，预留）."""
-        # 未来：解析 <img> 标签，上传到微信 CDN，替换 URL
         return []
 
     def _sanitize(self, html: str) -> str:
         """内部清洗：移除微信不支持的标签/属性."""
-        # 移除 script / iframe
         html = re.sub(r"<script[^>]*>.*?</script>", "", html, flags=re.DOTALL)
         html = re.sub(r"<iframe[^>]*>.*?</iframe>", "", html, flags=re.DOTALL)
-        # 移除 class / id 属性（微信不需要）
         html = re.sub(r'\s+(class|id)="[^"]*"', "", html)
         return html

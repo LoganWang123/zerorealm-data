@@ -28,17 +28,24 @@ class ArticleValidator:
         if not article.summary:
             warnings.append("summary is empty, digest will fallback")
 
-        # sections 内容检查
+        # sections 内容检查（兼容 V4 统一列表 和 V3 分板块格式）
         total_items = 0
         for section in article.sections:
-            if not section.type:
-                errors.append(f"section type is empty")
-            if not section.items:
-                warnings.append(f"section '{section.type}' has no items")
-            for item in section.items:
+            if hasattr(section, "type") and hasattr(section, "items"):
+                # V3 格式：ArticleSection
+                if not section.type:
+                    errors.append("section type is empty")
+                if not section.items:
+                    warnings.append(f"section '{section.type}' has no items")
+                for item in section.items:
+                    total_items += 1
+                    if not item.title:
+                        errors.append(f"item title is empty in section '{section.type}'")
+            else:
+                # V4 格式：ArticleItem 统一列表
                 total_items += 1
-                if not item.title:
-                    errors.append(f"item title is empty in section '{section.type}'")
+                if not getattr(section, "title", ""):
+                    errors.append("item title is empty in sections")
 
         if total_items == 0 and not errors:
             warnings.append("article has 0 news items")

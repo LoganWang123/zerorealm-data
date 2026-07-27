@@ -128,6 +128,39 @@ def format_materials(items: list[dict]) -> str:
     return "\n".join(lines)
 
 
+def _compose_system_prompt() -> str:
+    """Compose system prompt from modular files in config/prompts/daily/."""
+    daily_dir = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), "config", "prompts", "daily"
+    )
+    # Order matters: role → style → insight → schema → seo
+    module_files = ["role.yaml", "style.yaml", "insight.yaml", "schema.yaml", "seo.yaml"]
+    parts = []
+    for fname in module_files:
+        fpath = os.path.join(daily_dir, fname)
+        if os.path.exists(fpath):
+            with open(fpath, "r", encoding="utf-8") as f:
+                data = yaml.safe_load(f)
+            # Each file has a single top-level key containing the text
+            for key, value in data.items():
+                if isinstance(value, str):
+                    parts.append(value.strip())
+    return "\n\n".join(parts)
+
+
+def _load_output_template() -> str:
+    """Load the output YAML template from modular file."""
+    tpl_path = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)),
+        "config", "prompts", "daily", "output_template.yaml"
+    )
+    if os.path.exists(tpl_path):
+        with open(tpl_path, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+        return data.get("output_template", "")
+    return ""
+
+
 def call_llm(materials: str, count: int, issue: int, date: str) -> str:
     """Call LLM API to generate daily report via AI Runtime."""
     logger = get_logger()
@@ -135,32 +168,25 @@ def call_llm(materials: str, count: int, issue: int, date: str) -> str:
     from ai_runtime.client import LLMClient
     from ai_runtime.prompt_registry import PromptRegistry
 
-    # Try PromptRegistry first, fall back to legacy hardcoded prompts
+    # Compose system prompt from modular files
+    system = _compose_system_prompt()
+    output_tpl = _load_output_template()
+
+    # Build user prompt
+    user = (
+        f"以下是今日采集的 {count} 条资讯素材。请生成 V4 行业决策情报简报。\n\n"
+        f"期号：No.{issue}\n"
+        f"日期：{date}\n"
+        f"Signal编号：{issue}\n\n"
+        f"## 今日素材\n\n{materials}\n\n---\n\n{output_tpl}"
+    )
+
+    # Load model config from main yaml
     registry = PromptRegistry()
     tpl = registry.get("daily_report")
-
-    if tpl is not None:
-        system, user = tpl.render(
-            count=count, issue=issue, date=date, materials=materials,
-        )
-        model = tpl.model
-        temperature = tpl.temperature
-        max_tokens = tpl.max_tokens
-        prompt_name = "daily_report"
-        prompt_version = tpl.version
-    else:
-        # Legacy fallback
-        from generators.prompts import DAILY_REPORT_SYSTEM, DAILY_REPORT_USER
-
-        system = DAILY_REPORT_SYSTEM
-        user = DAILY_REPORT_USER.format(
-            count=count, issue=issue, date=date, materials=materials,
-        )
-        model = None  # use env default
-        temperature = 0.3
-        max_tokens = 4000
-        prompt_name = None
-        prompt_version = None
+    model = tpl.model if tpl else None
+    temperature = tpl.temperature if tpl else 0.4
+    max_tokens = tpl.max_tokens if tpl else 16000
 
     client = LLMClient()
     logger.info("[daily] Calling LLM (%s) with %d items...", model or client.model, count)
@@ -172,8 +198,8 @@ def call_llm(materials: str, count: int, issue: int, date: str) -> str:
         model=model,
         temperature=temperature,
         max_tokens=max_tokens,
-        prompt_name=prompt_name,
-        prompt_version=prompt_version,
+        prompt_name="daily_report",
+        prompt_version=5,
     )
 
     logger.info("[daily] LLM response: %d chars", len(resp.content))
@@ -192,17 +218,47 @@ def parse_llm_response(response: str) -> dict:
 
 
 def generate_mdx(parsed: dict, issue: int, date: str) -> str:
-    """Generate MDX content matching website format."""
+    """Generate MDX content matching website format (v4: 行业决策解释器)."""
     date_str = date.replace("/", "-") if "/" in date else date
 
-    # Build frontmatter
+    # Use wechat_title if available, fallback to standard title
+    wechat_title = parsed.get("wechat_title", "")
+    title = wechat_title if wechat_title else f"零域日报 No.{issue}"
+
+    # Build frontmatter with v4 fields
     fm = {
-        "title": f"零域日报 No.{issue}",
+        "title": title,
         "date": date_str,
         "issue": issue,
+        "signal_no": parsed.get("signal_no", issue),
+        "ceo_action": parsed.get("ceo_action", []),
         "summary": parsed.get("summary", []),
+        "trend": parsed.get("trend", ""),
+        "industry_temp": parsed.get("industry_temp", {}),
         "sections": parsed.get("sections", []),
     }
+
+    # Optional v4 fields
+    if parsed.get("exclusive_data"):
+        fm["exclusive_data"] = parsed["exclusive_data"]
+    if parsed.get("data_point"):
+        fm["data_point"] = parsed["data_point"]
+    if parsed.get("prediction"):
+        fm["prediction"] = parsed["prediction"]
+    if parsed.get("counter_view"):
+        fm["counter_view"] = parsed["counter_view"]
+    if parsed.get("signal"):
+        fm["signal"] = parsed["signal"]
+    if parsed.get("discussion"):
+        fm["discussion"] = parsed["discussion"]
+    if parsed.get("tomorrow"):
+        fm["tomorrow"] = parsed["tomorrow"]
+
+    # Backward compat: keep heat_index if present
+    if parsed.get("heat_index"):
+        fm["heat_index"] = parsed["heat_index"]
+    if parsed.get("opinion"):
+        fm["opinion"] = parsed["opinion"]
 
     # Convert to YAML frontmatter
     frontmatter = yaml.dump(fm, allow_unicode=True, default_flow_style=False, sort_keys=False)

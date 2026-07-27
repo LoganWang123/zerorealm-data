@@ -1,0 +1,87 @@
+# ZeroRealm Daily Report V4 — Output YAML Template
+# 修改此文件 = 修改输出格式，不影响写作规则
+# V4: 新增 ceo_action / industry_temp / exclusive_data / prediction / signal_no
+# V4: sections 改为统一列表（不再分子板块）
+
+output_template: |
+  请严格按以下 YAML 格式输出（不要输出其他内容）：
+
+  ```yaml
+  wechat_title: "【零域日报】核心事件+趋势关键词（M月D日）"
+  signal_no: 4
+  ceo_action:
+    - "看一下：校园柜有没有文创SKU，记录现有品类数"
+    - "和采购确认：IP周边供应商报价，对比现有毛利"
+    - "和产品讨论：AI Agent接口方案，评估技术可行性"
+  trend: "今日趋势判断（100~200字，含数据支撑）"
+  industry_temp:
+    ai_retail: 82
+    instant_retail: 76
+    smart_cabinet: 45
+    funding: 31
+    policy: 55
+  summary:
+    - "要点1（≤25字，动词开头）"
+    - "要点2（≤25字，动词开头）"
+    - "要点3（≤25字，动词开头）"
+  sections:
+    - title: "标题（含数字，≤30字）"
+      excerpt: "事实1~2句（≤60字）"
+      angle: "为什么发生"
+      insight: "400~600字深度分析，自然段落，不用固定标签。包含行业数据、因果分析、竞争推演。"
+      importance: "A"
+      confidence: "High"
+      action: "immediate"
+      tags:
+        industry: "即时零售"
+        topics: ["SKU", "品类扩张"]
+      source_url: "url"
+      source_name: "来源"
+    - title: "标题"
+      excerpt: "事实"
+      angle: "谁最受影响"
+      insight: "400~600字，利益相关方分析。"
+      importance: "A"
+      confidence: "High"
+      action: "this_week"
+      tags:
+        industry: "智能柜"
+        topics: ["AI Agent", "数字化运营"]
+      source_url: "url"
+      source_name: "来源"
+    - title: "标题"
+      excerpt: "事实"
+      angle: "三个月后会怎样"
+      insight: "400~600字，趋势推演。"
+      importance: "B"
+      confidence: "Medium"
+      action: "observe"
+      tags:
+        industry: "无人零售"
+        topics: ["零售科技"]
+      source_url: "url"
+      source_name: "来源"
+  exclusive_data:
+    sources_monitored: 47
+    total_items: 321
+    industry_events: 12
+    funding_events: 4
+    partnership_events: 3
+    new_products: 5
+    hot_keywords: ["即时零售", "AI Agent", "品类扩张", "文创SKU"]
+    one_line: "即时零售品类边界加速消融，AI Agent从参谋变为执行者。"
+  data_point:
+    number: "12000家"
+    label: "新华书店入驻美团闪购的门店数"
+    interpretation: "即时零售正在从餐饮生鲜向文化消费渗透。过去一年，新增品类包括文创、鲜花、药品、图书、潮玩，品类边界加速消失。"
+  prediction:
+    content: "未来30天，预计京东或盒马将跟进图书/文创即时零售，智能柜运营商将出现首批文创SKU测试案例。"
+    confidence: 4
+    basis: "美团闪购已验证模式，竞品跟进窗口通常为1~2个月。"
+  counter_view: "当所有人都在说品类扩张是利好时，我们注意到：非食品品类的即时零售退货率比食品高3倍，运营商需警惕库存风险。"
+  signal: "品类扩张只是开始，AI Agent才是未来三年零售效率的真正引擎。"
+  discussion: "如果你的柜子只能增加一个新品类，你会选：①文创 ②IP周边 ③应急用品 ④美妆小样。留言告诉我们。"
+  tomorrow:
+    - "关注美团闪购'1小时书店'首周订单数据"
+    - "关注京东/盒马是否跟进图书即时零售"
+  ```
