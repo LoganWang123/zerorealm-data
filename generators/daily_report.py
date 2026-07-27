@@ -246,6 +246,11 @@ def generate_mdx(parsed: dict, issue: int, date: str) -> str:
         fm["risk"] = parsed["risk"]
     if parsed.get("one_chart"):
         fm["one_chart"] = parsed["one_chart"]
+    # V4.3 fields
+    if parsed.get("decision"):
+        fm["decision"] = parsed["decision"]
+    if parsed.get("watchlist"):
+        fm["watchlist"] = parsed["watchlist"]
     if parsed.get("exclusive_data"):
         fm["exclusive_data"] = parsed["exclusive_data"]
     if parsed.get("data_point"):

@@ -87,6 +87,53 @@ def ceo_radar_block(items: list[str]) -> str:
     )
 
 
+def decision_block(decision: dict) -> str:
+    """🎯 Decision（V4.3新增，角色化决策）."""
+    if not decision:
+        return ""
+    roles = [
+        ("🏪 运营商", decision.get("operators", "")),
+        ("🔧 设备商", decision.get("device_makers", "")),
+        ("🏷️ 品牌方", decision.get("brands", "")),
+        ("💰 投资人", decision.get("investors", "")),
+    ]
+    rows_html = "".join(
+        f'<p style="margin:0 0 8px;font-size:14px;color:#333;line-height:1.5;">'
+        f'<strong>{label}：</strong>{action}</p>'
+        for label, action in roles if action
+    )
+    if not rows_html:
+        return ""
+    return (
+        f'<div style="margin:0 0 24px;padding:14px 18px;'
+        f'background:#e8f5e9;border-radius:10px;border:1px solid #a5d6a7;">'
+        f'<p style="margin:0 0 10px;font-size:14px;font-weight:bold;color:{GREEN};">'
+        f"🎯 今日 Decision</p>"
+        f"{rows_html}"
+        f"</div>"
+    )
+
+
+def watchlist_block(items: list[str]) -> str:
+    """👁 Watchlist（V4.3新增，本周监控名单）."""
+    if not items:
+        return ""
+    items_html = "".join(
+        f'<span style="display:inline-block;margin:2px 6px 2px 0;padding:3px 10px;'
+        f'background:#e3f2fd;color:#1565c0;font-size:12px;border-radius:12px;">'
+        f"{item}</span>"
+        for item in items
+    )
+    return (
+        f'<div style="margin:28px 0;padding:14px 18px;'
+        f'background:{LIGHT_BG};border-radius:8px;">'
+        f'<p style="margin:0 0 8px;font-size:14px;font-weight:bold;color:{PRIMARY};">'
+        f"👁 本周监控名单</p>"
+        f'<p style="margin:0;">{items_html}</p>'
+        f"</div>"
+    )
+
+
 def opportunity_risk_block(opportunity: str, risk: str) -> str:
     """💡 Opportunity + ⚠️ Risk（V4.2新增）."""
     parts = []

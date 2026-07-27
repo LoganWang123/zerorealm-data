@@ -87,10 +87,15 @@ class WechatRenderer(BaseRenderer):
         if ceo_radar:
             parts.append(templates.ceo_radar_block(ceo_radar))
 
-        # 5. ✅ CEO今日任务
-        ceo_action = getattr(article, "ceo_action", None)
-        if ceo_action:
-            parts.append(templates.ceo_action_block(ceo_action))
+        # 5. 🎯 Decision（V4.3: 角色化决策）
+        decision = getattr(article, "decision", None)
+        if decision and isinstance(decision, dict):
+            parts.append(templates.decision_block(decision))
+        else:
+            # 兼容旧版 ceo_action
+            ceo_action = getattr(article, "ceo_action", None)
+            if ceo_action:
+                parts.append(templates.ceo_action_block(ceo_action))
 
         # 6. 📈 Signal展开（趋势）
         if getattr(article, "trend", ""):
@@ -167,7 +172,12 @@ class WechatRenderer(BaseRenderer):
         if getattr(article, "counter_view", ""):
             parts.append(templates.counter_view_block(article.counter_view))
 
-        # 14. 💬 互动
+        # 14. 👁 Watchlist（V4.3新增）
+        watchlist = getattr(article, "watchlist", None)
+        if watchlist:
+            parts.append(templates.watchlist_block(watchlist))
+
+        # 15. 💬 互动
         if getattr(article, "discussion", ""):
             parts.append(templates.discussion_block(article.discussion))
 

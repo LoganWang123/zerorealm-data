@@ -147,6 +147,9 @@ class Article:
     opportunity: str = ""  # 今日机会
     risk: str = ""  # 今日风险
     one_chart: dict = field(default_factory=dict)  # One Chart
+    # v4.3 fields
+    decision: dict = field(default_factory=dict)  # 角色化Decision
+    watchlist: list[str] = field(default_factory=list)  # 本周监控名单
 
 
 def generate_uuid(source: str, date: str, issue: int) -> str:

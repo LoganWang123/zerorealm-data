@@ -198,4 +198,7 @@ class ArticleParser:
             opportunity=data.get("opportunity", ""),
             risk=data.get("risk", ""),
             one_chart=data.get("one_chart", {}),
+            # v4.3 fields
+            decision=data.get("decision", {}),
+            watchlist=data.get("watchlist", []),
         )

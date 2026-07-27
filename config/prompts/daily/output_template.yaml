@@ -1,19 +1,22 @@
-# ZeroRealm Daily Report V4.2 — Output YAML Template
+# ZeroRealm Daily Report V4.3 — Output YAML Template
 
 output_template: |
   请严格按以下 YAML 格式输出（不要输出其他内容）：
 
   ```yaml
   wechat_title: "12000家新华书店入驻闪购，AI Agent开始替你下单"
-  signal_no: 3
+  signal_no: 4
   signal: "即时零售进入低频消费时代，零售入口从APP迁移到Agent。"
   ceo_radar:
     - "京东是否上线图书小时达"
     - "美团AI Agent开放API时间表"
     - "高校文创SKU首周销量数据"
-  ceo_action:
-    - "本周在高校点位新增3个文创SKU，7日后看GMV变化"
-  trend: "Signal展开（100~150字，解释为什么这是今天的主题，用证据支撑）"
+  decision:
+    operators: "本周在3个高校点位测试文创SKU，7日后看动销率"
+    device_makers: "评估柜体增加文创格口的改造成本"
+    brands: "联系3家IP周边供应商，获取报价和起订量"
+    investors: "关注即时零售品类扩张赛道的早期项目"
+  trend: "Signal展开（100~150字，三层分离：事实→分析→判断）"
   industry_temp:
     ai_retail: 82
     instant_retail: 76
@@ -21,11 +24,11 @@ output_template: |
     funding: 31
     policy: 55
   sections:
-    - title: "核心证据1标题（≤30字）"
-      excerpt: "事实（≤60字）"
+    - title: "核心证据1（≤30字）"
+      excerpt: "事实（≤60字，标注来源）"
       level: "core"
       angle: "为什么发生"
-      insight: "300~500字，一段讲完。必须有证据链（数据/商业模型/案例）。不拆多段。"
+      insight: "300~400字。三层分离：【事实】...【ZeroRealm分析】...【预测】（可选）。无来源数字用定性描述。"
       importance: "A"
       confidence: "High"
       action: "immediate"
@@ -39,11 +42,11 @@ output_template: |
         topics: ["SKU", "品类扩张"]
       source_url: "url"
       source_name: "来源"
-    - title: "核心证据2标题"
-      excerpt: "事实"
+    - title: "核心证据2"
+      excerpt: "事实（标注来源）"
       level: "core"
       angle: "谁受影响"
-      insight: "300~500字，一段讲完。角度必须和第1条不同。"
+      insight: "300~400字，三层分离，角度和第1条不同。"
       importance: "A"
       confidence: "High"
       action: "this_week"
@@ -97,6 +100,11 @@ output_template: |
       - "达达配送网络已覆盖"
       - "京东已布局小时达"
     risk_note: "如果图书GMV不达标，可能不会大规模推广"
+  watchlist:
+    - "京东图书小时达"
+    - "美团AI Agent开放API"
+    - "盒马品类扩张动向"
+    - "友宝文创SKU测试"
   counter_view: "品类扩张不等于所有品类都适合即时零售，低频品类的库存风险被低估。"
   discussion: "如果你的柜子只能增加一个新品类：①文创 ②IP周边 ③应急用品 ④美妆小样。留言告诉我们。"
   exclusive_data:
