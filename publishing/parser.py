@@ -102,6 +102,7 @@ class ArticleParser:
                         angle=item.get("angle", ""),
                         level=item.get("level", ""),
                         impact=item.get("impact", {}),
+                        why_it_matters=item.get("why_it_matters", ""),
                     )
                     for item in raw_sections
                 ]
@@ -201,4 +202,6 @@ class ArticleParser:
             # v4.3 fields
             decision=data.get("decision", {}),
             watchlist=data.get("watchlist", []),
+            # v4.4 fields
+            first_principle=data.get("first_principle", {}),
         )

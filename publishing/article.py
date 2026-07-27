@@ -54,6 +54,7 @@ class ArticleItem:
     angle: str = ""  # 分析角度 (v4): 为什么/谁受影响/三个月后/谁赚钱/谁行动/反面
     level: str = ""  # 层级 (v4.1): core/important/quick
     impact: dict = field(default_factory=dict)  # 影响对象 (v4.1): {operators, device_makers, brands, investors}
+    why_it_matters: str = ""  # 为什么重要 (v4.4): 一句话
 
 
 @dataclass
@@ -150,6 +151,8 @@ class Article:
     # v4.3 fields
     decision: dict = field(default_factory=dict)  # 角色化Decision
     watchlist: list[str] = field(default_factory=list)  # 本周监控名单
+    # v4.4 fields
+    first_principle: dict = field(default_factory=dict)  # ZeroRealm Principle
 
 
 def generate_uuid(source: str, date: str, issue: int) -> str:

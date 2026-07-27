@@ -1,42 +1,44 @@
-# ZeroRealm Daily Report V4.3 — Output Schema
-# 核心：Signal→Insight→Decision + 角色化 + Watchlist + 三层分离
+# ZeroRealm Daily Report V4.4 — Output Schema
+# 核心：咨询级洞察 + First Principle + Why It Matters + 品牌栏目
 
 schema: |
   ## 日报结构（严格按此顺序）
 
   1. **wechat_title**: 标题（数字+变化+冲突，≤50字）
   2. **signal_no**: Signal编号（渲染为 #004）
-  3. **signal**: 今日Signal（一句话核心主题，≤40字）
-  4. **ceo_radar**: CEO Radar（3条，本周必须关注）
-  5. **decision**: 角色化Decision（V4.3核心升级）
-     - operators: 运营商今天做什么（一句话，可执行）
-     - device_makers: 设备商今天做什么
-     - brands: 品牌方今天做什么
-     - investors: 投资人今天关注什么
-  6. **trend**: Signal展开（100~150字）
-  7. **industry_temp**: 行业温度（0~100，5维度）
+  3. **signal**: ZeroRealm Signal（一句话核心主题，≤40字）
+  4. **ceo_radar**: ZeroRealm Radar（3条，本周必须关注）
+  5. **decision**: ZeroRealm Decision（角色化）
+     - operators / device_makers / brands / investors（各一句话）
+  6. **trend**: Signal展开（100~150字，三层分离）
+  7. **industry_temp**: ZeroRealm Index（0~100，5维度）
   8. **sections**: 证据（2条核心 + 3条快讯）
      核心（2条）：
      - title / excerpt / level:"core" / angle
-     - insight: 300~400字，必须三层分离（事实→分析→预测）
+     - why_it_matters: 一句话说明为什么重要（V4.4新增）
+     - insight: 300~400字，咨询级洞察，必须有"别人没提到"的新观点
      - importance / confidence / action / impact / tags / source
      快讯（3条）：
      - title / excerpt(≤50字) / level:"quick" / tags / source
-  9. **opportunity**: 今日机会（一句话）
-  10. **risk**: 今日风险（一句话）
-  11. **one_chart**: 一张图（文本柱状图）
-  12. **data_point**: One Number（1个数字+一句话）
-  13. **prediction**: 预测（ZeroRealm判断 + 依据清单 + 置信度 + 风险）
-  14. **watchlist**: 本周监控名单（3~5个企业/事件）
-  15. **counter_view**: 反面观点（1条）
-  16. **discussion**: 互动（选择题）
-  17. **exclusive_data**: 监测数据
-  18. **tomorrow**: 明日关注
+  9. **first_principle**: ZeroRealm Principle（V4.4新增）
+     - no: 编号（如18）
+     - content: 一句话行业底层规律
+  10. **opportunity**: 今日机会（一句话）
+  11. **risk**: 今日风险（一句话）
+  12. **one_chart**: ZeroRealm Chart（文本柱状图）
+  13. **data_point**: One Number
+  14. **prediction**: ZeroRealm Prediction
+     - content / confidence_pct / evidence[] / risk_note
+  15. **counter_view**: ZeroRealm Counter View
+  16. **watchlist**: ZeroRealm Watchlist（3~5个）
+  17. **discussion**: 互动（挑衅性问题，不是选择题）
+  18. **exclusive_data**: 监测数据
+  19. **tomorrow**: 明日关注
 
-  ## V4.3 关键变更
+  ## V4.4 关键变更
 
-  - decision: 角色化（运营商/设备商/品牌/投资人各一句话）
-  - insight: 强制三层分离（事实→分析→预测）
-  - 新增 watchlist（本周监控名单）
-  - 数字铁律：无来源数字用定性描述替代
-  - 国外新闻必须连接"为什么中国值得关注"
+  - 新增 first_principle（ZeroRealm Principle #XXX）
+  - 新增 why_it_matters（每条核心证据一句话）
+  - insight 必须是咨询级（别人没想到的观点）
+  - discussion 改为挑衅性问题（不是选择题）
+  - 所有栏目品牌化（ZeroRealm前缀）

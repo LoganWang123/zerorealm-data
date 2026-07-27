@@ -138,7 +138,17 @@ class WechatRenderer(BaseRenderer):
         if opportunity or risk:
             parts.append(templates.opportunity_risk_block(opportunity, risk))
 
-        # 10. 📊 One Chart（V4.2新增）
+        # 10. 💎 First Principle（V4.4新增）
+        fp = getattr(article, "first_principle", None)
+        if fp:
+            if isinstance(fp, dict):
+                parts.append(templates.first_principle_block(
+                    fp.get("no", 0), fp.get("content", "")
+                ))
+            elif hasattr(fp, "no"):
+                parts.append(templates.first_principle_block(fp.no, fp.content))
+
+        # 11. 📊 One Chart（V4.2新增）
         one_chart = getattr(article, "one_chart", None)
         if one_chart:
             parts.append(templates.one_chart_block(one_chart))

@@ -115,7 +115,7 @@ def decision_block(decision: dict) -> str:
 
 
 def watchlist_block(items: list[str]) -> str:
-    """👁 Watchlist（V4.3新增，本周监控名单）."""
+    """👁 ZeroRealm Watchlist（V4.3新增，本周监控名单）."""
     if not items:
         return ""
     items_html = "".join(
@@ -128,8 +128,24 @@ def watchlist_block(items: list[str]) -> str:
         f'<div style="margin:28px 0;padding:14px 18px;'
         f'background:{LIGHT_BG};border-radius:8px;">'
         f'<p style="margin:0 0 8px;font-size:14px;font-weight:bold;color:{PRIMARY};">'
-        f"👁 本周监控名单</p>"
+        f"👁 ZeroRealm Watchlist</p>"
         f'<p style="margin:0;">{items_html}</p>'
+        f"</div>"
+    )
+
+
+def first_principle_block(no: int, content: str) -> str:
+    """💎 ZeroRealm Principle（V4.4新增，行业底层规律）."""
+    if not content:
+        return ""
+    return (
+        f'<div style="margin:28px 0;padding:18px;text-align:center;'
+        f'background:linear-gradient(135deg,#1a1a2e 0%,#2d3561 100%);'
+        f'border-radius:10px;">'
+        f'<p style="margin:0 0 6px;font-size:11px;color:#aaa;letter-spacing:2px;">'
+        f"💎 ZeroRealm Principle #{no:03d}</p>"
+        f'<p style="margin:0;font-size:16px;font-weight:bold;color:#fff;'
+        f'line-height:1.6;">{content}</p>'
         f"</div>"
     )
 
