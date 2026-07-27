@@ -1,40 +1,40 @@
-# ZeroRealm Daily Report V5.0 — Output Schema（定版，不再改）
+# ZeroRealm Daily Report V9.0 — Output Schema（定版）
 
 schema: |
-  ## 固定日报结构（11个栏目，不再改）
+  ## 固定日报结构（V9：9个模块）
 
-  1. **wechat_title**: 标题（数字+变化+冲突，≤50字）
-  2. **signal_no**: Signal编号（#004）
-  3. **signal**: ZeroRealm Signal（一句截图传播的话）
-  4. **ceo_radar**: CEO Radar（3条，本周关注）
-  5. **decision**: Decision（Action + Why + KPI）
-     - operators: {action, why, kpi}
-     - device_makers: {action, why, kpi}
-     - brands: {action, why, kpi}
-     - investors: {action, why, kpi}
-  6. **trend**: 趋势（100~150字，一个核心判断）
-  7. **industry_temp**: ZeroRealm Index（0~100，5维度）
-  8. **sections**: 证据（2条核心 + 2~3条快讯）
-     核心：title / excerpt / why_it_matters / insight(300~400字，一个观点讲透) /
-           importance / confidence / action / impact / tags / source
-     快讯：title / excerpt(≤50字) / tags / source
-  9. **overseas_signal**: 海外信号（V5.0新增）
-     - trend: 海外品牌共同在做什么（一句话）
-     - why_china: 为什么中国值得关注（一句话）
-  10. **first_principle**: ZeroRealm Principle #XXX
-  11. **opportunity**: 机会（一句话）
-  12. **risk**: 风险（一句话）
-  13. **prediction**: Prediction（概率 + ✓依据 + ✗阻碍 + Trigger）
-  14. **counter_view**: Counter View（为什么这个观点可能错）
-  15. **watchlist**: Watchlist（item + trigger）
-  16. **discussion**: 互动（挑衅性问题）
-  17. **exclusive_data**: 监测数据
-  18. **tomorrow**: 明日关注
+  1. **signal_no** / **signal**: 今日一句判断（品牌资产）
+  2. **ceo_radar**: CEO Radar（持续追踪 + Prediction Validation）
+     - tracking: [{item, status(green/yellow/red), day}]（固定追踪，含天数）
+     - prediction_validation: [{item, status(hit/miss/pending)}]（昨日预测验证）
+  3. **sections**: 内容分层
+     核心（level: core，恰好2篇）：
+       title / excerpt / spread_line / insight(300~500字) /
+       prediction: {content, confidence_pct, evidence[], watch} /
+       score: {strategic, commercial, landing, credibility}（各1~5星） /
+       confidence / impact / tags / source
+     快讯（level: quick，3~5条）：
+       title / excerpt(≤80字) / verdict / tags / source
+  4. **decision**: Decision（V9: Evidence → Why Today → Action → KPI → Risk → Confidence）
+     - operators: {evidence, why_today, action, kpi, risk, confidence_pct}
+     - device_makers: {evidence, why_today, action, kpi, risk, confidence_pct}
+     - brands: {evidence, why_today, action, kpi, risk, confidence_pct}
+     - investors: {evidence, why_today, action, kpi, risk, confidence_pct}
+  5. **trend**: Trend（V9: Bloomberg玩法）
+     - [{topic, stars(1~5), direction(up/down/flat), streak}]
+  6. **alpha**: ZeroRealm Alpha（独家数据）
+     - data_point / source / sample / window
+  7. **data_corner**: 数据角
+     - todays_number: {number, label, comparison}
+     - sources_monitored / total_items / industry_events
+     - hot_keywords: [3个]
+  8. **tomorrow**: 明日关注（1~2条）
 
-  ## V5.0 定版变更
+  ## V9 核心变更（从V8）
 
-  - decision: Action + Why + KPI 格式
-  - 新增 overseas_signal（海外信号，趋势不是新闻）
-  - 每条核心新闻只讲一个观点（讲透）
-  - 固定分析框架：Fact→Why→Impact→Decision→Prediction→Trigger
-  - 20%事实 / 60%洞察 / 20%决策
+  - CEO Radar 升级为持续追踪（status + day天数）
+  - Deep Analysis 内嵌 prediction（content + confidence_pct + evidence[] + watch）
+  - Decision 新增 why_today
+  - signal_matrix → trend（增加 direction + streak）
+  - 删除 signal_matrix（合并入 trend）
+  - wechat_title 保留

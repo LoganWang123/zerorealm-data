@@ -199,7 +199,7 @@ def call_llm(materials: str, count: int, issue: int, date: str) -> str:
         temperature=temperature,
         max_tokens=max_tokens,
         prompt_name="daily_report",
-        prompt_version=5,
+        prompt_version=9,
     )
 
     logger.info("[daily] LLM response: %d chars", len(resp.content))
@@ -269,6 +269,26 @@ def generate_mdx(parsed: dict, issue: int, date: str) -> str:
         fm["discussion"] = parsed["discussion"]
     if parsed.get("tomorrow"):
         fm["tomorrow"] = parsed["tomorrow"]
+    # V6.0 fields
+    if parsed.get("todays_number"):
+        fm["todays_number"] = parsed["todays_number"]
+    if parsed.get("industry_map"):
+        fm["industry_map"] = parsed["industry_map"]
+    if parsed.get("zerorealm_lens"):
+        fm["zerorealm_lens"] = parsed["zerorealm_lens"]
+    if parsed.get("prediction_score"):
+        fm["prediction_score"] = parsed["prediction_score"]
+    # V7.0 fields
+    if parsed.get("data_corner"):
+        fm["data_corner"] = parsed["data_corner"]
+    # V8.0 fields
+    if parsed.get("signal_matrix"):
+        fm["signal_matrix"] = parsed["signal_matrix"]
+    if parsed.get("alpha"):
+        fm["alpha"] = parsed["alpha"]
+    # V9.0 fields
+    if parsed.get("trend") and isinstance(parsed["trend"], list):
+        fm["trend"] = parsed["trend"]
 
     # Backward compat
     if parsed.get("summary"):

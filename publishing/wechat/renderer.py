@@ -1,9 +1,11 @@
-"""WechatRenderer — 微信公众号渲染器 V4.
+"""WechatRenderer — 微信公众号渲染器 V6.
 
 Article + RenderContext → RenderResult（内联 CSS HTML）。
-V4: 行业决策解释器模式
-- 新增 CEO Action / 行业温度 / 独家数据 / 预测 / Signal品牌
-- sections 改为统一列表渲染
+V6: 新零售行业情报官模式
+- 三屏首页结构：Signal → Radar+Decision → 深度分析
+- 内容分层：2篇深度（Why Now）+ 快讯列表
+- 新增 Today's Number / Industry Map / ZeroRealm Lens / Prediction Score
+- Watchlist 看板化（状态灯）
 """
 
 from __future__ import annotations
@@ -36,7 +38,7 @@ def count_words(text: str) -> int:
 
 
 class WechatRenderer(BaseRenderer):
-    """微信公众号渲染器 V4."""
+    """微信公众号渲染器 V6."""
 
     def __init__(self, media_storage: BaseMediaStorage):
         self._storage = media_storage
@@ -67,163 +69,75 @@ class WechatRenderer(BaseRenderer):
         )
 
     def _build_html(self, article: Article, context: RenderContext) -> str:
-        """构建完整 HTML (V4.2: 主题驱动情报产品)."""
+        """构建完整 HTML (V7: 6栏目固定阅读节奏)."""
         parts: list[str] = []
 
-        # 1. 标题区
+        # === ① Signal ===
         parts.append(templates.title_header(article.title, article.date))
-
-        # 2. 开头引导语
         parts.append(templates.intro_block())
 
-        # 3. 📡 Signal（V4.2: 放到最前面，品牌IP）
         signal_text = getattr(article, "signal", "")
         signal_no = getattr(article, "signal_no", 0)
         if signal_text and isinstance(signal_text, str):
             parts.append(templates.signal_brand_block(signal_no, signal_text))
 
-        # 4. 🚨 CEO Radar（V4.2新增）
+        # === ② CEO Radar（统一模块：focus + prediction_check + tomorrow） ===
         ceo_radar = getattr(article, "ceo_radar", None)
         if ceo_radar:
-            parts.append(templates.ceo_radar_block(ceo_radar))
+            parts.append(self._render_ceo_radar(ceo_radar, article))
 
-        # 5. 🎯 Decision（V4.3: 角色化决策）
+        # === ③ 今日必须看（2篇深度） ===
+        sections = getattr(article, "sections", [])
+        core_items = []
+        quick_items = []
+        if sections:
+            for item in sections:
+                level = getattr(item, "level", "") if hasattr(item, "level") else (
+                    item.get("level", "") if isinstance(item, dict) else ""
+                )
+                if level == "core":
+                    core_items.append(item)
+                elif level == "quick":
+                    quick_items.append(item)
+                else:
+                    core_items.append(item)
+
+        if core_items:
+            parts.append(templates.section_header("⭐ 今日必须看"))
+            for idx, item in enumerate(core_items[:2], 1):
+                parts.append(self._render_news_item(item, idx))
+
+        # === ④ 快讯（3~5条，每条+一句判断） ===
+        if quick_items:
+            parts.append(templates.section_header("⚡ 快讯"))
+            parts.append(templates.quick_news_list(
+                [self._item_to_dict(q) for q in quick_items]
+            ))
+
+        # === ⑤ Signal Matrix / Trend ===
+        # V9: 优先使用 trend（带 direction+streak），否则回退 signal_matrix
+        trend = getattr(article, "trend", None)
+        if trend and isinstance(trend, list) and trend and isinstance(trend[0], dict) and "direction" in trend[0]:
+            parts.append(templates.trend_v9_block(trend))
+        else:
+            signal_matrix = getattr(article, "signal_matrix", None)
+            if signal_matrix and isinstance(signal_matrix, list):
+                parts.append(templates.signal_matrix_block(signal_matrix))
+
+        # === ⑥ Decision（Action Card） ===
         decision = getattr(article, "decision", None)
         if decision and isinstance(decision, dict):
             parts.append(templates.decision_block(decision))
-        else:
-            # 兼容旧版 ceo_action
-            ceo_action = getattr(article, "ceo_action", None)
-            if ceo_action:
-                parts.append(templates.ceo_action_block(ceo_action))
 
-        # 6. 📈 Signal展开（趋势）
-        if getattr(article, "trend", ""):
-            parts.append(templates.trend_block(article.trend))
+        # === ⑦ Alpha（独家数据） ===
+        alpha = getattr(article, "alpha", None)
+        if alpha and isinstance(alpha, dict):
+            parts.append(templates.alpha_block(alpha))
 
-        # 7. 🌡 行业温度
-        industry_temp = getattr(article, "industry_temp", None)
-        if industry_temp:
-            if isinstance(industry_temp, dict):
-                temps = industry_temp
-            else:
-                temps = {
-                    "ai_retail": getattr(industry_temp, "ai_retail", 0),
-                    "instant_retail": getattr(industry_temp, "instant_retail", 0),
-                    "smart_cabinet": getattr(industry_temp, "smart_cabinet", 0),
-                    "funding": getattr(industry_temp, "funding", 0),
-                    "policy": getattr(industry_temp, "policy", 0),
-                }
-            parts.append(templates.industry_temp_block(temps))
+        # === ⑧ 数据角 ===
+        parts.append(self._render_data_corner(article))
 
-        # 8. 📡 证据（sections）
-        sections = getattr(article, "sections", [])
-        if sections:
-            parts.append(templates.section_header("📡 今日证据"))
-
-            # V4: sections 可能是统一列表（新格式）或分板块列表（旧格式兼容）
-            if sections and hasattr(sections[0], "type"):
-                # 旧格式：分板块
-                for section in sections:
-                    for idx, item in enumerate(section.items, 1):
-                        parts.append(self._render_news_item(item, idx))
-            else:
-                # 新格式：统一列表
-                for idx, item in enumerate(sections, 1):
-                    parts.append(self._render_news_item(item, idx))
-
-        # 9. 💡 Opportunity + ⚠️ Risk
-        opportunity = getattr(article, "opportunity", "")
-        risk = getattr(article, "risk", "")
-        if opportunity or risk:
-            parts.append(templates.opportunity_risk_block(opportunity, risk))
-
-        # 9.5 🌍 海外信号（V5.0新增）
-        overseas = getattr(article, "overseas_signal", None)
-        if overseas and isinstance(overseas, dict):
-            parts.append(templates.overseas_signal_block(
-                overseas.get("trend", ""), overseas.get("why_china", "")
-            ))
-
-        # 10. 💎 First Principle（V4.4新增）
-        fp = getattr(article, "first_principle", None)
-        if fp:
-            if isinstance(fp, dict):
-                parts.append(templates.first_principle_block(
-                    fp.get("no", 0), fp.get("content", "")
-                ))
-            elif hasattr(fp, "no"):
-                parts.append(templates.first_principle_block(fp.no, fp.content))
-
-        # 11. 📊 One Chart（V4.2新增）
-        one_chart = getattr(article, "one_chart", None)
-        if one_chart:
-            parts.append(templates.one_chart_block(one_chart))
-
-        # 11. 📊 One Number
-        dp = getattr(article, "data_point", None)
-        if dp and getattr(dp, "number", ""):
-            parts.append(templates.data_point_block(
-                dp.number, dp.label, dp.interpretation
-            ))
-
-        # 12. 🔮 预测
-        prediction = getattr(article, "prediction", None)
-        if prediction:
-            if isinstance(prediction, dict):
-                parts.append(templates.prediction_block(
-                    prediction.get("content", ""),
-                    prediction.get("confidence", 0),
-                    prediction.get("basis", ""),
-                    confidence_pct=prediction.get("confidence_pct", 0),
-                    drivers=prediction.get("drivers", None),
-                    blockers=prediction.get("blockers", None),
-                    risk_note=prediction.get("risk_note", ""),
-                ))
-            else:
-                parts.append(templates.prediction_block(
-                    getattr(prediction, "content", ""),
-                    getattr(prediction, "confidence", 0),
-                    getattr(prediction, "basis", ""),
-                    confidence_pct=getattr(prediction, "confidence_pct", 0),
-                ))
-
-        # 13. 🔄 Counter View
-        if getattr(article, "counter_view", ""):
-            parts.append(templates.counter_view_block(article.counter_view))
-
-        # 14. 👁 Watchlist（V4.3新增）
-        watchlist = getattr(article, "watchlist", None)
-        if watchlist:
-            parts.append(templates.watchlist_block(watchlist))
-
-        # 15. 💬 互动
-        if getattr(article, "discussion", ""):
-            parts.append(templates.discussion_block(article.discussion))
-
-        # 15. 📊 ZeroRealm Exclusive
-        exclusive_data = getattr(article, "exclusive_data", None)
-        if exclusive_data:
-            if isinstance(exclusive_data, dict):
-                data = exclusive_data
-            else:
-                data = {
-                    "sources_monitored": getattr(exclusive_data, "sources_monitored", 0),
-                    "total_items": getattr(exclusive_data, "total_items", 0),
-                    "industry_events": getattr(exclusive_data, "industry_events", 0),
-                    "funding_events": getattr(exclusive_data, "funding_events", 0),
-                    "partnership_events": getattr(exclusive_data, "partnership_events", 0),
-                    "new_products": getattr(exclusive_data, "new_products", 0),
-                    "hot_keywords": getattr(exclusive_data, "hot_keywords", []),
-                    "one_line": getattr(exclusive_data, "one_line", ""),
-                }
-            parts.append(templates.exclusive_data_block(data))
-
-        # 16. 📅 明日关注
-        if getattr(article, "tomorrow", None):
-            parts.append(templates.tomorrow_block(article.tomorrow))
-
-        # 17. 尾部
+        # === 尾部 ===
         parts.append(templates.footer(article.author))
 
         # 包裹容器
@@ -235,8 +149,62 @@ class WechatRenderer(BaseRenderer):
             f"{body}</div>"
         )
 
+    def _render_ceo_radar(self, ceo_radar, article) -> str:
+        """渲染 CEO Radar（V9: 持续追踪 + prediction_validation）."""
+        # V9 新格式：dict with tracking / prediction_validation
+        if isinstance(ceo_radar, dict):
+            tracking = ceo_radar.get("tracking", [])
+            prediction_check = ceo_radar.get("prediction_validation", [])
+            focus = ceo_radar.get("focus", [])
+            tomorrow = ceo_radar.get("tomorrow", [])
+        else:
+            # 兼容旧格式（纯列表）
+            tracking = []
+            focus = ceo_radar if isinstance(ceo_radar, list) else []
+            prediction_check = []
+            tomorrow = []
+
+        # 合并旧版独立字段
+        if not prediction_check:
+            ps = getattr(article, "prediction_score", None)
+            if ps and isinstance(ps, dict):
+                prediction_check = ps.get("history", [])
+        if not tomorrow:
+            tm = getattr(article, "tomorrow", None)
+            if tm and isinstance(tm, list):
+                tomorrow = tm
+
+        return templates.ceo_radar_unified_block(
+            focus, prediction_check, tomorrow, tracking=tracking
+        )
+
+    def _render_data_corner(self, article) -> str:
+        """渲染数据角（V7: 合并 Today's Number + 监测数据）."""
+        # V7 新格式：data_corner
+        data_corner = getattr(article, "data_corner", None)
+        if data_corner and isinstance(data_corner, dict):
+            return templates.data_corner_block(data_corner)
+
+        # 兼容旧版：从 exclusive_data + todays_number 组装
+        exclusive_data = getattr(article, "exclusive_data", None)
+        todays_number = getattr(article, "todays_number", None)
+        if exclusive_data or todays_number:
+            dc = {}
+            if todays_number and isinstance(todays_number, dict):
+                dc["todays_number"] = todays_number
+            if exclusive_data:
+                if isinstance(exclusive_data, dict):
+                    dc.update(exclusive_data)
+                else:
+                    dc["sources_monitored"] = getattr(exclusive_data, "sources_monitored", 0)
+                    dc["total_items"] = getattr(exclusive_data, "total_items", 0)
+                    dc["industry_events"] = getattr(exclusive_data, "industry_events", 0)
+                    dc["hot_keywords"] = getattr(exclusive_data, "hot_keywords", [])
+            return templates.data_corner_block(dc)
+        return ""
+
     def _render_news_item(self, item, idx: int) -> str:
-        """渲染单条新闻（兼容新旧格式）."""
+        """渲染单条新闻（V6: 支持 why_now + spread_line）."""
         # 获取 tags（可能是对象或列表）
         tags_raw = getattr(item, "tags", None)
         tags_list = None
@@ -251,7 +219,7 @@ class WechatRenderer(BaseRenderer):
             elif hasattr(tags_raw, "industry"):
                 tags_list = [tags_raw.industry] + list(getattr(tags_raw, "topics", []))
 
-        # V4.1: 获取 impact
+        # 获取 impact
         impact_raw = getattr(item, "impact", None)
         impact_dict = None
         if impact_raw:
@@ -263,6 +231,45 @@ class WechatRenderer(BaseRenderer):
                     "device_makers": impact_raw.device_makers,
                     "brands": impact_raw.brands,
                     "investors": impact_raw.investors,
+                }
+
+        # V6: 获取 why_now 和 spread_line
+        why_now_raw = getattr(item, "why_now", None)
+        why_now_list = None
+        if why_now_raw:
+            if isinstance(why_now_raw, list):
+                why_now_list = why_now_raw
+            elif hasattr(why_now_raw, "__iter__"):
+                why_now_list = list(why_now_raw)
+
+        spread_line = getattr(item, "spread_line", "")
+
+        # V9: 获取内嵌 prediction
+        prediction_raw = getattr(item, "prediction", None)
+        prediction_dict = None
+        if prediction_raw:
+            if isinstance(prediction_raw, dict):
+                prediction_dict = prediction_raw
+            elif hasattr(prediction_raw, "content"):
+                prediction_dict = {
+                    "content": prediction_raw.content,
+                    "confidence_pct": getattr(prediction_raw, "confidence_pct", 0),
+                    "evidence": getattr(prediction_raw, "evidence", []),
+                    "watch": getattr(prediction_raw, "watch", ""),
+                }
+
+        # V9: 获取 score
+        score_raw = getattr(item, "score", None)
+        score_dict = None
+        if score_raw:
+            if isinstance(score_raw, dict):
+                score_dict = score_raw
+            elif hasattr(score_raw, "strategic"):
+                score_dict = {
+                    "strategic": getattr(score_raw, "strategic", 0),
+                    "commercial": getattr(score_raw, "commercial", 0),
+                    "landing": getattr(score_raw, "landing", 0),
+                    "credibility": getattr(score_raw, "credibility", 0),
                 }
 
         return templates.news_item(
@@ -277,7 +284,23 @@ class WechatRenderer(BaseRenderer):
             angle=getattr(item, "angle", ""),
             impact=impact_dict,
             level=getattr(item, "level", ""),
+            why_now=why_now_list,
+            spread_line=spread_line,
+            prediction=prediction_dict,
+            score=score_dict,
         )
+
+    def _item_to_dict(self, item) -> dict:
+        """将 item 对象转为 dict（用于 quick_news_list）."""
+        if isinstance(item, dict):
+            return item
+        return {
+            "title": getattr(item, "title", ""),
+            "excerpt": getattr(item, "excerpt", ""),
+            "verdict": getattr(item, "verdict", ""),
+            "source_name": getattr(item, "source_name", ""),
+            "source_url": getattr(item, "source_url", ""),
+        }
 
     def _process_media(self, html: str) -> list[MediaReference]:
         """处理正文中的媒体（当前日报无正文图片，预留）."""

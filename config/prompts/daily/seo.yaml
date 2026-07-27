@@ -1,5 +1,4 @@
-# ZeroRealm Daily Report V4 — SEO & Keywords
-# 修改此文件 = 修改SEO策略，不影响写作风格/结构
+# ZeroRealm Daily Report V7.0 — SEO & Keywords
 
 seo: |
   ## 微信SEO关键词（自然融入正文）
@@ -8,21 +7,22 @@ seo: |
   智能柜、自动售货机、无人零售、即时零售、AI零售、新零售、
   数字化运营、零售科技、AI Agent、智能零售终端
 
-  ## 品牌IP关键词（V4新增）
+  ## 品牌IP关键词（V7：只保留3个）
 
   每篇必须包含：
-  - "ZeroRealm Signal No.XXX"（品牌签名，积累IP价值）
-  - "ZeroRealm Exclusive"（独家数据栏目品牌）
+  - "ZeroRealm Signal #XXX"（每日一句判断）
+  - "ZeroRealm Decision"（每日行动）
+  - "ZeroRealm Insight"（深度分析）
   - "零域日报"（中文品牌名）
 
-  这些品牌词一年后将成为行业引用标准。
+  禁止出现：
+  - ZeroRealm Prediction / Watchlist / Index / Principle / Exclusive / Radar / Lens
+  这些概念保留，但不加品牌前缀。
 
   ## 标题SEO规则
 
   - 必须包含【零域日报】品牌前缀
   - 必须包含至少1个核心关键词
-  - 必须包含日期
-  - 不用"No.X"（无搜索价值）
   - ≤50字
 
   ## Tags 两层结构
@@ -30,16 +30,4 @@ seo: |
   一级（industry）：智能柜 / 即时零售 / 无人零售 / 便利店 / 供应链 / 品牌
   二级（topics）：AI Agent / SKU / 点位 / 融资 / 政策 / 数字化运营 / 零售科技 / 出海 / 品类扩张 / 文创
 
-  每条新闻必须标注 1个industry + 2~3个topics。
-  这些标签未来用于：官网聚合、知识库分类、RAG检索。
-
-  ## 互动区SEO规则（V4升级）
-
-  discussion 必须使用选择题格式：
-  - 先提出一个与当日主题相关的具体问题
-  - 给出4个选项（用①②③④标记）
-  - 以"留言告诉我们"结尾
-  - 禁止使用"欢迎留言""你怎么看"等泛泛表述
-
-  示例：
-  "如果你的柜子只能增加一个新品类，你会选：①文创 ②IP周边 ③应急用品 ④美妆小样。留言告诉我们。"
+  每条新闻必须标注 1个industry + 1~2个topics。
