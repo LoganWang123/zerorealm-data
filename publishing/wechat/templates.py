@@ -114,22 +114,33 @@ def decision_block(decision: dict) -> str:
     )
 
 
-def watchlist_block(items: list[str]) -> str:
-    """👁 ZeroRealm Watchlist（V4.3新增，本周监控名单）."""
+def watchlist_block(items) -> str:
+    """👁 ZeroRealm Watchlist（V4.5: 带Trigger）."""
     if not items:
         return ""
-    items_html = "".join(
-        f'<span style="display:inline-block;margin:2px 6px 2px 0;padding:3px 10px;'
-        f'background:#e3f2fd;color:#1565c0;font-size:12px;border-radius:12px;">'
-        f"{item}</span>"
-        for item in items
-    )
+    rows_html = ""
+    for item in items:
+        if isinstance(item, dict):
+            name = item.get("item", "")
+            trigger = item.get("trigger", "")
+            trigger_html = (
+                f' <span style="font-size:11px;color:#e65100;">'
+                f'Trigger: {trigger}</span>' if trigger else ""
+            )
+            rows_html += (
+                f'<p style="margin:0 0 6px;font-size:13px;color:#333;">'
+                f'• {name}{trigger_html}</p>'
+            )
+        else:
+            rows_html += (
+                f'<p style="margin:0 0 6px;font-size:13px;color:#333;">• {item}</p>'
+            )
     return (
         f'<div style="margin:28px 0;padding:14px 18px;'
         f'background:{LIGHT_BG};border-radius:8px;">'
         f'<p style="margin:0 0 8px;font-size:14px;font-weight:bold;color:{PRIMARY};">'
         f"👁 ZeroRealm Watchlist</p>"
-        f'<p style="margin:0;">{items_html}</p>'
+        f"{rows_html}"
         f"</div>"
     )
 
@@ -284,35 +295,58 @@ def signal_brand_block(signal_no: int, signal_text: str) -> str:
 
 
 def prediction_block(content: str, confidence: int = 0, basis: str = "",
-                     confidence_pct: int = 0) -> str:
-    """🔮 未来30~90天预测（V4.1: 置信度百分比）."""
+                     confidence_pct: int = 0, drivers: list = None,
+                     blockers: list = None, risk_note: str = "") -> str:
+    """🔮 ZeroRealm Prediction（V4.5: ✓/✗ 清单）."""
     if not content:
         return ""
-    # V4.1: 优先用百分比，兼容旧版星级
+    # 置信度
     if confidence_pct > 0:
+        filled = min(round(confidence_pct / 10), 10)
+        bar = "█" * filled + "□" * (10 - filled)
         conf_html = (
-            f'<span style="font-size:16px;font-weight:bold;color:#6a1b9a;">'
-            f"{confidence_pct}%</span> Confidence"
+            f'<p style="margin:0 0 8px;font-size:14px;color:#6a1b9a;">'
+            f'Confidence <span style="font-family:monospace;">{bar}</span> '
+            f'<strong>{confidence_pct}%</strong></p>'
         )
     else:
         stars = "⭐" * min(confidence, 5) + "☆" * max(0, 5 - confidence)
-        conf_html = f"置信度：{stars}"
-    basis_html = ""
-    if basis:
-        basis_html = (
-            f'<p style="margin:8px 0 0;font-size:13px;color:#7b1fa2;">'
-            f"依据：{basis}</p>"
+        conf_html = f'<p style="margin:0 0 8px;font-size:13px;color:#9c27b0;">置信度：{stars}</p>'
+
+    # ✓/✗ 清单
+    checklist_html = ""
+    if drivers:
+        for d in drivers:
+            checklist_html += (
+                f'<p style="margin:0 0 4px;font-size:13px;color:#2e7d32;">{d}</p>'
+            )
+    if blockers:
+        for b in blockers:
+            checklist_html += (
+                f'<p style="margin:0 0 4px;font-size:13px;color:#c62828;">{b}</p>'
+            )
+    if checklist_html:
+        checklist_html = f'<div style="margin:8px 0;padding:8px 12px;background:#fafafa;border-radius:6px;">{checklist_html}</div>'
+
+    # 风险备注
+    risk_html = ""
+    rn = risk_note or basis
+    if rn:
+        risk_html = (
+            f'<p style="margin:8px 0 0;font-size:12px;color:#7b1fa2;">'
+            f"⚠️ {rn}</p>"
         )
+
     return (
         f'<div style="margin:28px 0;padding:16px 18px;'
         f'background:#f3e5f5;border-radius:8px;border:1px solid #ce93d8;">'
         f'<p style="margin:0 0 8px;font-size:14px;font-weight:bold;color:#6a1b9a;">'
-        f"🔮 未来30~90天预测</p>"
+        f"🔮 ZeroRealm Prediction</p>"
         f'<p style="margin:0 0 6px;font-size:15px;color:#444;line-height:1.7;">'
         f"{content}</p>"
-        f'<p style="margin:0;font-size:13px;color:#9c27b0;">'
-        f"{conf_html}</p>"
-        f"{basis_html}"
+        f"{conf_html}"
+        f"{checklist_html}"
+        f"{risk_html}"
         f"</div>"
     )
 

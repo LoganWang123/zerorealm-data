@@ -169,6 +169,9 @@ class WechatRenderer(BaseRenderer):
                     prediction.get("confidence", 0),
                     prediction.get("basis", ""),
                     confidence_pct=prediction.get("confidence_pct", 0),
+                    drivers=prediction.get("drivers", None),
+                    blockers=prediction.get("blockers", None),
+                    risk_note=prediction.get("risk_note", ""),
                 ))
             else:
                 parts.append(templates.prediction_block(

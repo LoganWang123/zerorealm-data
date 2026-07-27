@@ -1,4 +1,4 @@
-# ZeroRealm Daily Report V4.4 — Output YAML Template
+# ZeroRealm Daily Report V4.5 — Output YAML Template
 
 output_template: |
   请严格按以下 YAML 格式输出（不要输出其他内容）：
@@ -12,10 +12,10 @@ output_template: |
     - "美团AI Agent开放API时间表"
     - "高校文创SKU首周销量数据"
   decision:
-    operators: "本周在3个高校点位测试文创SKU，7日后看动销率"
-    device_makers: "评估柜体增加文创格口的改造成本"
-    brands: "联系3家IP周边供应商，获取报价和起订量"
-    investors: "关注即时零售品类扩张赛道的早期项目"
+    operators: "本周新增哈利波特/LABUBU/哪吒三个SKU到高校柜，看7天GMV"
+    device_makers: "留2层格口支持20×20cm包装，适配文创/IP产品"
+    brands: "找泡泡玛特授权商或高校原创文创工作室，获取报价"
+    investors: "关注即时零售品类扩张赛道Pre-A轮项目"
   trend: "Signal展开（100~150字，三层分离）"
   industry_temp:
     ai_retail: 82
@@ -23,13 +23,19 @@ output_template: |
     smart_cabinet: 45
     funding: 31
     policy: 55
+    yesterday:
+      ai_retail: 76
+      instant_retail: 72
+      smart_cabinet: 43
+      funding: 30
+      policy: 55
   sections:
     - title: "核心证据1（≤30字）"
       excerpt: "事实（≤60字，标注来源）"
       level: "core"
       angle: "为什么发生"
-      why_it_matters: "一句话：为什么这条新闻重要（别人没注意到的角度）"
-      insight: "300~400字。咨询级洞察：必须有一个'别人没提到但经得起推敲'的新观点。三层分离。无来源数字用定性描述。"
+      why_it_matters: "一句话：为什么重要（反常识角度）"
+      insight: "300~400字。开头一句'别人会传播'的话。然后三层分离。无来源数字用定性描述。"
       importance: "A"
       confidence: "High"
       action: "immediate"
@@ -48,7 +54,7 @@ output_template: |
       level: "core"
       angle: "谁受影响"
       why_it_matters: "一句话：为什么重要"
-      insight: "300~400字，咨询级，角度不同。"
+      insight: "300~400字，反常识，角度不同。"
       importance: "A"
       confidence: "High"
       action: "this_week"
@@ -100,17 +106,23 @@ output_template: |
   prediction:
     content: "ZeroRealm判断：京东具有较高概率跟进图书即时零售。"
     confidence_pct: 72
-    evidence:
-      - "京东图书全国库存体系"
-      - "达达配送网络已覆盖"
-      - "京东已布局小时达"
+    drivers:
+      - "✓ 达达已有配送网络"
+      - "✓ 京东已有图书库存体系"
+      - "✓ 图书毛利足够覆盖配送"
+    blockers:
+      - "✗ 尚未公开测试"
     risk_note: "如果图书GMV不达标，可能不会大规模推广"
   counter_view: "品类扩张不等于所有品类都适合即时零售，低频品类的库存风险被低估。"
   watchlist:
-    - "京东图书小时达"
-    - "美团AI Agent开放API"
-    - "盒马品类扩张动向"
-    - "友宝文创SKU测试"
+    - item: "京东图书小时达"
+      trigger: "上线100城"
+    - item: "美团Agent API"
+      trigger: "开放第三方调用"
+    - item: "盒马品类扩张"
+      trigger: "新增图书/文创品类"
+    - item: "友宝文创测试"
+      trigger: "公开SKU数据"
   discussion: "如果你是友宝CEO，今天最应该害怕什么？是AI Agent吃掉智能柜的流量，还是即时零售让你的点位变得多余？留言说说。"
   exclusive_data:
     sources_monitored: 47
