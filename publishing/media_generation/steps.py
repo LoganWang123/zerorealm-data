@@ -44,6 +44,7 @@ class GenerateMediaStep(PipelineStep):
 
         ctx.set(PipelineState.MEDIA_BUNDLE, bundle)
         ctx.article.cover = bundle.cover.local_path
+        ctx.article.media_bundle = bundle
         return StepResult(status=StepStatus.SUCCESS, message="Media generated")
 
 

@@ -33,6 +33,7 @@ class MediaReference:
     mime: str = "image/png"
     width: int = 0
     height: int = 0
+    role: str = ""
 
 
 @dataclass
@@ -146,6 +147,7 @@ class RenderResult:
     char_count: int = 0  # 字符数（基于纯文本）
     word_count: int = 0  # 词数（基于纯文本）
     media: list[MediaReference] = field(default_factory=list)
+    video: MediaReference | None = None
 
     # 渠道特有（类型安全）
     channel_metadata: BaseChannelMetadata = field(default_factory=BaseChannelMetadata)

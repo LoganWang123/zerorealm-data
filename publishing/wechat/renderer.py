@@ -46,7 +46,8 @@ class WechatRenderer(BaseRenderer):
     def render(self, article: Article, context: RenderContext) -> RenderResult:
         """渲染文章为微信 HTML."""
         html = self._build_html(article, context)
-        media = self._process_media(html)
+        media = self._process_media(article)
+        video = self._process_video(article)
         html = self._sanitize(html)
 
         plain_text = strip_html(html)
@@ -61,6 +62,7 @@ class WechatRenderer(BaseRenderer):
             word_count=count_words(plain_text),
             char_count=len(plain_text),
             media=media,
+            video=video,
             channel_metadata=WechatMetadata(
                 copyright=context.config.wechat.copyright,
                 digest=article.summary[0] if article.summary else "",
@@ -75,6 +77,9 @@ class WechatRenderer(BaseRenderer):
         # === ① Signal ===
         parts.append(templates.title_header(article.title, article.date))
         parts.append(templates.intro_block())
+        body_media = self._body_media_blocks(article)
+        if body_media:
+            parts.append(body_media[0])
 
         signal_text = getattr(article, "signal", "")
         signal_no = getattr(article, "signal_no", 0)
@@ -106,6 +111,8 @@ class WechatRenderer(BaseRenderer):
             parts.append(templates.section_header("⭐ 今日必须看"))
             for idx, item in enumerate(core_items[:2], 1):
                 parts.append(self._render_news_item(item, idx))
+        if len(body_media) > 1:
+            parts.append(body_media[1])
 
         # === ④ 快讯（3~5条，每条+一句判断） ===
         if quick_items:
@@ -125,6 +132,8 @@ class WechatRenderer(BaseRenderer):
                 parts.append(templates.signal_matrix_block(signal_matrix))
 
         # === ⑥ Decision（Action Card） ===
+        if len(body_media) > 2:
+            parts.append(body_media[2])
         decision = getattr(article, "decision", None)
         if decision and isinstance(decision, dict):
             parts.append(templates.decision_block(decision))
@@ -136,6 +145,9 @@ class WechatRenderer(BaseRenderer):
 
         # === ⑧ 数据角 ===
         parts.append(self._render_data_corner(article))
+
+        if getattr(article, "media_bundle", None) is not None:
+            parts.append('<p style="margin:24px 0;">zr-video://short_video</p>')
 
         # === 尾部 ===
         parts.append(templates.footer(article.author))
@@ -302,9 +314,54 @@ class WechatRenderer(BaseRenderer):
             "source_url": getattr(item, "source_url", ""),
         }
 
-    def _process_media(self, html: str) -> list[MediaReference]:
-        """处理正文中的媒体（当前日报无正文图片，预留）."""
-        return []
+    @staticmethod
+    def _body_media_blocks(article) -> list[str]:
+        bundle = getattr(article, "media_bundle", None)
+        if bundle is None:
+            return []
+        labels = ["今日信号", "核心分析", "决策与趋势"]
+        return [
+            (
+                '<p style="margin:24px 0;">'
+                f'<img src="zr-media://{asset.role}" '
+                f'alt="{labels[index] if index < len(labels) else "正文配图"}" '
+                'style="display:block;width:100%;height:auto;border-radius:8px;" />'
+                "</p>"
+            )
+            for index, asset in enumerate(bundle.body_images)
+        ]
+
+    @staticmethod
+    def _process_media(article) -> list[MediaReference]:
+        bundle = getattr(article, "media_bundle", None)
+        if bundle is None:
+            return []
+        return [
+            MediaReference(
+                local_path=asset.local_path,
+                sha256=asset.sha256,
+                mime=asset.mime,
+                width=asset.width,
+                height=asset.height,
+                role=asset.role,
+            )
+            for asset in bundle.body_images
+        ]
+
+    @staticmethod
+    def _process_video(article) -> MediaReference | None:
+        bundle = getattr(article, "media_bundle", None)
+        if bundle is None:
+            return None
+        asset = bundle.video
+        return MediaReference(
+            local_path=asset.local_path,
+            sha256=asset.sha256,
+            mime=asset.mime,
+            width=asset.width,
+            height=asset.height,
+            role=asset.role,
+        )
 
     def _sanitize(self, html: str) -> str:
         """内部清洗：移除微信不支持的标签/属性."""
