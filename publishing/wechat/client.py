@@ -101,6 +101,28 @@ class WechatClient:
         data = self._check_response(resp)
         return data["url"]
 
+    def upload_permanent_video(
+        self,
+        path: str,
+        title: str,
+        introduction: str,
+    ) -> dict:
+        """Upload a reusable permanent video material."""
+        token = self.get_access_token()
+        description = json.dumps(
+            {"title": title, "introduction": introduction},
+            ensure_ascii=False,
+        )
+        with open(path, "rb") as media_file:
+            resp = self._session.post(
+                f"{BASE_URL}/cgi-bin/material/add_material",
+                params={"access_token": token, "type": "video"},
+                data={"description": description},
+                files={"media": media_file},
+                timeout=120,
+            )
+        return self._check_response(resp)
+
     # ------------------------------------------------------------------
     # 草稿
     # ------------------------------------------------------------------

@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 
 from publishing.base import BasePublisher
 from publishing.models import PublishResult, PublishStatus, WechatMetadata
+from publishing.wechat.media import WechatVideoEmbedder
 
 if TYPE_CHECKING:
     from publishing.manifest_repository import ManifestRepository
@@ -36,6 +37,57 @@ class WechatPublisher(BasePublisher):
                 duration=time.time() - start,
             )
 
+        body = result.body
+        for media in result.media:
+            token = f"zr-media://{media.role}"
+            if token not in body:
+                return PublishResult(
+                    status=PublishStatus.FAILED,
+                    channel="wechat",
+                    message=f"Body image placeholder missing: {media.role}",
+                    duration=time.time() - start,
+                )
+            try:
+                remote_url = self._client.upload_content_image(media.local_path)
+            except Exception as e:
+                return PublishResult(
+                    status=PublishStatus.FAILED,
+                    channel="wechat",
+                    message=f"Body image upload failed ({media.role}): {e}",
+                    duration=time.time() - start,
+                )
+            body = body.replace(token, remote_url)
+
+        if result.video is not None:
+            token = f"zr-video://{result.video.role}"
+            if token not in body:
+                return PublishResult(
+                    status=PublishStatus.FAILED,
+                    channel="wechat",
+                    message="Video placeholder missing",
+                    duration=time.time() - start,
+                )
+            try:
+                upload_resp = self._client.upload_permanent_video(
+                    result.video.local_path,
+                    title=result.title[:64],
+                    introduction=result.summary[:120],
+                )
+                body = body.replace(
+                    token,
+                    WechatVideoEmbedder.render(
+                        upload_resp.get("media_id", ""),
+                        result.title,
+                    ),
+                )
+            except Exception as e:
+                return PublishResult(
+                    status=PublishStatus.FAILED,
+                    channel="wechat",
+                    message=f"Video upload failed: {e}",
+                    duration=time.time() - start,
+                )
+
         # 上传封面
         cover_media_id = ""
         if result.cover.local_path:
@@ -58,7 +110,7 @@ class WechatPublisher(BasePublisher):
             "title": result.title,
             "author": result.author,
             "digest": digest,
-            "content": result.body,
+            "content": body,
             "thumb_media_id": cover_media_id,
             "need_open_comment": 0,
         }
