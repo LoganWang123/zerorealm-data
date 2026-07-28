@@ -5,10 +5,14 @@ import os
 from unittest.mock import patch, MagicMock
 
 import pytest
+import yaml
 
 from generators.daily_report import (
+    DuplicateDailyReportError,
+    find_duplicate_headline,
     load_daily_items,
     format_materials,
+    next_issue_number,
     parse_llm_response,
     generate_mdx,
     generate_daily_report,
@@ -168,6 +172,48 @@ class TestGenerateDailyReport:
             date="2020-01-01",
         )
         assert result is None
+
+    def test_uses_largest_published_issue(self, data_dir, tmp_path):
+        history_dir = tmp_path / "history"
+        history_dir.mkdir()
+        (history_dir / "old.mdx").write_text(
+            "---\ntitle: Old\nissue: 7\n---\n", encoding="utf-8"
+        )
+
+        with patch("generators.daily_report.call_llm", return_value=MOCK_LLM_RESPONSE):
+            result = generate_daily_report(
+                base_dir=data_dir,
+                output_dir=str(tmp_path / "output"),
+                date="2026-07-26",
+                history_dir=str(history_dir),
+            )
+
+        assert "No.8" in open(result, "r", encoding="utf-8").read()
+
+    def test_rejects_duplicate_published_headline(self, data_dir, tmp_path):
+        history_dir = tmp_path / "history"
+        history_dir.mkdir()
+        parsed = parse_llm_response(MOCK_LLM_RESPONSE)
+        title = parsed.get("wechat_title", "")
+        if not title:
+            parsed["wechat_title"] = "Repeated headline"
+            response = yaml.safe_dump(parsed, allow_unicode=True)
+        else:
+            response = MOCK_LLM_RESPONSE
+        published_title = parsed.get("wechat_title", "Repeated headline")
+        (history_dir / "old.mdx").write_text(
+            f"---\ntitle: {published_title!r}\nissue: 4\n---\n",
+            encoding="utf-8",
+        )
+
+        with patch("generators.daily_report.call_llm", return_value=response):
+            with pytest.raises(DuplicateDailyReportError):
+                generate_daily_report(
+                    base_dir=data_dir,
+                    output_dir=str(tmp_path / "output"),
+                    date="2026-07-26",
+                    history_dir=str(history_dir),
+                )
 
 
 class TestFormatMaterialsEnriched:

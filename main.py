@@ -14,7 +14,7 @@ from crawlers.rss_crawler import RSSCrawler
 from crawlers.html_crawler import HTMLCrawler
 from crawlers.js_crawler import JSCrawler
 from crawlers.api_crawler import ArxivCrawler, ZhihuHotCrawler
-from processors.dedup import filter_duplicates
+from processors.dedup import filter_duplicates, record_seen_items
 from processors.boost import apply_boost
 from processors.quality import apply_quality
 from processors.semantic_dedup import apply_semantic_dedup
@@ -139,6 +139,11 @@ async def crawl_all(
     # Generate digest
     if new_items:
         generate_digest(new_items, base_dir, date_path, run_id, priority_sources)
+
+    # Keep a small ledger outside raw artifacts so fresh CI runners can deduplicate.
+    # Record all fetched IDs, including low-quality and semantic duplicates, so they
+    # are not reconsidered every day.
+    record_seen_items(all_items, base_dir)
 
     # Metrics
     duration = round(time.time() - start_time, 1)

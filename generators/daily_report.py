@@ -7,6 +7,7 @@ Falls back to legacy hardcoded prompts when config/prompts/ is missing.
 import json
 import os
 import glob
+import re
 from datetime import datetime
 
 import yaml
@@ -20,6 +21,48 @@ SOURCE_NAMES = {
     "ubox_web": "友宝官网",
     "linkshop_web": "联商网",
 }
+
+
+class DuplicateDailyReportError(RuntimeError):
+    """Raised when a generated report repeats an existing website headline."""
+
+
+def _load_frontmatter(path: str) -> dict:
+    try:
+        content = open(path, "r", encoding="utf-8").read()
+        if not content.startswith("---"):
+            return {}
+        return yaml.safe_load(content.split("---", 2)[1]) or {}
+    except (OSError, yaml.YAMLError):
+        return {}
+
+
+def next_issue_number(history_dir: str) -> int:
+    """Continue from the largest published issue instead of local file count."""
+    issues = []
+    for path in glob.glob(os.path.join(history_dir, "*.mdx")):
+        issue = _load_frontmatter(path).get("issue")
+        if isinstance(issue, int):
+            issues.append(issue)
+    return max(issues, default=0) + 1
+
+
+def _normalize_title(value: str) -> str:
+    return re.sub(r"[\W_]+", "", value, flags=re.UNICODE).casefold()
+
+
+def find_duplicate_headline(parsed: dict, history_dir: str) -> str | None:
+    """Return the matching historical file when the headline is identical."""
+    title = parsed.get("wechat_title", "")
+    normalized = _normalize_title(title)
+    if not normalized:
+        return None
+
+    for path in glob.glob(os.path.join(history_dir, "*.mdx")):
+        historical_title = _load_frontmatter(path).get("title", "")
+        if normalized == _normalize_title(str(historical_title)):
+            return path
+    return None
 
 
 def load_daily_items(base_dir: str = "data", date: str | None = None) -> list[dict]:
@@ -310,6 +353,7 @@ def generate_daily_report(
     output_dir: str = "output_daily",
     date: str | None = None,
     issue: int | None = None,
+    history_dir: str | None = None,
 ) -> str | None:
     """Main entry: generate daily report from crawled data.
 
@@ -330,9 +374,12 @@ def generate_daily_report(
 
     # Auto issue number (count existing files)
     if issue is None:
-        os.makedirs(output_dir, exist_ok=True)
-        existing = glob.glob(os.path.join(output_dir, "*.mdx"))
-        issue = len(existing) + 1
+        if history_dir and os.path.isdir(history_dir):
+            issue = next_issue_number(history_dir)
+        else:
+            os.makedirs(output_dir, exist_ok=True)
+            existing = glob.glob(os.path.join(output_dir, "*.mdx"))
+            issue = len(existing) + 1
 
     # Format materials
     materials = format_materials(items)
@@ -351,6 +398,13 @@ def generate_daily_report(
         with open(debug_path, "w", encoding="utf-8") as f:
             f.write(response)
         return None
+
+    if history_dir and os.path.isdir(history_dir):
+        duplicate_path = find_duplicate_headline(parsed, history_dir)
+        if duplicate_path:
+            raise DuplicateDailyReportError(
+                f"headline already published in {os.path.basename(duplicate_path)}"
+            )
 
     # Generate MDX
     mdx_content = generate_mdx(parsed, issue, date)

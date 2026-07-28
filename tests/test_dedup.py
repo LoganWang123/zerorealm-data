@@ -7,7 +7,12 @@ import tempfile
 import pytest
 
 from crawlers.base import RawItem
-from processors.dedup import is_duplicate, filter_duplicates
+from processors.dedup import (
+    filter_duplicates,
+    is_duplicate,
+    load_seen_ids,
+    record_seen_items,
+)
 
 
 def _make_item(item_id: str, source: str = "test", title: str = "title") -> RawItem:
@@ -82,3 +87,28 @@ class TestFilterDuplicates:
         new_items, dup_count = filter_duplicates([], str(tmp_path))
         assert new_items == []
         assert dup_count == 0
+
+    def test_ids_are_scoped_by_source(self, tmp_path):
+        items = [_make_item("same", source="a"), _make_item("same", source="b")]
+        new_items, dup_count = filter_duplicates(items, str(tmp_path))
+        assert len(new_items) == 2
+        assert dup_count == 0
+
+
+class TestSeenIdsState:
+    def test_persists_across_runs(self, tmp_path):
+        item = _make_item("persisted", source="36kr")
+        record_seen_items([item], str(tmp_path))
+
+        assert load_seen_ids(str(tmp_path)) == {"36kr:persisted"}
+        new_items, dup_count = filter_duplicates([item], str(tmp_path))
+        assert new_items == []
+        assert dup_count == 1
+
+    def test_merges_existing_state(self, tmp_path):
+        first = _make_item("first", source="a")
+        second = _make_item("second", source="b")
+        record_seen_items([first], str(tmp_path))
+        record_seen_items([second], str(tmp_path))
+
+        assert load_seen_ids(str(tmp_path)) == {"a:first", "b:second"}

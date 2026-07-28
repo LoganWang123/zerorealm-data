@@ -28,6 +28,11 @@ def main():
     parser.add_argument("--date", type=str, help="Report date (YYYY-MM-DD)")
     parser.add_argument("--issue", type=int, help="Issue number (auto if omitted)")
     parser.add_argument("--output", type=str, default="output_daily", help="Output directory")
+    parser.add_argument(
+        "--history-dir",
+        type=str,
+        help="Published MDX directory used for issue numbering and duplicate checks",
+    )
     parser.add_argument("--debug", action="store_true", help="Enable DEBUG logging")
     args = parser.parse_args()
 
@@ -47,14 +52,19 @@ def main():
 
     logger.info("=== Daily Report Generator ===")
 
-    from generators.daily_report import generate_daily_report
+    from generators.daily_report import DuplicateDailyReportError, generate_daily_report
 
-    result = generate_daily_report(
-        base_dir="data",
-        output_dir=args.output,
-        date=args.date,
-        issue=args.issue,
-    )
+    try:
+        result = generate_daily_report(
+            base_dir="data",
+            output_dir=args.output,
+            date=args.date,
+            issue=args.issue,
+            history_dir=args.history_dir,
+        )
+    except DuplicateDailyReportError as exc:
+        logger.warning(f"=== Duplicate report skipped: {exc} ===")
+        sys.exit(2)
 
     if result:
         logger.info(f"=== Done: {result} ===")
