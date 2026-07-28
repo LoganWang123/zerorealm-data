@@ -1,8 +1,12 @@
 import hashlib
+import json
 from pathlib import Path
+
+import pytest
 
 from publishing.config import PublishConfig
 from publishing.article import Article, ArticleMeta
+from publishing.media_generation.homepage import generate_homepage_media
 from publishing.media_generation.prompts import build_daily_prompts
 from publishing.media_generation.service import MediaGenerationService
 from publishing.media_generation.validation import MediaProbe, MediaValidator
@@ -195,3 +199,41 @@ def test_media_validator_reports_hash_and_video_aspect_ratio_errors(tmp_path):
 
     assert any("cover hash mismatch" in error for error in errors)
     assert any("short_video aspect ratio" in error for error in errors)
+
+
+def test_homepage_generation_is_fixed_until_force_is_explicit(tmp_path):
+    website_root = tmp_path / "website"
+    client = FakeAgnesClient()
+
+    first = generate_homepage_media(
+        client=client,
+        website_root=website_root,
+        force=False,
+        validator=lambda image_path, video_path: None,
+    )
+
+    manifest_path = website_root / "public" / "media" / "home" / "homepage-media.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert first == manifest_path
+    assert manifest["image"]["src"] == "/media/home/hero.png"
+    assert manifest["video"]["src"] == "/media/home/showcase.mp4"
+    assert manifest["video"]["poster"] == "/media/home/hero.png"
+    assert len(client.image_calls) == 1
+    assert len(client.video_calls) == 1
+
+    with pytest.raises(FileExistsError, match="--force"):
+        generate_homepage_media(
+            client=client,
+            website_root=website_root,
+            force=False,
+            validator=lambda image_path, video_path: None,
+        )
+
+    generate_homepage_media(
+        client=client,
+        website_root=website_root,
+        force=True,
+        validator=lambda image_path, video_path: None,
+    )
+    assert len(client.image_calls) == 2
+    assert len(client.video_calls) == 2
