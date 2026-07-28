@@ -60,6 +60,7 @@ class PipelineState(str, Enum):
     VALIDATION = "validation"
     WARNINGS = "warnings"
     STEP_RESULTS = "step_results"  # {step_name: StepResult}
+    MEDIA_BUNDLE = "media_bundle"
 
 
 # ---------------------------------------------------------------------------
