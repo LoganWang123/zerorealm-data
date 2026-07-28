@@ -93,7 +93,7 @@ python generate_media.py homepage
 python generate_media.py homepage --force
 ```
 
-命令会把图片、视频、视频封面和 `manifest.json` 写入官网的
+命令会把图片、视频和 `homepage-media.json` 写入官网的
 `public/media/home/`。密钥只允许通过环境变量提供，不应写入仓库或日志。
 
 ## 验证
