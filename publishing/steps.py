@@ -6,8 +6,13 @@ ValidateStep / RenderStep / PublishStep / RecordStep.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from publishing.pipeline import PipelineContext, PipelineState, PipelineStep, StepResult, StepStatus
 from publishing.models import PublishStatus
+
+if TYPE_CHECKING:
+    from publishing.models import PublishResult
 
 
 class ValidateStep(PipelineStep):

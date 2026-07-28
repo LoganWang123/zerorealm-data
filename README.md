@@ -1,6 +1,6 @@
 # ZeroRealm Data
 
-零售行业数据采集系统 —— ZeroRealm AI 的数据引擎。
+零售行业数据采集、知识处理和日报生成系统 —— ZeroRealm AI 的数据引擎。
 
 ## Quick Start
 
@@ -8,7 +8,7 @@
 git clone https://github.com/zerorealm/zerorealm-data.git
 cd zerorealm-data
 pip install -r requirements.txt
-python main.py
+python main.py --source 36kr_rss
 ```
 
 ## 输出目录
@@ -22,18 +22,17 @@ data/digest/    ← 每日日报素材
 ## CLI
 
 ```bash
-python main.py                    # 采集所有源
-python main.py --source 36kr_rss  # 只采集指定源
-python main.py --debug            # 详细日志
+python main.py                                      # 采集全部已启用源
+python main.py --source 36kr_rss                    # 采集一个源
+python main.py --source 36kr_rss,ubox_web           # 采集指定源集合
+python main.py --date 2026-08-01 --source 36kr_rss  # 指定输出日期
+python main.py --debug                              # 详细日志
 ```
 
-## 数据源
+## 运行范围
 
-| ID | 名称 | 类型 | 状态 |
-| --- | --- | --- | --- |
-| 36kr_rss | 36氪 | RSS | ✅ |
-| ubox_web | 友宝官网 | Web | ✅ |
-| linkshop_web | 联商网 | Web | ✅ |
+完整白名单维护在 `config/sources.yaml`。每日 Workflow 暂时只运行 5 个核心源，
+先完成连续稳定性验证，再逐步扩大范围。
 
 ## 架构
 
@@ -44,6 +43,28 @@ Scheduler (GitHub Actions)
     → Cleaner + Dedup
     → Writer (JSON / Markdown)
     → Digest
+    → AI Daily Report (MDX)
+    → Website content/daily
+```
+
+## 自动化
+
+`.github/workflows/daily-crawl.yaml` 每天北京时间 06:00：
+
+1. 运行测试；
+2. 采集 5 个核心源；
+3. 生成日报 MDX；
+4. 将数据、日志和日报保存为 Workflow Artifact；
+5. 同步日报到官网仓库。
+
+跨仓库同步需要在数据仓库配置 `WEBSITE_REPO_TOKEN` Secret。该 Fine-grained
+PAT 只需授予 `LoganWang123/zerorealm-website` 的 Contents read/write 权限。
+
+## 验证
+
+```bash
+python -m pytest -q
+ruff check .
 ```
 
 ## 关联文档

@@ -10,10 +10,19 @@ on:
         required: false
         type: string
 
+permissions:
+  contents: read
+
+concurrency:
+  group: daily-pipeline
+  cancel-in-progress: false
+
 jobs:
   pipeline:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
+    env:
+      WEBSITE_REPO_TOKEN: ${{ secrets.WEBSITE_REPO_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
@@ -22,25 +31,36 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt python-dotenv
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: python -m pytest -q
 
       - name: Install Playwright browsers
         run: python -m playwright install chromium --with-deps
 
+      - name: Resolve report date
+        id: report-date
+        shell: bash
+        run: |
+          DATE="${{ inputs.date || '' }}"
+          if [ -z "$DATE" ]; then
+            DATE=$(TZ=Asia/Shanghai date +%Y-%m-%d)
+          fi
+          echo "date=$DATE" >> "$GITHUB_OUTPUT"
+
       - name: Run crawler
-        run: python main.py
+        run: >-
+          python main.py
+          --date "${{ steps.report-date.outputs.date }}"
+          --source "36kr_rss,linkshop_web,tmtpost_rss,winshang_web,ubox_web"
         env:
           LLM_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           LLM_BASE_URL: https://api.deepseek.com/v1
           LLM_MODEL: deepseek-chat
 
       - name: Generate daily report
-        run: |
-          DATE=${{ inputs.date || '' }}
-          if [ -z "$DATE" ]; then
-            DATE=$(TZ=Asia/Shanghai date +%Y-%m-%d)
-          fi
-          python generate_daily.py --date "$DATE"
+        run: python generate_daily.py --date "${{ steps.report-date.outputs.date }}"
         env:
           LLM_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           LLM_BASE_URL: https://api.deepseek.com/v1
@@ -57,10 +77,28 @@ jobs:
             logs/
           retention-days: 30
 
-      - name: Commit daily report
+      - name: Website sync configuration warning
+        if: env.WEBSITE_REPO_TOKEN == ''
+        run: echo "::warning::WEBSITE_REPO_TOKEN is not configured; report was not synced to the website."
+
+      - name: Checkout website repository
+        if: env.WEBSITE_REPO_TOKEN != ''
+        uses: actions/checkout@v4
+        with:
+          repository: LoganWang123/zerorealm-website
+          token: ${{ secrets.WEBSITE_REPO_TOKEN }}
+          path: website
+
+      - name: Publish report to website
+        if: env.WEBSITE_REPO_TOKEN != ''
+        shell: bash
         run: |
-          git config user.name "ZeroRealm Bot"
-          git config user.email "bot@zerorealm.ai"
-          git add output_daily/ data/digest/
-          git diff --cached --quiet || git commit -m "feat(daily): auto report $(TZ=Asia/Shanghai date +%Y-%m-%d)"
-          git push
+          DATE="${{ steps.report-date.outputs.date }}"
+          REPORT="output_daily/${DATE}.mdx"
+          test -f "$REPORT"
+          install -D "$REPORT" "website/content/daily/${DATE}.mdx"
+          git -C website config user.name "ZeroRealm Bot"
+          git -C website config user.email "bot@zerorealm.ai"
+          git -C website add "content/daily/${DATE}.mdx"
+          git -C website diff --cached --quiet || git -C website commit -m "feat(daily): publish ${DATE}"
+          git -C website push

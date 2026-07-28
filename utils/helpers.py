@@ -22,6 +22,8 @@ def generate_run_id() -> str:
     return datetime.now(CST).strftime("%Y%m%d_%H%M%S")
 
 
-def today_path() -> str:
-    """Return today's date path segment: YYYY/MM/DD."""
+def today_path(date: str | None = None) -> str:
+    """Return a YYYY/MM/DD path for an explicit date or today in China time."""
+    if date:
+        return datetime.strptime(date, "%Y-%m-%d").strftime("%Y/%m/%d")
     return datetime.now(CST).strftime("%Y/%m/%d")

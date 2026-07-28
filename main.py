@@ -56,19 +56,30 @@ def get_crawler(source_config: dict, run_id: str):
         raise ValueError(f"Unsupported source type: {source_type}")
 
 
-async def crawl_all(sources: list[dict], settings: dict, run_id: str, source_filter: str | None = None):
+async def crawl_all(
+    sources: list[dict],
+    settings: dict,
+    run_id: str,
+    source_filter: str | None = None,
+    output_date: str | None = None,
+):
     """Main crawl pipeline."""
     logger = get_logger()
     base_dir = settings.get("output", {}).get("base_dir", "data")
     priority_sources = settings.get("digest", {}).get("priority_sources", [])
-    date_path = today_path()
+    date_path = today_path(output_date)
 
     # Filter sources
     active_sources = [s for s in sources if s.get("enabled", True)]
     if source_filter:
-        active_sources = [s for s in active_sources if s["id"] == source_filter]
+        requested_sources = {
+            source_id.strip()
+            for source_id in source_filter.split(",")
+            if source_id.strip()
+        }
+        active_sources = [s for s in active_sources if s["id"] in requested_sources]
         if not active_sources:
-            logger.error(f"Source '{source_filter}' not found or not enabled")
+            logger.error(f"Sources '{source_filter}' not found or not enabled")
             return
 
     logger.info(f"=== Crawl started ({len(active_sources)} sources) ===")
@@ -158,7 +169,11 @@ async def crawl_all(sources: list[dict], settings: dict, run_id: str, source_fil
 
 def main():
     parser = argparse.ArgumentParser(description="ZeroRealm Data Crawler")
-    parser.add_argument("--source", type=str, help="Only crawl specified source_id")
+    parser.add_argument(
+        "--source",
+        type=str,
+        help="Crawl one source_id or a comma-separated source list",
+    )
     parser.add_argument("--date", type=str, help="Specify output date (YYYY-MM-DD)")
     parser.add_argument("--debug", action="store_true", help="Enable DEBUG logging")
     args = parser.parse_args()
@@ -170,7 +185,7 @@ def main():
     setup_logger(run_id, settings.get("logging", {}).get("dir", "logs"), log_level)
 
     # Run
-    asyncio.run(crawl_all(sources, settings, run_id, args.source))
+    asyncio.run(crawl_all(sources, settings, run_id, args.source, args.date))
 
 
 if __name__ == "__main__":
