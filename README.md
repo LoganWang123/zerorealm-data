@@ -60,6 +60,42 @@ Scheduler (GitHub Actions)
 跨仓库同步需要在数据仓库配置 `WEBSITE_REPO_TOKEN` Secret。该 Fine-grained
 PAT 只需授予 `LoganWang123/zerorealm-website` 的 Contents read/write 权限。
 
+## Agnes 媒体生成
+
+公众号发布前会通过 Agnes 生成 1 张封面图、3 张正文配图和 1 个 15 秒
+9:16 短视频。生成或媒体校验失败会阻断发布，避免发布不完整内容。
+
+在服务端环境配置新签发的密钥：
+
+```text
+AGNES_API_KEY
+```
+
+如 Agnes 接口或模型配置有调整，可覆盖：
+
+```text
+AGNES_BASE_URL
+AGNES_IMAGE_MODEL
+AGNES_VIDEO_MODEL
+AGNES_VIDEO_CREATE_PATH
+AGNES_VIDEO_STATUS_URL_TEMPLATE
+```
+
+官网主页素材采用“一次生成后固定使用”策略：
+
+```bash
+python generate_media.py homepage
+```
+
+已有有效素材时命令不会覆盖。需要人工更新时显式执行：
+
+```bash
+python generate_media.py homepage --force
+```
+
+命令会把图片、视频、视频封面和 `manifest.json` 写入官网的
+`public/media/home/`。密钥只允许通过环境变量提供，不应写入仓库或日志。
+
 ## 验证
 
 ```bash

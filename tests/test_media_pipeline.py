@@ -77,11 +77,11 @@ class CountingPublisher:
         return PublishResult(status=PublishStatus.SUCCESS, channel="wechat")
 
 
-def pipeline_context(mode="draft"):
+def pipeline_context(mode="draft", channel="wechat"):
     config = PublishConfig()
     renderer = CountingRenderer()
     publisher = CountingPublisher()
-    target = ChannelTarget(name="wechat", renderer=renderer, publisher=publisher)
+    target = ChannelTarget(name=channel, renderer=renderer, publisher=publisher)
     context = PipelineContext(
         article=article(),
         target=target,
@@ -143,6 +143,20 @@ def test_preview_skips_provider_factory():
     result = step.execute(context)
 
     assert result.status == StepStatus.SKIPPED
+    assert calls == []
+
+
+def test_non_wechat_channel_skips_daily_media_generation_and_validation():
+    calls = []
+    context, _, _ = pipeline_context(channel="website")
+    generate = GenerateMediaStep(lambda: calls.append("created"))
+    validate = ValidateMediaStep(None)
+
+    generation_result = generate.execute(context)
+    validation_result = validate.execute(context)
+
+    assert generation_result.status == StepStatus.SKIPPED
+    assert validation_result.status == StepStatus.SKIPPED
     assert calls == []
 
 

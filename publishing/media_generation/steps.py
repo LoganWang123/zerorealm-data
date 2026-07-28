@@ -22,7 +22,11 @@ class GenerateMediaStep(PipelineStep):
         self._service_factory = service_factory
 
     def execute(self, ctx: PipelineContext) -> StepResult:
-        if ctx.mode == "preview" or not ctx.config.media.enabled:
+        if (
+            ctx.target.name != "wechat"
+            or ctx.mode == "preview"
+            or not ctx.config.media.enabled
+        ):
             return StepResult(
                 status=StepStatus.SKIPPED,
                 message="Media generation skipped",
@@ -57,7 +61,11 @@ class ValidateMediaStep(PipelineStep):
         self._validator = validator
 
     def execute(self, ctx: PipelineContext) -> StepResult:
-        if ctx.mode == "preview" or not ctx.config.media.enabled:
+        if (
+            ctx.target.name != "wechat"
+            or ctx.mode == "preview"
+            or not ctx.config.media.enabled
+        ):
             return StepResult(
                 status=StepStatus.SKIPPED,
                 message="Media validation skipped",
