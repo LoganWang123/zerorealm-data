@@ -96,7 +96,7 @@ jobs:
           DATE="${{ steps.report-date.outputs.date }}"
           REPORT="output_daily/${DATE}.mdx"
           test -f "$REPORT"
-          install -D "$REPORT" "website/content/daily/${DATE}.mdx"
+          install -D -m 0644 "$REPORT" "website/content/daily/${DATE}.mdx"
           git -C website config user.name "ZeroRealm Bot"
           git -C website config user.email "bot@zerorealm.ai"
           git -C website add "content/daily/${DATE}.mdx"
