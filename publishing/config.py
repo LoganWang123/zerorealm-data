@@ -35,6 +35,22 @@ class CoverConfig:
 
 
 @dataclass
+class MediaConfig:
+    """AI media generation settings. Secrets are read from the environment."""
+
+    enabled: bool = True
+    provider: str = "agnes"
+    image_model: str = "agnes-image-2.1-flash"
+    video_model: str = "agnes-video-v2.0"
+    body_image_count: int = 3
+    video_duration_seconds: int = 15
+    video_aspect_ratio: str = "9:16"
+    poll_interval_seconds: int = 5
+    poll_timeout_seconds: int = 600
+    reuse_existing: bool = True
+
+
+@dataclass
 class PipelineConfig:
     """Pipeline 配置."""
 
@@ -57,6 +73,7 @@ class PublishConfig:
 
     wechat: WechatConfig = field(default_factory=WechatConfig)
     cover: CoverConfig = field(default_factory=CoverConfig)
+    media: MediaConfig = field(default_factory=MediaConfig)
     pipeline: PipelineConfig = field(default_factory=PipelineConfig)
     logging: LoggingConfig = field(default_factory=LoggingConfig)
 
@@ -96,12 +113,14 @@ class PublishConfig:
     def _from_dict(cls, data: dict) -> PublishConfig:
         wechat_data = data.get("wechat", {})
         cover_data = data.get("cover", {})
+        media_data = data.get("media", {})
         pipeline_data = data.get("pipeline", {})
         logging_data = data.get("logging", {})
 
         return cls(
             wechat=WechatConfig(**wechat_data),
             cover=CoverConfig(**cover_data),
+            media=MediaConfig(**media_data),
             pipeline=PipelineConfig(**pipeline_data),
             logging=LoggingConfig(**logging_data),
         )

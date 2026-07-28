@@ -35,6 +35,35 @@ class MediaReference:
     height: int = 0
 
 
+@dataclass
+class MediaAsset:
+    """Generated media with its role and provenance."""
+
+    role: str
+    local_path: str
+    mime: str
+    width: int = 0
+    height: int = 0
+    duration_seconds: float = 0.0
+    sha256: str = ""
+    prompt_version: str = "v1"
+    model: str = ""
+    remote_url: str = ""
+    media_id: str = ""
+
+
+@dataclass
+class MediaBundle:
+    """Complete set of media required by one daily publication."""
+
+    cover: MediaAsset
+    body_images: list[MediaAsset]
+    video: MediaAsset
+
+    def all_assets(self) -> list[MediaAsset]:
+        return [self.cover, *self.body_images, self.video]
+
+
 # ---------------------------------------------------------------------------
 # UploadResult
 # ---------------------------------------------------------------------------
