@@ -13,6 +13,7 @@ from generators.daily_report import (
     load_daily_items,
     format_materials,
     next_issue_number,
+    published_source_urls,
     parse_llm_response,
     generate_mdx,
     generate_daily_report,
@@ -214,6 +215,33 @@ class TestGenerateDailyReport:
                     date="2026-07-26",
                     history_dir=str(history_dir),
                 )
+
+    def test_filters_previously_published_source_urls(self, data_dir, tmp_path):
+        history_dir = tmp_path / "history"
+        history_dir.mkdir()
+        (history_dir / "old.mdx").write_text(
+            "---\n"
+            "title: Old\n"
+            "issue: 4\n"
+            "sections:\n"
+            "  - items:\n"
+            "      - source_url: https://36kr.com/p/1?utm_source=daily\n"
+            "---\n",
+            encoding="utf-8",
+        )
+
+        with patch(
+            "generators.daily_report.call_llm", return_value=MOCK_LLM_RESPONSE
+        ) as call:
+            generate_daily_report(
+                base_dir=data_dir,
+                output_dir=str(tmp_path / "output"),
+                date="2026-07-26",
+                history_dir=str(history_dir),
+            )
+
+        assert call.call_args.args[1] == 1
+        assert published_source_urls(str(history_dir)) == {"https://36kr.com/p/1"}
 
 
 class TestFormatMaterialsEnriched:

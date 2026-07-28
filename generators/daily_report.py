@@ -9,6 +9,7 @@ import os
 import glob
 import re
 from datetime import datetime
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 import yaml
 
@@ -63,6 +64,45 @@ def find_duplicate_headline(parsed: dict, history_dir: str) -> str | None:
         if normalized == _normalize_title(str(historical_title)):
             return path
     return None
+
+
+def _normalize_url(value: str) -> str:
+    """Normalize URLs while ignoring fragments and common tracking parameters."""
+    if not value:
+        return ""
+    try:
+        parts = urlsplit(value.strip())
+        query = urlencode([
+            (key, val)
+            for key, val in parse_qsl(parts.query, keep_blank_values=True)
+            if not key.lower().startswith("utm_")
+        ])
+        path = parts.path.rstrip("/") or "/"
+        return urlunsplit((parts.scheme.lower(), parts.netloc.lower(), path, query, ""))
+    except ValueError:
+        return value.strip().rstrip("/")
+
+
+def published_source_urls(history_dir: str) -> set[str]:
+    """Collect source URLs already used in published daily reports."""
+    urls: set[str] = set()
+
+    def visit(value):
+        if isinstance(value, dict):
+            for key, child in value.items():
+                if key == "source_url" and isinstance(child, str):
+                    normalized = _normalize_url(child)
+                    if normalized:
+                        urls.add(normalized)
+                else:
+                    visit(child)
+        elif isinstance(value, list):
+            for child in value:
+                visit(child)
+
+    for path in glob.glob(os.path.join(history_dir, "*.mdx")):
+        visit(_load_frontmatter(path))
+    return urls
 
 
 def load_daily_items(base_dir: str = "data", date: str | None = None) -> list[dict]:
@@ -371,6 +411,28 @@ def generate_daily_report(
     if not items:
         logger.warning(f"[daily] No items found for {date}")
         return None
+
+    # A cache can be cold or evicted. Website source URLs provide a durable
+    # fallback that removes already-published material before spending an LLM call.
+    if history_dir and os.path.isdir(history_dir):
+        published_urls = published_source_urls(history_dir)
+        if published_urls:
+            original_count = len(items)
+            items = [
+                item
+                for item in items
+                if _normalize_url(str(item.get("url", ""))) not in published_urls
+            ]
+            removed_count = original_count - len(items)
+            if removed_count:
+                logger.info(
+                    "[daily] Excluded %d items already used in published reports",
+                    removed_count,
+                )
+            if not items:
+                raise DuplicateDailyReportError(
+                    "all collected source URLs were already published"
+                )
 
     # Auto issue number (count existing files)
     if issue is None:
