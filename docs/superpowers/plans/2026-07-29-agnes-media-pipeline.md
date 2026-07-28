@@ -800,7 +800,7 @@ npm run build
 Also run:
 
 ```powershell
-rg -n "sk-CIh|Authorization: Bearer sk-|AGNES_API_KEY=" .
+git grep -l -E "sk-[A-Za-z0-9_-]{20,}"
 git status --short
 ```
 
