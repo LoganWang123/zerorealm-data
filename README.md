@@ -90,11 +90,19 @@ python generate_media.py homepage
 已有有效素材时命令不会覆盖。需要人工更新时显式执行：
 
 ```bash
-python generate_media.py homepage --force
+python generate_media.py homepage --website-root ../zerorealm-website --force
 ```
 
-命令会把图片、视频和 `homepage-media.json` 写入官网的
-`public/media/home/`。密钥只允许通过环境变量提供，不应写入仓库或日志。
+命令会调用 Agnes 生成一张主图和最多三段独立视频镜头，再通过 FFmpeg
+规范化并拼接为约 15 秒的官网视频。每个完整镜头都会保留为可恢复的临时文件；
+中途失败后重试只补缺失部分，且不会覆盖当前官网素材。
+
+本机需要提供 FFmpeg 和 ffprobe。可通过 `FFMPEG_PATH`、`FFPROBE_PATH`
+指定可执行文件；默认视频编码器为 `libx264`，不包含该编码器的 Windows
+版本可设置 `FFMPEG_VIDEO_ENCODER=h264_mf`。
+
+最终图片、视频和 `homepage-media.json` 写入官网的 `public/media/home/`。
+密钥只允许通过环境变量提供，不应写入仓库或日志。
 
 ## 验证
 
