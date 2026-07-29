@@ -30,7 +30,7 @@ class FakeSession:
         return self.get_responses.pop(0)
 
 
-def test_generate_image_decodes_base64_and_sends_openai_compatible_payload():
+def test_generate_image_decodes_base64_without_unsupported_response_format():
     encoded = base64.b64encode(b"png-bytes").decode("ascii")
     session = FakeSession(
         post_responses=[FakeResponse(payload={"data": [{"b64_json": encoded}]})]
@@ -49,8 +49,8 @@ def test_generate_image_decodes_base64_and_sends_openai_compatible_payload():
         "prompt": "retail intelligence",
         "n": 1,
         "size": "900x383",
-        "response_format": "b64_json",
     }
+    assert request["timeout"] == 300
 
 
 def test_generate_image_downloads_url_response():

@@ -33,7 +33,7 @@ class AgnesClient:
         session: requests.Session | None = None,
         sleeper: Callable[[float], None] = time.sleep,
         monotonic: Callable[[], float] = time.monotonic,
-        request_timeout_seconds: int = 120,
+        request_timeout_seconds: int = 300,
     ):
         if not api_key:
             raise ValueError("AGNES_API_KEY is required")
@@ -71,7 +71,6 @@ class AgnesClient:
                 "prompt": prompt,
                 "n": 1,
                 "size": size,
-                "response_format": "b64_json",
             },
         )
         data = response.get("data")
