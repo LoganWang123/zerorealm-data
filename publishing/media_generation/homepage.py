@@ -10,6 +10,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from publishing.config import MediaConfig
+from publishing.media_generation.assembly import (
+    assemble_homepage_video,
+    normalize_homepage_image,
+)
 from publishing.media_generation.client import AgnesClient
 from publishing.media_generation.prompts import build_homepage_prompts
 from publishing.media_generation.validation import probe_media
@@ -21,6 +25,11 @@ def generate_homepage_media(
     *,
     force: bool = False,
     validator: Callable[[Path, Path], None] | None = None,
+    image_normalizer: Callable[[Path, Path], None] = normalize_homepage_image,
+    video_assembler: Callable[
+        [tuple[Path, Path, Path], Path],
+        None,
+    ] = assemble_homepage_video,
 ) -> Path:
     """Generate fixed homepage media and replace it only after validation."""
     home_dir = Path(website_root) / "public" / "media" / "home"
@@ -30,30 +39,53 @@ def generate_homepage_media(
             "Homepage media already exists; pass --force to regenerate it"
         )
 
-    prompts = build_homepage_prompts()
-    image_content = client.generate_image(prompts.cover, "1920x1080")
-    video_content = client.generate_video(
-        prompt=prompts.video,
-        aspect_ratio="16:9",
-        duration_seconds=15,
-        poll_interval_seconds=5,
-        poll_timeout_seconds=600,
-    )
-    if not image_content or not video_content:
-        raise ValueError("Homepage media generation returned an empty file")
-
     home_dir.mkdir(parents=True, exist_ok=True)
-    image_partial = home_dir / "hero.png.partial"
-    video_partial = home_dir / "showcase.mp4.partial"
-    image_partial.write_bytes(image_content)
-    video_partial.write_bytes(video_content)
+    image_raw = home_dir / "hero.raw.png.partial"
+    image_ready = home_dir / "hero.ready.png"
+    scene_paths = tuple(
+        home_dir / f"scene-{index:02d}.mp4.partial"
+        for index in range(1, 4)
+    )
+    video_ready = home_dir / "showcase.ready.mp4"
+    prompts = build_homepage_prompts()
 
-    (validator or _validate_homepage_media)(image_partial, video_partial)
+    if not image_raw.exists():
+        image_content = client.generate_image(prompts.cover, "1920x1080")
+        if not image_content:
+            raise ValueError("Homepage image generation returned an empty file")
+        image_raw.write_bytes(image_content)
+
+    for prompt, scene_path in zip(
+        prompts.video_scenes,
+        scene_paths,
+        strict=True,
+    ):
+        if scene_path.exists():
+            continue
+        scene_content = client.generate_video(
+            prompt=prompt,
+            aspect_ratio="16:9",
+            duration_seconds=5,
+            poll_interval_seconds=5,
+            poll_timeout_seconds=600,
+        )
+        if not scene_content:
+            raise ValueError("Homepage video generation returned an empty file")
+        scene_path.write_bytes(scene_content)
+
+    if not image_ready.exists():
+        image_normalizer(image_raw, image_ready)
+    if not video_ready.exists():
+        video_assembler(scene_paths, video_ready)
+
+    (validator or _validate_homepage_media)(image_ready, video_ready)
+    image_content = image_ready.read_bytes()
+    video_content = video_ready.read_bytes()
 
     image_path = home_dir / "hero.png"
     video_path = home_dir / "showcase.mp4"
-    image_partial.replace(image_path)
-    video_partial.replace(video_path)
+    image_ready.replace(image_path)
+    video_ready.replace(video_path)
 
     manifest = {
         "prompt_version": prompts.version,
@@ -83,6 +115,9 @@ def generate_homepage_media(
         encoding="utf-8",
     )
     manifest_partial.replace(manifest_path)
+    image_raw.unlink(missing_ok=True)
+    for scene_path in scene_paths:
+        scene_path.unlink(missing_ok=True)
     return manifest_path
 
 
@@ -108,13 +143,13 @@ def client_from_environment(config: MediaConfig | None = None) -> AgnesClient:
 def _validate_homepage_media(image_path: Path, video_path: Path) -> None:
     image = probe_media(image_path)
     video = probe_media(video_path)
-    if image.mime != "image/png" or image.width <= 0 or image.height <= 0:
+    if image.mime != "image/png":
         raise ValueError("Homepage image is not a valid PNG")
+    if (image.width, image.height) != (1920, 1080):
+        raise ValueError("Homepage image must be 1920x1080")
     if video.mime != "video/mp4":
         raise ValueError("Homepage video is not a valid MP4")
-    target_ratio = 16 / 9
-    actual_ratio = video.width / video.height if video.height else 0
-    if not actual_ratio or abs(actual_ratio - target_ratio) / target_ratio > 0.02:
-        raise ValueError("Homepage video must use a 16:9 aspect ratio")
-    if abs(video.duration_seconds - 15) > 3:
-        raise ValueError("Homepage video duration must be approximately 15 seconds")
+    if (video.width, video.height) != (1920, 1080):
+        raise ValueError("Homepage video must be 1920x1080")
+    if not 14 <= video.duration_seconds <= 16:
+        raise ValueError("Homepage video duration must be between 14 and 16 seconds")

@@ -7,7 +7,10 @@ import pytest
 
 from publishing.config import PublishConfig
 from publishing.article import Article, ArticleMeta
-from publishing.media_generation.homepage import generate_homepage_media
+from publishing.media_generation.homepage import (
+    _validate_homepage_media,
+    generate_homepage_media,
+)
 from publishing.media_generation.prompts import (
     build_daily_prompts,
     build_homepage_prompts,
@@ -93,6 +96,15 @@ class FakeAgnesClient:
             )
         )
         return b"\x00\x00\x00\x18ftypmp42" + b"generated-video"
+
+
+def copy_generated_image(source, output):
+    output.write_bytes(source.read_bytes())
+
+
+def write_assembled_video(clips, output):
+    assert len(clips) == 3
+    output.write_bytes(b"\x00\x00\x00\x18ftypmp42assembled")
 
 
 def daily_article(content_revision=1):
@@ -262,6 +274,8 @@ def test_homepage_generation_is_fixed_until_force_is_explicit(tmp_path):
         website_root=website_root,
         force=False,
         validator=lambda image_path, video_path: None,
+        image_normalizer=copy_generated_image,
+        video_assembler=write_assembled_video,
     )
 
     manifest_path = website_root / "public" / "media" / "home" / "homepage-media.json"
@@ -271,7 +285,10 @@ def test_homepage_generation_is_fixed_until_force_is_explicit(tmp_path):
     assert manifest["video"]["src"] == "/media/home/showcase.mp4"
     assert manifest["video"]["poster"] == "/media/home/hero.png"
     assert len(client.image_calls) == 1
-    assert len(client.video_calls) == 1
+    assert len(client.video_calls) == 3
+    assert [call[0] for call in client.video_calls] == list(
+        build_homepage_prompts().video_scenes
+    )
 
     with pytest.raises(FileExistsError, match="--force"):
         generate_homepage_media(
@@ -279,6 +296,8 @@ def test_homepage_generation_is_fixed_until_force_is_explicit(tmp_path):
             website_root=website_root,
             force=False,
             validator=lambda image_path, video_path: None,
+            image_normalizer=copy_generated_image,
+            video_assembler=write_assembled_video,
         )
 
     generate_homepage_media(
@@ -286,23 +305,33 @@ def test_homepage_generation_is_fixed_until_force_is_explicit(tmp_path):
         website_root=website_root,
         force=True,
         validator=lambda image_path, video_path: None,
+        image_normalizer=copy_generated_image,
+        video_assembler=write_assembled_video,
     )
     assert len(client.image_calls) == 2
-    assert len(client.video_calls) == 2
+    assert len(client.video_calls) == 6
 
 
-def test_homepage_generation_resumes_complete_partial_files(tmp_path):
+def test_homepage_generation_resumes_existing_image_and_video_scenes(tmp_path):
     website_root = tmp_path / "website"
     home_dir = website_root / "public" / "media" / "home"
     home_dir.mkdir(parents=True)
     image_content = b"\x89PNG\r\n\x1a\n" + b"existing-image"
-    video_content = b"\x00\x00\x00\x18ftypmp42" + b"existing-video"
-    image_partial = home_dir / "hero.png.partial"
-    video_partial = home_dir / "showcase.mp4.partial"
+    image_partial = home_dir / "hero.raw.png.partial"
     image_partial.write_bytes(image_content)
-    video_partial.write_bytes(video_content)
+    scene_paths = tuple(
+        home_dir / f"scene-{index:02d}.mp4.partial"
+        for index in range(1, 4)
+    )
+    for index, scene_path in enumerate(scene_paths, start=1):
+        scene_path.write_bytes(f"existing-scene-{index}".encode())
     client = FakeAgnesClient()
     validated = []
+    assembled = []
+
+    def assemble_existing_scenes(clips, output):
+        assembled.append(clips)
+        write_assembled_video(clips, output)
 
     manifest_path = generate_homepage_media(
         client=client,
@@ -310,15 +339,123 @@ def test_homepage_generation_resumes_complete_partial_files(tmp_path):
         validator=lambda image_path, video_path: validated.append(
             (image_path, video_path)
         ),
+        image_normalizer=copy_generated_image,
+        video_assembler=assemble_existing_scenes,
     )
 
-    assert validated == [(image_partial, video_partial)]
+    assert len(validated) == 1
+    assert assembled == [scene_paths]
     assert client.image_calls == []
     assert client.video_calls == []
     assert (home_dir / "hero.png").read_bytes() == image_content
-    assert (home_dir / "showcase.mp4").read_bytes() == video_content
+    assert (home_dir / "showcase.mp4").read_bytes().endswith(b"assembled")
     assert not image_partial.exists()
-    assert not video_partial.exists()
+    assert all(not scene_path.exists() for scene_path in scene_paths)
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     assert manifest["image"]["sha256"] == hashlib.sha256(image_content).hexdigest()
-    assert manifest["video"]["sha256"] == hashlib.sha256(video_content).hexdigest()
+    assert manifest["video"]["sha256"] == hashlib.sha256(
+        (home_dir / "showcase.mp4").read_bytes()
+    ).hexdigest()
+
+
+def test_homepage_generation_only_requests_missing_scene(tmp_path):
+    website_root = tmp_path / "website"
+    home_dir = website_root / "public" / "media" / "home"
+    home_dir.mkdir(parents=True)
+    (home_dir / "hero.raw.png.partial").write_bytes(b"raw-image")
+    (home_dir / "scene-01.mp4.partial").write_bytes(b"scene-1")
+    (home_dir / "scene-03.mp4.partial").write_bytes(b"scene-3")
+    client = FakeAgnesClient()
+
+    generate_homepage_media(
+        client,
+        website_root,
+        validator=lambda image, video: None,
+        image_normalizer=copy_generated_image,
+        video_assembler=write_assembled_video,
+    )
+
+    prompts = build_homepage_prompts()
+    assert client.image_calls == []
+    assert len(client.video_calls) == 1
+    assert client.video_calls[0][0] == prompts.video_scenes[1]
+
+
+def test_homepage_assembly_failure_preserves_published_files(tmp_path):
+    website_root = tmp_path / "website"
+    home_dir = website_root / "public" / "media" / "home"
+    home_dir.mkdir(parents=True)
+    image_path = home_dir / "hero.png"
+    video_path = home_dir / "showcase.mp4"
+    manifest_path = home_dir / "homepage-media.json"
+    image_path.write_bytes(b"published-image")
+    video_path.write_bytes(b"published-video")
+    manifest_path.write_bytes(b"published-manifest")
+    (home_dir / "hero.raw.png.partial").write_bytes(b"raw-image")
+    for index in range(1, 4):
+        (home_dir / f"scene-{index:02d}.mp4.partial").write_bytes(
+            f"scene-{index}".encode()
+        )
+
+    def fail_assembly(clips, output):
+        raise ValueError("assembly failed")
+
+    with pytest.raises(ValueError, match="assembly failed"):
+        generate_homepage_media(
+            FakeAgnesClient(),
+            website_root,
+            force=True,
+            image_normalizer=copy_generated_image,
+            video_assembler=fail_assembly,
+        )
+
+    assert image_path.read_bytes() == b"published-image"
+    assert video_path.read_bytes() == b"published-video"
+    assert manifest_path.read_bytes() == b"published-manifest"
+
+
+def test_homepage_validation_rejects_non_hd_media(tmp_path, monkeypatch):
+    probes = iter(
+        [
+            MediaProbe(mime="image/png", width=1312, height=736),
+            MediaProbe(
+                mime="video/mp4",
+                width=1920,
+                height=1080,
+                duration_seconds=15,
+            ),
+        ]
+    )
+    monkeypatch.setattr(
+        "publishing.media_generation.homepage.probe_media",
+        lambda path: next(probes),
+    )
+
+    with pytest.raises(ValueError, match="image must be 1920x1080"):
+        _validate_homepage_media(tmp_path / "hero.png", tmp_path / "showcase.mp4")
+
+
+@pytest.mark.parametrize("duration", [13.99, 16.01])
+def test_homepage_validation_rejects_video_outside_duration_window(
+    tmp_path,
+    monkeypatch,
+    duration,
+):
+    probes = iter(
+        [
+            MediaProbe(mime="image/png", width=1920, height=1080),
+            MediaProbe(
+                mime="video/mp4",
+                width=1920,
+                height=1080,
+                duration_seconds=duration,
+            ),
+        ]
+    )
+    monkeypatch.setattr(
+        "publishing.media_generation.homepage.probe_media",
+        lambda path: next(probes),
+    )
+
+    with pytest.raises(ValueError, match="between 14 and 16 seconds"):
+        _validate_homepage_media(tmp_path / "hero.png", tmp_path / "showcase.mp4")
