@@ -32,7 +32,12 @@ class BasePublisher(ABC):
     """Publisher 抽象：RenderResult → API → PublishResult."""
 
     @abstractmethod
-    def publish(self, result: RenderResult, dry_run: bool = False) -> PublishResult:
+    def publish(
+        self,
+        result: RenderResult,
+        dry_run: bool = False,
+        publish_now: bool = False,
+    ) -> PublishResult:
         """发布渲染产物到渠道."""
         ...
 

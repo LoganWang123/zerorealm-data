@@ -45,11 +45,14 @@ def bundle():
 
 
 class FakeManifest:
+    def __init__(self):
+        self.failed_calls = []
+
     def save(self, **kwargs):
         return None
 
     def mark_failed(self, *args):
-        return None
+        self.failed_calls.append(args)
 
 
 class CountingRenderer:
@@ -133,6 +136,9 @@ def test_generation_failure_prevents_rendering_and_publishing():
     assert result.failed_step == "generate_media"
     assert renderer.calls == 0
     assert publisher.calls == 0
+    assert context.manifest.failed_calls == [
+        ("article-1", "wechat", "generate_media")
+    ]
 
 
 def test_preview_skips_provider_factory():

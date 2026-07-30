@@ -87,7 +87,11 @@ class PublishStep(PipelineStep):
         dry_run = ctx.mode == "dry_run"
 
         try:
-            result = ctx.target.publisher.publish(render_result, dry_run=dry_run)
+            result = ctx.target.publisher.publish(
+                render_result,
+                dry_run=dry_run,
+                publish_now=ctx.mode == "publish",
+            )
             ctx.set(PipelineState.PUBLISH_RESULT, result)
 
             if result.status == PublishStatus.FAILED:
@@ -126,7 +130,8 @@ class RecordStep(PipelineStep):
                 channel=ctx.target.name,
                 result=publish_result,
             )
-            ctx.manifest.mark_published(ctx.article.metadata.uuid, ctx.target.name)
+            if publish_result.publish_id:
+                ctx.manifest.mark_published(ctx.article.metadata.uuid, ctx.target.name)
             return StepResult(status=StepStatus.SUCCESS, message="Recorded to manifest")
 
         if publish_result.status == PublishStatus.FAILED:

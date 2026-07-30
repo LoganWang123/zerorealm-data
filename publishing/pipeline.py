@@ -169,6 +169,11 @@ class PublishPipeline:
                         message=result.message,
                     ),
                 )
+                ctx.manifest.mark_failed(
+                    ctx.article.metadata.uuid,
+                    ctx.target.name,
+                    step.name,
+                )
                 self.rollback(ctx, step.name)
                 break
 

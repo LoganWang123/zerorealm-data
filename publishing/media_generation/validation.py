@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import shutil
 import struct
 import subprocess
@@ -94,7 +95,10 @@ def probe_media(path: Path) -> MediaProbe:
         return MediaProbe(mime="image/png", width=width, height=height)
 
     if len(header) >= 12 and header[4:8] == b"ftyp":
-        executable = shutil.which("ffprobe")
+        configured_executable = os.getenv("FFPROBE_PATH")
+        if configured_executable and not Path(configured_executable).is_file():
+            raise ValueError("FFPROBE_PATH does not point to a file")
+        executable = configured_executable or shutil.which("ffprobe")
         if not executable:
             raise ValueError("ffprobe is required to validate generated video")
         completed = subprocess.run(

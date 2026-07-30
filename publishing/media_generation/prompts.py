@@ -59,32 +59,41 @@ def build_daily_prompts(article: Article, body_image_count: int = 3) -> PromptSe
 def build_homepage_prompts() -> PromptSet:
     """Build the fixed homepage visual and video prompts."""
     common = (
-        f"{BRAND_STYLE} 写实、克制、可信的商业视觉，展现 AI 将分散的零售行业信号"
-        "转化为结构化知识和经营决策洞察。人物、门店、商品和数据关系必须真实自然，"
-        "禁止芯片、工厂流水线、玩具模型和泛科技装饰。"
+        "深海军蓝、克制的科技蓝和少量翡翠绿，写实、克制、可信的商业视觉，"
+        "适合商业决策者。展现 AI 将分散的零售行业信号"
+        "转化为结构化知识和经营决策洞察。人物、门店、商品和数据关系真实自然。"
     )
     scenes = (
         (
-            f"{common} 第一镜：零售信号发现。真实门店、商品、客流和市场变化形成"
-            "克制的数据光点；稳定向前运镜，约 5 秒。禁止任何文字、Logo、水印和"
-            "伪界面文案；不循环、不倒放。"
+            f"{common} 第一镜：零售信号发现。现代精品超市内，亚洲零售研究团队沿"
+            "商品货架进行现场观察，对比陈列、库存与顾客选择，并用手势交流发现；"
+            "少量蓝绿色半透明光点随视线从商品自然汇聚。稳定向前运镜，约 5 秒。"
+            "禁止任何文字、Logo、水印和可读招牌；不循环、不倒放。"
         ),
         (
-            f"{common} 第二镜：结构化知识形成。不同零售信号自然汇聚为清晰的关系"
-            "网络、趋势层次和知识结构；连续横向运镜，约 5 秒。禁止任何文字、Logo、"
-            "水印、芯片和工厂意象；不循环、不倒放。"
+            "TOP-DOWN cinematic commercial shot, camera directly overhead. A dark navy "
+            "research table fills the entire frame. ONLY hands visible, slowly sorting "
+            "unbranded solid-color grocery package samples: plain boxes, cans and bottles "
+            "with absolutely blank surfaces. Blank circular category tokens form three "
+            "clear groups while subtle cyan lines connect related items. Five seconds, "
+            "slow lateral camera movement. No faces, standing people, phones, monitors, "
+            "photos, handwriting, symbols, numbers, letters or labels. 结构化知识，俯拍，"
+            "食品饮料包装样品。禁止任何文字、Logo、水印。不循环、不倒放。"
         ),
         (
-            f"{common} 第三镜：经营决策支持。分析结果进入真实商业决策场景，体现"
-            "趋势判断、机会识别和行动方向；镜头稳定收束并留下自然片尾空间，约 5 秒。"
-            "禁止任何文字、Logo、水印和伪界面文案；不循环、不倒放。"
+            f"{common} 第三镜：经营决策支持。亚洲管理团队举行零售经营会议，桌面"
+            "摆放商品样品与平板，墙面仅呈现无字的彩色趋势曲线；负责人确认重点机会，"
+            "团队形成行动共识。镜头稳定收束并留下自然片尾空间，约 5 秒。禁止任何文字、"
+            "Logo、水印和可读屏幕；不循环、不倒放。"
         ),
     )
     return PromptSet(
         cover=(
-            f"{common} 官网 Hero 主视觉，16:9 横构图。右侧是真实零售行业分析与"
-            "决策场景，中部用克制的数据节点表现多源信号汇聚，左侧保持自然、干净的"
-            "深海军蓝留白，供网页标题使用。禁止任何文字、Logo、水印和发光品牌字；"
+            "商业纪实摄影，16:9 横构图，现代精品超市内景。右侧的零售策略团队在"
+            "真实商品货架旁共同查看一台没有可见界面的平板；克制的蓝绿半透明光流"
+            "从不同商品区域自然汇聚到平板，表达市场信号汇总和趋势判断。人物神态"
+            "专业自然，商品和空间比例真实。左侧保持深海军蓝的模糊过道与大面积干净"
+            "留白，供网页标题使用。禁止任何文字、Logo、水印、可读招牌和界面文案；"
             "不循环、不表现连续动作。"
         ),
         body_images=[],

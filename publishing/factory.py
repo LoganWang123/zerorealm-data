@@ -23,6 +23,7 @@ class BuilderContext:
     """Builder 统一入参（避免 **kwargs 持续膨胀）."""
 
     config: PublishConfig
+    mode: str = "draft"
     manifest: ManifestRepository | None = None
     logger: logging.Logger | None = None
     cache: BaseCache | None = None  # 预留（Protocol / ABC）

@@ -17,8 +17,11 @@ import sys
 from datetime import date
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 # 确保项目根目录在 sys.path
 sys.path.insert(0, str(Path(__file__).parent))
+load_dotenv(Path(__file__).parent / ".env")
 
 # 注册渠道（import 即注册）
 import publishing.wechat.builder  # noqa: F401
@@ -132,7 +135,12 @@ def cmd_publish(args):
         logger.info("=" * 50)
 
         # Factory 组装 ChannelTarget
-        builder_ctx = BuilderContext(config=config, manifest=manifest, logger=logger)
+        builder_ctx = BuilderContext(
+            config=config,
+            mode=mode,
+            manifest=manifest,
+            logger=logger,
+        )
         target = PublisherFactory.create(channel, builder_ctx)
 
         # Workflow 执行

@@ -74,7 +74,9 @@ def test_assemble_homepage_video_uses_three_inputs_without_looping(
     assert command.count("-i") == 3
     assert "-stream_loop" not in command
     assert filter_graph.count("xfade") == 2
-    assert "scale=1920:1080:force_original_aspect_ratio=decrease" in filter_graph
+    assert "scale=1920:1080:force_original_aspect_ratio=increase" in filter_graph
+    assert "crop=1920:1080" in filter_graph
+    assert "pad=" not in filter_graph
     assert command[command.index("-pix_fmt") + 1] == "yuv420p"
     assert command[-1] == str(output)
     assert kwargs["check"] is True

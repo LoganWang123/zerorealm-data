@@ -25,7 +25,12 @@ class WechatPublisher(BasePublisher):
         self._client = client
         self._manifest = manifest
 
-    def publish(self, result: RenderResult, dry_run: bool = False) -> PublishResult:
+    def publish(
+        self,
+        result: RenderResult,
+        dry_run: bool = False,
+        publish_now: bool = False,
+    ) -> PublishResult:
         """发布到微信公众号."""
         start = time.time()
 
@@ -105,6 +110,7 @@ class WechatPublisher(BasePublisher):
         # 构建草稿 payload
         metadata = result.channel_metadata
         digest = metadata.digest if isinstance(metadata, WechatMetadata) else result.summary
+        digest = _truncate_utf8(digest, 120)
 
         article_payload = {
             "title": result.title,
@@ -131,12 +137,21 @@ class WechatPublisher(BasePublisher):
                 draft_id = self._client.create_draft([article_payload])
                 status = PublishStatus.SUCCESS
 
+            publish_id = None
+            if publish_now:
+                publish_id = self._client.submit_publish(draft_id)
+
             return PublishResult(
                 status=status,
                 channel="wechat",
                 draft_id=draft_id,
+                publish_id=publish_id,
                 duration=time.time() - start,
-                message=f"Draft {'updated' if status == PublishStatus.UPDATED else 'created'}",
+                message=(
+                    f"Publish submitted (draft {'updated' if status == PublishStatus.UPDATED else 'created'})"
+                    if publish_now
+                    else f"Draft {'updated' if status == PublishStatus.UPDATED else 'created'}"
+                ),
             )
         except Exception as e:
             return PublishResult(
@@ -145,3 +160,11 @@ class WechatPublisher(BasePublisher):
                 message=f"Publish failed: {e}",
                 duration=time.time() - start,
             )
+
+
+def _truncate_utf8(value: str, max_bytes: int) -> str:
+    """Truncate text without splitting a UTF-8 code point."""
+    encoded = value.encode("utf-8")
+    if len(encoded) <= max_bytes:
+        return value
+    return encoded[:max_bytes].decode("utf-8", errors="ignore").rstrip()

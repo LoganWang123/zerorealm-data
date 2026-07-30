@@ -154,6 +154,19 @@ def test_homepage_prompts_define_three_distinct_retail_intelligence_scenes():
     for prompt in (prompts.cover, *prompts.video_scenes):
         assert "禁止任何文字" in prompt
         assert "不循环" in prompt
+        for unwanted_concept in ("芯片", "电路板", "工厂", "玩具"):
+            assert unwanted_concept not in prompt
+    assert "ZeroRealm AI" not in prompts.cover
+    assert "零售策略团队" in prompts.cover
+    assert "平板" not in prompts.video_scenes[0]
+    assert "现场观察" in prompts.video_scenes[0]
+    assert "食品饮料包装样品" in prompts.video_scenes[1]
+    assert "俯拍" in prompts.video_scenes[1]
+    assert "TOP-DOWN" in prompts.video_scenes[1]
+    assert prompts.video_scenes[1].startswith("TOP-DOWN")
+    assert "ONLY hands visible" in prompts.video_scenes[1]
+    assert "absolutely blank surfaces" in prompts.video_scenes[1]
+    assert "零售经营会议" in prompts.video_scenes[2]
 
 
 def test_daily_generation_reuses_valid_manifest_without_provider_calls(tmp_path):
@@ -379,6 +392,28 @@ def test_homepage_generation_only_requests_missing_scene(tmp_path):
     assert client.image_calls == []
     assert len(client.video_calls) == 1
     assert client.video_calls[0][0] == prompts.video_scenes[1]
+
+
+def test_homepage_generation_reuses_ready_video_without_scene_calls(tmp_path):
+    website_root = tmp_path / "website"
+    home_dir = website_root / "public" / "media" / "home"
+    home_dir.mkdir(parents=True)
+    (home_dir / "hero.raw.png.partial").write_bytes(b"raw-image")
+    (home_dir / "showcase.ready.mp4").write_bytes(
+        b"\x00\x00\x00\x18ftypmp42ready-video"
+    )
+    client = FakeAgnesClient()
+
+    generate_homepage_media(
+        client,
+        website_root,
+        validator=lambda image, video: None,
+        image_normalizer=copy_generated_image,
+        video_assembler=write_assembled_video,
+    )
+
+    assert client.image_calls == []
+    assert client.video_calls == []
 
 
 def test_homepage_assembly_failure_preserves_published_files(tmp_path):

@@ -26,6 +26,13 @@ class WechatChannelBuilder:
         # 从环境变量读取 secrets
         app_id = ctx.config.wechat.app_id or os.getenv("WECHAT_APPID", "")
         app_secret = ctx.config.wechat.app_secret or os.getenv("WECHAT_SECRET", "")
+        if (
+            ctx.mode not in {"preview", "dry_run"}
+            and (not app_id or not app_secret)
+        ):
+            raise ValueError(
+                "WeChat credentials are missing. Set WECHAT_APPID and WECHAT_SECRET in .env."
+            )
 
         client = WechatClient(app_id, app_secret)
         storage = LocalMediaStorage()  # dry-run 用本地存储，正式环境替换为 WechatMediaStorage

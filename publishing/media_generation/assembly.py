@@ -56,8 +56,8 @@ def assemble_homepage_video(
     for index in range(3):
         scene_filters.append(
             f"[{index}:v]trim=duration=5,setpts=PTS-STARTPTS,"
-            "scale=1920:1080:force_original_aspect_ratio=decrease,"
-            "pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=0x071525,"
+            "scale=1920:1080:force_original_aspect_ratio=increase,"
+            "crop=1920:1080,"
             f"fps=24,format=yuv420p[v{index}]"
         )
     filter_graph = ";".join(

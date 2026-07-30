@@ -9,6 +9,8 @@ logs/
 
 # output
 output_daily/
+.cache/
+.test-tmp/
 
 # python
 __pycache__/

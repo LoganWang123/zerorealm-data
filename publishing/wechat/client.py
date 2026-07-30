@@ -51,7 +51,7 @@ class WechatClient:
         if cached:
             return cached
 
-        resp = self._session.get(
+        resp = self._get(
             f"{BASE_URL}/cgi-bin/token",
             params={
                 "grant_type": "client_credential",
@@ -80,7 +80,7 @@ class WechatClient:
         """上传永久图片素材（封面用）."""
         token = self.get_access_token()
         with open(path, "rb") as f:
-            resp = self._session.post(
+            resp = self._post(
                 f"{BASE_URL}/cgi-bin/material/add_material",
                 params={"access_token": token, "type": "image"},
                 files={"media": f},
@@ -92,7 +92,7 @@ class WechatClient:
         """上传正文图片（返回微信 CDN URL）."""
         token = self.get_access_token()
         with open(path, "rb") as f:
-            resp = self._session.post(
+            resp = self._post(
                 f"{BASE_URL}/cgi-bin/media/uploadimg",
                 params={"access_token": token},
                 files={"media": f},
@@ -114,7 +114,7 @@ class WechatClient:
             ensure_ascii=False,
         )
         with open(path, "rb") as media_file:
-            resp = self._session.post(
+            resp = self._post(
                 f"{BASE_URL}/cgi-bin/material/add_material",
                 params={"access_token": token, "type": "video"},
                 data={"description": description},
@@ -130,10 +130,10 @@ class WechatClient:
     def create_draft(self, articles: list[dict]) -> str:
         """新建草稿，返回 media_id."""
         token = self.get_access_token()
-        resp = self._session.post(
+        resp = self._post_utf8_json(
             f"{BASE_URL}/cgi-bin/draft/add",
             params={"access_token": token},
-            json={"articles": articles},
+            payload={"articles": articles},
             timeout=30,
         )
         data = self._check_response(resp)
@@ -142,10 +142,10 @@ class WechatClient:
     def update_draft(self, media_id: str, index: int, article: dict) -> dict:
         """更新草稿."""
         token = self.get_access_token()
-        resp = self._session.post(
+        resp = self._post_utf8_json(
             f"{BASE_URL}/cgi-bin/draft/update",
             params={"access_token": token},
-            json={"media_id": media_id, "index": index, "articles": article},
+            payload={"media_id": media_id, "index": index, "articles": article},
             timeout=30,
         )
         return self._check_response(resp)
@@ -157,7 +157,7 @@ class WechatClient:
     def submit_publish(self, media_id: str) -> str:
         """提交发布，返回 publish_id."""
         token = self.get_access_token()
-        resp = self._session.post(
+        resp = self._post(
             f"{BASE_URL}/cgi-bin/freepublish/submit",
             params={"access_token": token},
             json={"media_id": media_id},
@@ -172,11 +172,52 @@ class WechatClient:
 
     def _check_response(self, resp: requests.Response) -> dict:
         """检查响应，抛出友好错误."""
-        data = resp.json()
+        try:
+            data = json.loads(resp.content.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError, AttributeError):
+            data = resp.json()
         errcode = data.get("errcode", 0)
         if errcode != 0:
             raise WechatAPIError(errcode, data.get("errmsg", ""))
         return data
+
+    def _post_utf8_json(
+        self,
+        url: str,
+        *,
+        params: dict,
+        payload: dict,
+        timeout: int,
+    ) -> requests.Response:
+        """Send literal UTF-8 JSON for WeChat endpoints that store article text."""
+        return self._post(
+            url,
+            params=params,
+            data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+            headers={"Content-Type": "application/json; charset=utf-8"},
+            timeout=timeout,
+        )
+
+    def _get(self, url: str, **kwargs) -> requests.Response:
+        """Issue a GET without exposing credential-bearing URLs on failure."""
+        try:
+            return self._session.get(url, **kwargs)
+        except requests.RequestException as exc:
+            self._raise_redacted_network_error(exc)
+
+    def _post(self, url: str, **kwargs) -> requests.Response:
+        """Issue a POST without exposing access tokens on failure."""
+        try:
+            return self._session.post(url, **kwargs)
+        except requests.RequestException as exc:
+            self._raise_redacted_network_error(exc)
+
+    @staticmethod
+    def _raise_redacted_network_error(exc: requests.RequestException) -> None:
+        safe_cause = exc.__class__(
+            "WeChat request failed (sensitive query parameters redacted)"
+        )
+        raise WechatAPIError(-1, "Unable to reach WeChat API") from safe_cause
 
     def _load_token_cache(self) -> str | None:
         if not TOKEN_CACHE.exists():

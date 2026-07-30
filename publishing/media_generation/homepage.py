@@ -55,23 +55,24 @@ def generate_homepage_media(
             raise ValueError("Homepage image generation returned an empty file")
         image_raw.write_bytes(image_content)
 
-    for prompt, scene_path in zip(
-        prompts.video_scenes,
-        scene_paths,
-        strict=True,
-    ):
-        if scene_path.exists():
-            continue
-        scene_content = client.generate_video(
-            prompt=prompt,
-            aspect_ratio="16:9",
-            duration_seconds=5,
-            poll_interval_seconds=5,
-            poll_timeout_seconds=600,
-        )
-        if not scene_content:
-            raise ValueError("Homepage video generation returned an empty file")
-        scene_path.write_bytes(scene_content)
+    if not video_ready.exists():
+        for prompt, scene_path in zip(
+            prompts.video_scenes,
+            scene_paths,
+            strict=True,
+        ):
+            if scene_path.exists():
+                continue
+            scene_content = client.generate_video(
+                prompt=prompt,
+                aspect_ratio="16:9",
+                duration_seconds=5,
+                poll_interval_seconds=5,
+                poll_timeout_seconds=600,
+            )
+            if not scene_content:
+                raise ValueError("Homepage video generation returned an empty file")
+            scene_path.write_bytes(scene_content)
 
     if not image_ready.exists():
         image_normalizer(image_raw, image_ready)
