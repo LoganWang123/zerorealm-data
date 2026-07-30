@@ -124,8 +124,20 @@ jobs:
           REPORT="output_daily/${DATE}.mdx"
           test -f "$REPORT"
           install -D -m 0644 "$REPORT" "website/content/daily/${DATE}.mdx"
-          git -C website config user.name "ZeroRealm Bot"
-          git -C website config user.email "bot@zerorealm.ai"
-          git -C website add "content/daily/${DATE}.mdx"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          stats_path = Path("website/data/stats.json")
+          stats = json.loads(stats_path.read_text(encoding="utf-8"))
+          stats["dailyIssues"] = len(list(Path("website/content/daily").glob("*.mdx")))
+          stats_path.write_text(
+              json.dumps(stats, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          PY
+          git -C website config user.name "LoganWang123"
+          git -C website config user.email "LoganWang123@users.noreply.github.com"
+          git -C website add "content/daily/${DATE}.mdx" "data/stats.json"
           git -C website diff --cached --quiet || git -C website commit -m "feat(daily): publish ${DATE}"
           git -C website push
