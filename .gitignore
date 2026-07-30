@@ -9,6 +9,8 @@ logs/
 
 # output
 output_daily/
+assets/generated/
+storage/manifest/
 .cache/
 .test-tmp/
 

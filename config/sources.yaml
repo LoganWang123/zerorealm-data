@@ -307,13 +307,45 @@ sources:
 
   - id: zhongji_web
     name: 中吉
-    url: https://www.zhongji.com/
+    url: https://www.t-cn.com/
     type: web
     parser: list
     category: company
     industry_role: vendor
     priority: P0
     score: 85
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: easivend_web
+    name: 骏鹏易丰
+    url: https://www.easivend.com.cn/
+    type: web
+    parser: list
+    category: company
+    industry_role: vendor
+    industry_segment: vending_machine
+    priority: P0
+    score: 88
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: hetun_web
+    name: 合豚科技
+    url: https://www.hetunai.cn/
+    type: web
+    parser: list
+    category: company
+    industry_role: vendor
+    industry_segment: vision_cabinet
+    priority: P0
+    score: 88
     interval: daily
     retry: 3
     timeout: 30
@@ -449,6 +481,22 @@ sources:
     industry_segment: beverage
     priority: P0
     score: 90
+    interval: daily
+    retry: 3
+    timeout: 30
+    user_agent: zerorealm-bot/1.0
+    enabled: true
+
+  - id: eastroc_web
+    name: 东鹏饮料
+    url: https://www.szeastroc.com/news/
+    type: web
+    parser: list
+    category: company
+    industry_role: brand
+    industry_segment: beverage
+    priority: P0
+    score: 92
     interval: daily
     retry: 3
     timeout: 30

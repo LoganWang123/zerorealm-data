@@ -22,6 +22,7 @@ from publishing.models import (
 from publishing.wechat.client import WechatAPIError, WechatClient
 from publishing.wechat.builder import WechatChannelBuilder
 from publishing.wechat.publisher import WechatPublisher
+from publishing.wechat import templates
 
 
 class FakeWechatClient:
@@ -100,6 +101,33 @@ def test_notification_mode_uses_mass_article_without_free_publishing():
     assert client.created == []
     assert client.submitted == []
     assert client.mass_sent == ["mass-media-id"]
+
+
+def test_operator_brief_intro_does_not_claim_daily_roundup_or_automatic_send():
+    html = templates.intro_block()
+
+    assert "零域日报" not in html
+    assert "早 8 点更新" not in html
+    assert "智能柜运营" in html
+
+
+def test_operator_decision_renders_metric_sample_and_stop_condition():
+    html = templates.decision_block(
+        {
+            "operators": {
+                "evidence": "品牌半年收入增长。",
+                "metric": "饮料缺货率",
+                "action": "检查10台柜",
+                "sample": "10台柜观察7天",
+                "kpi": "缺货率下降",
+                "stop_condition": "毛利下降则恢复",
+            }
+        }
+    )
+
+    assert "饮料缺货率" in html
+    assert "10台柜观察7天" in html
+    assert "毛利下降则恢复" in html
 
 
 def test_created_article_enables_comments_for_followers():

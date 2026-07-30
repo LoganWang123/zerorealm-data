@@ -1,4 +1,4 @@
-# ZeroRealm Daily Report V10.0 — 经营洞察
+# ZeroRealm Operator Brief V11.0 — 经营洞察
 
 insight: |
   ## 允许的推演
@@ -20,8 +20,10 @@ insight: |
 
   decision 只包含 operators：
   - evidence：直接事实
+  - metric：只检查一个经营指标
   - action：今天能开始的一件事
+  - sample：明确小样本范围和观察天数
   - kpi：7~14 天内可观察的指标
-  - risk：明确停止或回退条件
+  - stop_condition：明确停止或回退条件
 
   不强制填写 confidence_pct，不使用伪精确概率。

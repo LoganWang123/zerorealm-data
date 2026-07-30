@@ -31,12 +31,12 @@ def title_header(title: str, date: str) -> str:
 
 
 def intro_block() -> str:
-    """开头引导语（新读者友好 + SEO关键词）."""
+    """开头引导语（运营者承诺，不虚构自动发送能力）."""
     return (
         f'<p style="margin:0 0 20px;font-size:13px;color:#999;line-height:1.6;'
         f'text-align:center;">'
-        f'「零域日报」每日精选智能柜·无人零售·即时零售·AI零售行业动态，<br/>'
-        f'由 ZeroRealm AI 智能聚合+分析师洞察，工作日早 8 点更新。</p>'
+        f'面向智能柜运营负责人：只讲一个已核实的经营变化，<br/>'
+        f'给出一个可小范围验证、随时能撤回的动作。</p>'
     )
 
 
@@ -195,10 +195,12 @@ def decision_block(decision: dict) -> str:
     for label, data in roles:
         if isinstance(data, dict) and (data.get("action") or data.get("goal")):
             evidence = data.get("evidence", "")
+            metric = data.get("metric", "")
             why_today = data.get("why_today", "")
             action = data.get("action", "")
+            sample = data.get("sample", "")
             kpi = data.get("kpi", "")
-            risk = data.get("risk", "")
+            risk = data.get("stop_condition") or data.get("risk", "")
             confidence_pct = data.get("confidence_pct", 0)
             rows_html += (
                 f'<div style="margin:0 0 12px;padding:10px 12px;'
@@ -211,6 +213,11 @@ def decision_block(decision: dict) -> str:
                     f'<p style="margin:0 0 3px;font-size:13px;color:#555;'
                     f'line-height:1.5;">📌 Evidence：{evidence}</p>'
                 )
+            if metric:
+                rows_html += (
+                    f'<p style="margin:0 0 3px;font-size:13px;color:#1565c0;'
+                    f'line-height:1.5;">📏 先看指标：{metric}</p>'
+                )
             if why_today:
                 rows_html += (
                     f'<p style="margin:0 0 3px;font-size:13px;color:#e65100;'
@@ -221,6 +228,11 @@ def decision_block(decision: dict) -> str:
                     f'<p style="margin:0 0 3px;font-size:13px;color:#555;'
                     f'line-height:1.5;">⚡ Action：{action}</p>'
                 )
+            if sample:
+                rows_html += (
+                    f'<p style="margin:0 0 3px;font-size:13px;color:#555;'
+                    f'line-height:1.5;">🧪 小样本：{sample}</p>'
+                )
             if kpi:
                 rows_html += (
                     f'<p style="margin:0 0 3px;font-size:13px;color:#2e7d32;'
@@ -229,7 +241,7 @@ def decision_block(decision: dict) -> str:
             if risk:
                 rows_html += (
                     f'<p style="margin:0 0 3px;font-size:12px;color:#c62828;'
-                    f'line-height:1.5;">⚠️ Risk：{risk}</p>'
+                    f'line-height:1.5;">↩️ 停止条件：{risk}</p>'
                 )
             if confidence_pct:
                 filled = min(round(confidence_pct / 10), 10)

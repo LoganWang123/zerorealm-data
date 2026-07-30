@@ -150,6 +150,9 @@ class WechatRenderer(BaseRenderer):
             parts.append('<p style="margin:24px 0;">zr-video://short_video</p>')
 
         # === 尾部 ===
+        discussion = getattr(article, "discussion", "")
+        if discussion:
+            parts.append(templates.discussion_block(discussion))
         parts.append(templates.footer(article.author))
 
         # 包裹容器

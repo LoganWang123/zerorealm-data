@@ -1,40 +1,23 @@
-# ZeroRealm Daily Report V9.0 — Output Schema（定版）
+# ZeroRealm Operator Brief V11.0 — 输出结构
 
 schema: |
-  ## 固定日报结构（V9：9个模块）
+  ## 固定结构
 
-  1. **signal_no** / **signal**: 今日一句判断（品牌资产）
-  2. **ceo_radar**: CEO Radar（持续追踪 + Prediction Validation）
-     - tracking: [{item, status(green/yellow/red), day}]（固定追踪，含天数）
-     - prediction_validation: [{item, status(hit/miss/pending)}]（昨日预测验证）
-  3. **sections**: 内容分层
-     核心（level: core，恰好2篇）：
-       title / excerpt / spread_line / insight(300~500字) /
-       prediction: {content, confidence_pct, evidence[], watch} /
-       score: {strategic, commercial, landing, credibility}（各1~5星） /
-       confidence / impact / tags / source
-     快讯（level: quick，3~5条）：
-       title / excerpt(≤80字) / verdict / tags / source
-  4. **decision**: Decision（V9: Evidence → Why Today → Action → KPI → Risk → Confidence）
-     - operators: {evidence, why_today, action, kpi, risk, confidence_pct}
-     - device_makers: {evidence, why_today, action, kpi, risk, confidence_pct}
-     - brands: {evidence, why_today, action, kpi, risk, confidence_pct}
-     - investors: {evidence, why_today, action, kpi, risk, confidence_pct}
-  5. **trend**: Trend（V9: Bloomberg玩法）
-     - [{topic, stars(1~5), direction(up/down/flat), streak}]
-  6. **alpha**: ZeroRealm Alpha（独家数据）
-     - data_point / source / sample / window
-  7. **data_corner**: 数据角
-     - todays_number: {number, label, comparison}
-     - sources_monitored / total_items / industry_events
-     - hot_keywords: [3个]
-  8. **tomorrow**: 明日关注（1~2条）
+  1. wechat_title：具体主体 + 已发生变化 + 待检查经营指标
+  2. signal_no / signal：一句由正文证据直接支持的经营判断
+  3. sections：
+     - core 恰好 1 条
+     - quick 0~2 条
+     - 每条都保留素材中的直接 HTTP(S) 原文链接
+  4. decision.operators：
+     - evidence：直接事实
+     - metric：一个经营指标
+     - action：一个低成本、可逆动作
+     - sample：小样本范围和观察天数
+     - kpi：7~14 天可观察结果
+     - stop_condition：停止或回退条件
+  5. tomorrow：下一期需要验证的一个事实
+  6. reader_prompt：邀请读者回复柜机数量和本期指标
 
-  ## V9 核心变更（从V8）
-
-  - CEO Radar 升级为持续追踪（status + day天数）
-  - Deep Analysis 内嵌 prediction（content + confidence_pct + evidence[] + watch）
-  - Decision 新增 why_today
-  - signal_matrix → trend（增加 direction + streak）
-  - 删除 signal_matrix（合并入 trend）
-  - wechat_title 保留
+  不输出 summary、ceo_radar、trend、alpha、data_corner、预测概率，
+  也不输出设备商、品牌方或投资人的决策。

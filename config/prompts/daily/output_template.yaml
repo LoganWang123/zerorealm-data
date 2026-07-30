@@ -1,4 +1,4 @@
-# ZeroRealm Daily Report V10.0 — 输出格式
+# ZeroRealm Operator Brief V11.0 — 输出格式
 
 output_template: |
   严格输出以下 YAML，不要输出解释或 Markdown 围栏：
@@ -30,11 +30,14 @@ output_template: |
   decision:
     operators:
       evidence: "直接事实"
+      metric: "只检查一个经营指标"
       action: "一个低成本、可逆的小动作"
+      sample: "小样本范围，例如10台柜观察7天"
       kpi: "7~14天可观察的经营指标"
-      risk: "停止或回退条件"
+      stop_condition: "停止或回退条件"
   tomorrow:
     - "需要继续验证的一个事实"
+  reader_prompt: "邀请读者回复柜机数量和本期经营指标，不暗示已有样本"
 
   约束：
   - sections 必须恰好 1 个 core，quick 最多 2 个。

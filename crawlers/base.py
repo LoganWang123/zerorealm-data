@@ -62,6 +62,9 @@ class BaseCrawler(ABC):
         self.source_type: str = source_config.get("type", "web")
         self.category: str = source_config.get("category", "news")
         self.score: int = source_config.get("score", 80)
+        self.industry_role: str = source_config.get("industry_role", "")
+        self.industry_segment: str = source_config.get("industry_segment", "")
+        self.priority: str = source_config.get("priority", "P1")
         self.retry: int = source_config.get("retry", 3)
         self.timeout: int = source_config.get("timeout", 30)
         self.user_agent: str = source_config.get("user_agent", "zerorealm-bot/1.0")
@@ -126,6 +129,10 @@ class BaseCrawler(ABC):
             metadata={
                 "category": self.category,
                 "score": self.score,
+                "industry_role": self.industry_role,
+                "industry_segment": self.industry_segment,
+                "source_priority": self.priority,
+                "source_name": self.name,
                 **(metadata or {}),
             },
         )

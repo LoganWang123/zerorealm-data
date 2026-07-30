@@ -8,6 +8,8 @@ import pytest
 import yaml
 
 from generators.daily_report import (
+    _compose_system_prompt,
+    _load_output_template,
     DuplicateDailyReportError,
     GeneratedReportQualityError,
     find_duplicate_headline,
@@ -268,6 +270,16 @@ class TestOperatorReportQualityGate:
                     "source_name": "示例来源",
                 },
             ],
+            "decision": {
+                "operators": {
+                    "evidence": "某品牌开始通过即时零售销售新品。",
+                    "metric": "同类SKU七日动销率",
+                    "action": "先检查同类SKU，再决定是否扩品。",
+                    "sample": "10台柜观察7天",
+                    "kpi": "缺货率不升且毛利贡献改善",
+                    "stop_condition": "缺货率上升则恢复原陈列",
+                }
+            },
         }
 
     def test_rejects_materially_similar_recent_headline(self, tmp_path):
@@ -332,8 +344,38 @@ class TestOperatorReportQualityGate:
         with pytest.raises(GeneratedReportQualityError, match="operating metric"):
             validate_generated_report(report)
 
+    def test_rejects_roundup_style_title(self):
+        report = self.valid_report()
+        report["wechat_title"] = "【零域日报】新品进入即时零售"
+
+        with pytest.raises(GeneratedReportQualityError, match="roundup"):
+            validate_generated_report(report)
+
+    def test_rejects_missing_reversible_test_contract(self):
+        report = self.valid_report()
+        del report["decision"]["operators"]["stop_condition"]
+
+        with pytest.raises(GeneratedReportQualityError, match="decision"):
+            validate_generated_report(report)
+
     def test_accepts_one_actionable_core_story_and_two_or_fewer_signals(self):
         validate_generated_report(self.valid_report())
+
+
+class TestEditorialPromptV11:
+    def test_requires_operator_first_title_and_rejects_roundup_branding(self):
+        prompt = _compose_system_prompt()
+
+        assert "标题不得使用“日报”" in prompt
+        assert "不使用期号" in prompt
+        assert "回复柜机数量" in prompt
+
+    def test_requires_one_metric_and_reversible_test_in_output_contract(self):
+        template = _load_output_template()
+
+        assert "metric" in template
+        assert "sample" in template
+        assert "stop_condition" in template
 
 
 class TestFormatMaterialsEnriched:

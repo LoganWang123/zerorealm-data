@@ -50,6 +50,7 @@ def test_renderer_inserts_three_body_images_and_video_placeholder(tmp_path):
     )
     article.media_bundle = generated_bundle(tmp_path)
     article.cover = article.media_bundle.cover.local_path
+    article.discussion = "回复柜机数量和饮料缺货率。"
     context = RenderContext(config=PublishConfig(), asset_manager=AssetManager())
 
     rendered = WechatRenderer(LocalMediaStorage()).render(article, context)
@@ -63,6 +64,7 @@ def test_renderer_inserts_three_body_images_and_video_placeholder(tmp_path):
     for role in ("body_1", "body_2", "body_3"):
         assert f"zr-media://{role}" in rendered.body
     assert "zr-video://short_video" in rendered.body
+    assert "回复柜机数量和饮料缺货率" in rendered.body
 
 
 class FakeWechatClient:

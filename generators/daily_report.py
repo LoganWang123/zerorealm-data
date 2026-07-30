@@ -48,6 +48,80 @@ OPERATING_TERMS = (
     "缺货率",
 )
 
+DIRECT_INDUSTRY_ROLES = {
+    "operator",
+    "vendor",
+    "brand",
+    "supplier",
+    "distributor",
+}
+
+
+def _source_registry() -> dict[str, dict]:
+    config_path = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), "config", "sources.yaml"
+    )
+    try:
+        with open(config_path, "r", encoding="utf-8") as file:
+            sources = yaml.safe_load(file).get("sources", [])
+        return {
+            source["id"]: source
+            for source in sources
+            if isinstance(source, dict) and source.get("id")
+        }
+    except (OSError, AttributeError, yaml.YAMLError):
+        return {}
+
+
+def select_editorial_candidates(
+    items: list[dict],
+    max_items: int = 36,
+    max_media: int = 12,
+) -> list[dict]:
+    """Prioritize direct industry sources and cap broad media material."""
+    role_rank = {
+        "operator": 0,
+        "vendor": 0,
+        "brand": 1,
+        "supplier": 1,
+        "distributor": 1,
+        "policy": 2,
+        "channel": 2,
+        "logistics": 2,
+        "media": 3,
+        "technology": 4,
+        "capital": 4,
+    }
+
+    def sort_key(item: dict):
+        metadata = item.get("metadata", {})
+        role = metadata.get("industry_role", "")
+        priority = metadata.get("source_priority", "P2")
+        return (
+            role_rank.get(role, 5),
+            0 if priority == "P0" else 1,
+            -int(metadata.get("boost_score", 0) or 0),
+            -int(metadata.get("quality_score", 0) or 0),
+        )
+
+    selected = []
+    media_count = 0
+    per_source: dict[str, int] = {}
+    for item in sorted(items, key=sort_key):
+        role = item.get("metadata", {}).get("industry_role")
+        source = str(item.get("source", ""))
+        if role == "media" and media_count >= max_media:
+            continue
+        if per_source.get(source, 0) >= 8:
+            continue
+        selected.append(item)
+        per_source[source] = per_source.get(source, 0) + 1
+        if role == "media":
+            media_count += 1
+        if len(selected) >= max_items:
+            break
+    return selected
+
 
 def _load_frontmatter(path: str) -> dict:
     try:
@@ -124,6 +198,14 @@ def validate_generated_report(parsed: dict) -> None:
     if not any(isinstance(section, dict) and section.get("level") for section in sections):
         return
 
+    title = parsed.get("wechat_title")
+    if not isinstance(title, str) or not title.strip():
+        raise GeneratedReportQualityError("report must include a WeChat title")
+    if any(term in title for term in ("日报", "早报", "晚报")):
+        raise GeneratedReportQualityError(
+            "roundup-style words are not allowed in the WeChat title"
+        )
+
     if not all(isinstance(section, dict) for section in sections):
         raise GeneratedReportQualityError("every report section must be an object")
 
@@ -156,6 +238,25 @@ def validate_generated_report(parsed: dict) -> None:
     if not any(term.casefold() in core_text.casefold() for term in OPERATING_TERMS):
         raise GeneratedReportQualityError(
             "core story must name an operating metric or decision"
+        )
+
+    operators = parsed.get("decision", {}).get("operators", {})
+    required_decision_fields = (
+        "evidence",
+        "metric",
+        "action",
+        "sample",
+        "kpi",
+        "stop_condition",
+    )
+    if not isinstance(operators, dict) or any(
+        not isinstance(operators.get(field), str)
+        or not operators[field].strip()
+        for field in required_decision_fields
+    ):
+        raise GeneratedReportQualityError(
+            "operator decision must include evidence, metric, action, sample, "
+            "kpi, and stop_condition"
         )
 
 
@@ -208,9 +309,19 @@ def load_daily_items(base_dir: str = "data", date: str | None = None) -> list[di
 
     pattern = os.path.join(base_dir, "raw", date, "*.json")
     items = []
+    registry = _source_registry()
     for filepath in glob.glob(pattern):
         with open(filepath, "r", encoding="utf-8") as f:
-            items.append(json.load(f))
+            item = json.load(f)
+            source = registry.get(item.get("source", ""), {})
+            metadata = item.setdefault("metadata", {})
+            metadata.setdefault("industry_role", source.get("industry_role", ""))
+            metadata.setdefault(
+                "industry_segment", source.get("industry_segment", "")
+            )
+            metadata.setdefault("source_priority", source.get("priority", "P2"))
+            metadata.setdefault("source_name", source.get("name", item.get("source", "")))
+            items.append(item)
 
     # Apply boost scoring if not already present
     if items and "boost_score" not in items[0].get("metadata", {}):
@@ -248,7 +359,9 @@ def format_materials(items: list[dict]) -> str:
     lines = []
     for i, item in enumerate(items, 1):
         meta = item.get("metadata", {})
-        source_name = SOURCE_NAMES.get(item.get("source", ""), item.get("source", ""))
+        source_name = meta.get("source_name") or SOURCE_NAMES.get(
+            item.get("source", ""), item.get("source", "")
+        )
         title = item.get("title", "")
         summary = item.get("summary", "")[:200]
         url = item.get("url", "")
@@ -350,7 +463,7 @@ def call_llm(materials: str, count: int, issue: int, date: str) -> str:
 
     # Build user prompt
     user = (
-        f"以下是今日采集的 {count} 条资讯素材。请生成 V10 智能柜运营决策简报。\n\n"
+        f"以下是今日采集的 {count} 条资讯素材。请生成 V11 智能柜运营决策简报。\n\n"
         f"期号：No.{issue}\n"
         f"日期：{date}\n"
         f"Signal编号：{issue}\n\n"
@@ -375,7 +488,7 @@ def call_llm(materials: str, count: int, issue: int, date: str) -> str:
         temperature=temperature,
         max_tokens=max_tokens,
         prompt_name="daily_report",
-        prompt_version=10,
+        prompt_version=11,
     )
 
     logger.info("[daily] LLM response: %d chars", len(resp.content))
@@ -536,7 +649,9 @@ def generate_daily_report(
             existing = glob.glob(os.path.join(output_dir, "*.mdx"))
             issue = len(existing) + 1
 
-    # Format materials
+    # Format a direct-industry-first candidate set. Broad media is intentionally
+    # capped so high-volume technology feeds cannot crowd out operators or brands.
+    items = select_editorial_candidates(items)
     materials = format_materials(items)
 
     # Call LLM
