@@ -1,178 +1,43 @@
-# ZeroRealm Daily Report V9.0 — Output YAML Template（定版）
+# ZeroRealm Daily Report V10.0 — 输出格式
 
 output_template: |
-  请严格按以下 YAML 格式输出（不要输出其他内容）：
+  严格输出以下 YAML，不要输出解释或 Markdown 围栏：
 
-  ```yaml
-  wechat_title: "12000家新华书店入驻闪购，AI Agent开始替你下单"
-  signal_no: 5
-  signal: "配送网络成熟后，竞争的核心从'送得到'变成'卖什么'。"
-  ceo_radar:
-    tracking:
-      - item: "京东图书小时达"
-        status: "yellow"
-        day: 4
-      - item: "美团Agent API开放"
-        status: "green"
-        day: 6
-      - item: "高校文创SKU销量"
-        status: "yellow"
-        day: 2
-    prediction_validation:
-      - item: "京东图书小时达（72%）"
-        status: "pending"
-      - item: "品牌AI营销增加（60%）"
-        status: "hit"
+  wechat_title: "30字以内：经营对象 + 变化 + 运营影响"
+  signal_no: 10
+  signal: "一句可被正文证据支持的经营判断"
   sections:
-    - title: "新华书店入驻闪购：12000个前置仓一夜激活"
-      excerpt: "全国约12000家新华书店已入驻美团闪购，支持图书1小时达。（据21世纪经济报道）"
-      level: "core"
-      spread_line: "新华书店不是书店，是12000个待激活的前置仓。"
-      insight: "300~500字。条件化第二层影响。禁止断言。用'如果…可能…''具备较高概率'。"
-      prediction:
-        content: "京东跟进图书小时达"
-        confidence_pct: 70
-        evidence:
-          - "达达配送网络成熟"
-          - "京东图书供应链成熟"
-          - "美团已验证模式"
-        watch: "未来7天：京东是否宣布图书小时达试点？"
-      score:
-        strategic: 5
-        commercial: 5
-        landing: 5
-        credibility: 5
-      confidence: "High"
-      impact:
-        operators: 5
-        device_makers: 4
-        brands: 3
-        investors: 2
-      tags:
-        industry: "即时零售"
-        topics: ["SKU", "品类扩张"]
-      source_url: "url"
-      source_name: "21世纪经济报道"
-    - title: "Gap重启90年代香水：怀旧+AI个性化组合拳"
-      excerpt: "Gap宣布重启经典香水系列，同时开放员工AI创作者计划。（据Retail Dive）"
-      level: "core"
-      spread_line: "怀旧是零售的万能药，AI是个性化的催化剂。"
-      insight: "300~500字。条件化。'品牌更有可能优先投放…'而不是'品牌只会…'。"
-      prediction:
-        content: "头部品牌开始要求终端具备AI推荐能力"
-        confidence_pct: 60
-        evidence:
-          - "Gap已开放AI Creator"
-          - "获客成本持续飙升"
-          - "AI推荐ROI数据积极"
-        watch: "未来30天：是否有品牌公开要求终端AI能力？"
-      score:
-        strategic: 4
-        commercial: 4
-        landing: 3
-        credibility: 4
-      confidence: "High"
-      impact:
-        operators: 4
-        device_makers: 3
-        brands: 5
-        investors: 3
+    - level: "core"
+      title: "核心事实标题"
+      excerpt: "事实摘要，包含主体、动作和时间"
+      spread_line: "这件事影响哪个经营指标"
+      insight: "300~500字。只推演一层，说明运营商为什么需要检查该指标。"
+      verdict: "今天先检查什么，不要求立即投入"
       tags:
         industry: "智能柜"
-        topics: ["AI Agent", "文创"]
-      source_url: "url"
-      source_name: "Retail Dive"
-    - title: "Amazon关闭佛罗里达设施裁员500人"
-      excerpt: "Amazon因飓风影响暂时关闭设施，裁员近500人。"
-      level: "quick"
-      verdict: "与国内智能柜关联度较低，仅持续观察。"
+        topics: ["动销", "选品"]
+      source_url: "素材提供的直接原文URL，必须包含具体页面路径"
+      source_name: "素材中的真实来源名称"
+    - level: "quick"
+      title: "可选补充信号"
+      excerpt: "不超过100字，说明与核心问题的直接关系"
+      verdict: "一个具体判断"
       tags:
-        industry: "无人零售"
-        topics: ["零售科技"]
-      source_url: "url"
-      source_name: "Retail Dive"
-    - title: "Pacsun与Ulta Beauty推出联合美妆集合店"
-      excerpt: "品牌跨界合作加速，联合门店模式兴起。"
-      level: "quick"
-      verdict: "品牌跨界联名加速，智能柜可借鉴'柜中店'模式。"
-      tags:
-        industry: "无人零售"
-        topics: ["零售科技"]
-      source_url: "url"
-      source_name: "Retail Dive"
-    - title: "虹桥国际经济论坛聚焦数字贸易与AI零售"
-      excerpt: "第九届虹桥论坛发布主题议题，聚焦AI零售。"
-      level: "quick"
-      verdict: "政策信号积极，即时零售有望获得更多政策支持。"
-      tags:
-        industry: "即时零售"
-        topics: ["政策"]
-      source_url: "url"
-      source_name: "新华社"
+        industry: "智能柜"
+        topics: ["库存"]
+      source_url: "素材提供的直接原文URL"
+      source_name: "真实来源名称"
   decision:
     operators:
-      evidence: "新华书店入驻闪购 + Gap开放AI Creator"
-      why_today: "品牌开始重视AI推荐终端，窗口期有限"
-      action: "10台高校柜新增LABUBU/哪吒SKU"
-      kpi: "ROI>1.5，单SKU周销>20"
-      risk: "7天动销率<15%则撤柜"
-      confidence_pct: 75
-    device_makers:
-      evidence: "文创/IP产品尺寸多样，现有格口不适配"
-      why_today: "品类扩张信号连续出现，改造需提前"
-      action: "留2层格口支持20×20cm包装"
-      kpi: "适配率100%，改造成本<50元/柜"
-      risk: "如文创不上量，格口可恢复标准尺寸"
-      confidence_pct: 80
-    brands:
-      evidence: "高校场景IP消费数据积极"
-      why_today: "供应链建立需要时间，越早越好"
-      action: "联系泡泡玛特授权商+高校原创文创工作室"
-      kpi: "获取3家报价，1家7天内可供货"
-      risk: "授权费过高则转向高校原创"
-      confidence_pct: 70
-    investors:
-      evidence: "品类扩张连续出现信号"
-      why_today: "Pre-A窗口期有限"
-      action: "关注品类扩张赛道Pre-A轮"
-      kpi: "本月看5个项目，形成1份赛道memo"
-      risk: "如品类扩张未跑通，暂缓出手"
-      confidence_pct: 65
-  trend:
-    - topic: "即时零售"
-      stars: 5
-      direction: "up"
-      streak: 8
-    - topic: "AI Agent"
-      stars: 4
-      direction: "up"
-      streak: 3
-    - topic: "智能柜"
-      stars: 3
-      direction: "flat"
-      streak: 1
-    - topic: "IP/文创"
-      stars: 4
-      direction: "up"
-      streak: 2
-    - topic: "高校场景"
-      stars: 3
-      direction: "up"
-      streak: 4
-  alpha:
-    data_point: "LABUBU相关搜索热度持续上涨，多个公开平台显示明显提升"
-    source: "ZeroRealm监测体系（微信指数+百度指数）"
-    sample: "50台高校智能柜"
-    window: "7.14~7.28"
-  data_corner:
-    todays_number:
-      number: "12000"
-      label: "新华书店全国门店数"
-      comparison: "超过Costco中国+山姆中国+便利蜂总和"
-    sources_monitored: 47
-    total_items: 321
-    industry_events: 12
-    hot_keywords: ["即时零售", "AI Agent", "品类扩张"]
+      evidence: "直接事实"
+      action: "一个低成本、可逆的小动作"
+      kpi: "7~14天可观察的经营指标"
+      risk: "停止或回退条件"
   tomorrow:
-    - "关注美团闪购'1小时书店'首周订单数据"
-  ```
+    - "需要继续验证的一个事实"
+
+  约束：
+  - sections 必须恰好 1 个 core，quick 最多 2 个。
+  - 每个 section 必须使用素材中的直接 HTTP(S) 原文链接。
+  - 不输出 device_makers、brands 或 investors 决策。
+  - 没有真实独家样本时，不输出 alpha、百分比预测或监测规模。

@@ -9,6 +9,7 @@ import yaml
 
 from generators.daily_report import (
     DuplicateDailyReportError,
+    GeneratedReportQualityError,
     find_duplicate_headline,
     load_daily_items,
     format_materials,
@@ -17,6 +18,7 @@ from generators.daily_report import (
     parse_llm_response,
     generate_mdx,
     generate_daily_report,
+    validate_generated_report,
 )
 
 
@@ -242,6 +244,96 @@ class TestGenerateDailyReport:
 
         assert call.call_args.args[1] == 1
         assert published_source_urls(str(history_dir)) == {"https://36kr.com/p/1"}
+
+
+class TestOperatorReportQualityGate:
+    @staticmethod
+    def valid_report():
+        return {
+            "wechat_title": "新品进入即时零售，智能柜先看动销率",
+            "sections": [
+                {
+                    "level": "core",
+                    "title": "新品进入即时零售渠道",
+                    "excerpt": "某品牌开始通过即时零售销售新品。",
+                    "insight": "运营商应先检查同类SKU的动销率和毛利，不宜直接扩品。",
+                    "source_url": "https://example.com/direct-story",
+                    "source_name": "示例来源",
+                },
+                {
+                    "level": "support",
+                    "title": "渠道补充信号",
+                    "excerpt": "相关渠道扩大覆盖。",
+                    "source_url": "https://example.com/support",
+                    "source_name": "示例来源",
+                },
+            ],
+        }
+
+    def test_rejects_materially_similar_recent_headline(self, tmp_path):
+        history_dir = tmp_path / "history"
+        history_dir.mkdir()
+        (history_dir / "old.mdx").write_text(
+            "---\n"
+            "title: '【零域日报】12000家新华书店入驻闪购，AI Agent开始替你下单'\n"
+            "issue: 4\n"
+            "---\n",
+            encoding="utf-8",
+        )
+
+        duplicate = find_duplicate_headline(
+            {
+                "wechat_title": (
+                    "新华书店12000家门店入驻闪购，"
+                    "即时零售进入品类扩张深水区"
+                )
+            },
+            str(history_dir),
+        )
+
+        assert duplicate == str(history_dir / "old.mdx")
+
+    def test_rejects_missing_direct_source_url(self):
+        report = self.valid_report()
+        report["sections"][1]["source_url"] = ""
+
+        with pytest.raises(GeneratedReportQualityError, match="direct HTTP"):
+            validate_generated_report(report)
+
+    def test_rejects_more_than_one_core_story(self):
+        report = self.valid_report()
+        report["sections"][1]["level"] = "core"
+
+        with pytest.raises(GeneratedReportQualityError, match="exactly one core"):
+            validate_generated_report(report)
+
+    def test_rejects_more_than_two_supporting_signals(self):
+        report = self.valid_report()
+        report["sections"].extend(
+            [
+                {
+                    "level": "support",
+                    "title": f"补充信号{index}",
+                    "excerpt": "补充信息。",
+                    "source_url": f"https://example.com/support-{index}",
+                    "source_name": "示例来源",
+                }
+                for index in range(2, 4)
+            ]
+        )
+
+        with pytest.raises(GeneratedReportQualityError, match="at most two"):
+            validate_generated_report(report)
+
+    def test_rejects_core_story_without_operating_metric(self):
+        report = self.valid_report()
+        report["sections"][0]["insight"] = "这件事值得行业持续关注。"
+
+        with pytest.raises(GeneratedReportQualityError, match="operating metric"):
+            validate_generated_report(report)
+
+    def test_accepts_one_actionable_core_story_and_two_or_fewer_signals(self):
+        validate_generated_report(self.valid_report())
 
 
 class TestFormatMaterialsEnriched:

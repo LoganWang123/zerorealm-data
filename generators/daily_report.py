@@ -9,6 +9,7 @@ import os
 import glob
 import re
 from datetime import datetime
+from difflib import SequenceMatcher
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 import yaml
@@ -26,6 +27,26 @@ SOURCE_NAMES = {
 
 class DuplicateDailyReportError(RuntimeError):
     """Raised when a generated report repeats an existing website headline."""
+
+
+class GeneratedReportQualityError(RuntimeError):
+    """Raised when a generated report violates the operator editorial contract."""
+
+
+OPERATING_TERMS = (
+    "动销",
+    "毛利",
+    "库存",
+    "补货",
+    "损耗",
+    "点位",
+    "周转",
+    "ROI",
+    "销量",
+    "转化率",
+    "客单价",
+    "缺货率",
+)
 
 
 def _load_frontmatter(path: str) -> dict:
@@ -49,11 +70,23 @@ def next_issue_number(history_dir: str) -> int:
 
 
 def _normalize_title(value: str) -> str:
-    return re.sub(r"[\W_]+", "", value, flags=re.UNICODE).casefold()
+    return re.sub(r"[^0-9a-zA-Z\u4e00-\u9fff]+", "", value).casefold()
+
+
+def _headline_overlap(left: str, right: str) -> float:
+    """Return a containment-oriented bigram overlap for reordered headlines."""
+    left_pairs = {left[index:index + 2] for index in range(len(left) - 1)}
+    right_pairs = {right[index:index + 2] for index in range(len(right) - 1)}
+    if not left_pairs or not right_pairs:
+        return 0.0
+    shared = left_pairs & right_pairs
+    if len(shared) < 8:
+        return 0.0
+    return len(shared) / min(len(left_pairs), len(right_pairs))
 
 
 def find_duplicate_headline(parsed: dict, history_dir: str) -> str | None:
-    """Return the matching historical file when the headline is identical."""
+    """Return a historical file when its headline materially repeats the new one."""
     title = parsed.get("wechat_title", "")
     normalized = _normalize_title(title)
     if not normalized:
@@ -61,9 +94,69 @@ def find_duplicate_headline(parsed: dict, history_dir: str) -> str | None:
 
     for path in glob.glob(os.path.join(history_dir, "*.mdx")):
         historical_title = _load_frontmatter(path).get("title", "")
-        if normalized == _normalize_title(str(historical_title)):
+        historical_normalized = _normalize_title(str(historical_title))
+        if normalized == historical_normalized:
+            return path
+        if (
+            min(len(normalized), len(historical_normalized)) >= 12
+            and (
+                SequenceMatcher(
+                    None,
+                    normalized,
+                    historical_normalized,
+                ).ratio()
+                >= 0.76
+                or _headline_overlap(normalized, historical_normalized) >= 0.40
+            )
+        ):
             return path
     return None
+
+
+def validate_generated_report(parsed: dict) -> None:
+    """Validate the focused operator report schema emitted by the current prompt."""
+    sections = parsed.get("sections")
+    if not isinstance(sections, list) or not sections:
+        raise GeneratedReportQualityError("report must include sections")
+
+    # Legacy reports used grouped section containers without a level. Keep parsing
+    # them for historical tests and migrations; all current prompts emit levels.
+    if not any(isinstance(section, dict) and section.get("level") for section in sections):
+        return
+
+    if not all(isinstance(section, dict) for section in sections):
+        raise GeneratedReportQualityError("every report section must be an object")
+
+    core_sections = [section for section in sections if section.get("level") == "core"]
+    supporting_sections = [
+        section for section in sections if section.get("level") != "core"
+    ]
+    if len(core_sections) != 1:
+        raise GeneratedReportQualityError("report must contain exactly one core story")
+    if len(supporting_sections) > 2:
+        raise GeneratedReportQualityError(
+            "report may contain at most two supporting signals"
+        )
+
+    for section in sections:
+        source_url = section.get("source_url")
+        if not isinstance(source_url, str) or not re.match(
+            r"^https?://[^/\s]+/.+",
+            source_url,
+            flags=re.IGNORECASE,
+        ):
+            raise GeneratedReportQualityError(
+                "every included signal requires a direct HTTP source URL"
+            )
+
+    core_text = " ".join(
+        str(core_sections[0].get(key, ""))
+        for key in ("title", "excerpt", "spread_line", "insight", "verdict")
+    )
+    if not any(term.casefold() in core_text.casefold() for term in OPERATING_TERMS):
+        raise GeneratedReportQualityError(
+            "core story must name an operating metric or decision"
+        )
 
 
 def _normalize_url(value: str) -> str:
@@ -257,7 +350,7 @@ def call_llm(materials: str, count: int, issue: int, date: str) -> str:
 
     # Build user prompt
     user = (
-        f"以下是今日采集的 {count} 条资讯素材。请生成 V4 行业决策情报简报。\n\n"
+        f"以下是今日采集的 {count} 条资讯素材。请生成 V10 智能柜运营决策简报。\n\n"
         f"期号：No.{issue}\n"
         f"日期：{date}\n"
         f"Signal编号：{issue}\n\n"
@@ -282,7 +375,7 @@ def call_llm(materials: str, count: int, issue: int, date: str) -> str:
         temperature=temperature,
         max_tokens=max_tokens,
         prompt_name="daily_report",
-        prompt_version=9,
+        prompt_version=10,
     )
 
     logger.info("[daily] LLM response: %d chars", len(resp.content))
@@ -460,6 +553,8 @@ def generate_daily_report(
         with open(debug_path, "w", encoding="utf-8") as f:
             f.write(response)
         return None
+
+    validate_generated_report(parsed)
 
     if history_dir and os.path.isdir(history_dir):
         duplicate_path = find_duplicate_headline(parsed, history_dir)
