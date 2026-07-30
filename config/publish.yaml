@@ -17,6 +17,7 @@ media:
   image_model: agnes-image-2.1-flash
   video_model: agnes-video-v2.0
   body_image_count: 3
+  video_enabled: false
   video_duration_seconds: 15
   video_aspect_ratio: "9:16"
   poll_interval_seconds: 5

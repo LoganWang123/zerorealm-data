@@ -43,6 +43,7 @@ class MediaConfig:
     image_model: str = "agnes-image-2.1-flash"
     video_model: str = "agnes-video-v2.0"
     body_image_count: int = 3
+    video_enabled: bool = True
     video_duration_seconds: int = 15
     video_aspect_ratio: str = "9:16"
     poll_interval_seconds: int = 5

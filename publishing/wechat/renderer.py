@@ -146,7 +146,7 @@ class WechatRenderer(BaseRenderer):
         # === ⑧ 数据角 ===
         parts.append(self._render_data_corner(article))
 
-        if getattr(article, "media_bundle", None) is not None:
+        if getattr(article, "media_bundle", None) is not None and article.media_bundle.video:
             parts.append('<p style="margin:24px 0;">zr-video://short_video</p>')
 
         # === 尾部 ===
@@ -351,7 +351,7 @@ class WechatRenderer(BaseRenderer):
     @staticmethod
     def _process_video(article) -> MediaReference | None:
         bundle = getattr(article, "media_bundle", None)
-        if bundle is None:
+        if bundle is None or bundle.video is None:
             return None
         asset = bundle.video
         return MediaReference(

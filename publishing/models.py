@@ -59,10 +59,10 @@ class MediaBundle:
 
     cover: MediaAsset
     body_images: list[MediaAsset]
-    video: MediaAsset
+    video: MediaAsset | None = None
 
     def all_assets(self) -> list[MediaAsset]:
-        return [self.cover, *self.body_images, self.video]
+        return [self.cover, *self.body_images, *([self.video] if self.video else [])]
 
 
 # ---------------------------------------------------------------------------

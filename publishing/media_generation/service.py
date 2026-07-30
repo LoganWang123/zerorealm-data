@@ -66,12 +66,16 @@ class MediaGenerationService:
             )
             for index, prompt in enumerate(prompts.body_images, 1)
         ]
-        video = self._video_asset(
-            repository,
-            manifest,
-            directory,
-            prompt=prompts.video,
-            prompt_version=prompts.version,
+        video = (
+            self._video_asset(
+                repository,
+                manifest,
+                directory,
+                prompt=prompts.video,
+                prompt_version=prompts.version,
+            )
+            if self._config.video_enabled
+            else None
         )
         manifest["complete"] = True
         repository.save(manifest)
