@@ -1,10 +1,11 @@
 import json
+import sys
 
 import pytest
 import requests
 
 import publishing.wechat.client as client_module
-from publish import build_parser
+from publish import build_parser, main as publish_main
 from publishing.config import PublishConfig
 from publishing.factory import BuilderContext
 from publishing.models import (
@@ -221,6 +222,16 @@ def test_publish_and_notify_cli_flags_are_mutually_exclusive():
                 "--notify-followers",
             ]
         )
+
+
+def test_publish_cli_without_channel_prints_help(monkeypatch, capsys):
+    monkeypatch.setattr(sys, "argv", ["publish.py"])
+
+    with pytest.raises(SystemExit) as exc_info:
+        publish_main()
+
+    assert exc_info.value.code == 1
+    assert "usage:" in capsys.readouterr().out
 
 
 def test_response_json_is_decoded_from_raw_utf8_bytes():

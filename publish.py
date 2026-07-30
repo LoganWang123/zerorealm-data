@@ -196,7 +196,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main():
     """CLI 主入口."""
-    args = build_parser().parse_args()
+    parser = build_parser()
+    args = parser.parse_args()
 
     if args.list:
         cmd_list()

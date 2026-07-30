@@ -203,6 +203,26 @@ def test_daily_generation_reuses_valid_manifest_without_provider_calls(tmp_path)
     assert (tmp_path / "2026-07-29" / "media-manifest.json").exists()
 
 
+def test_daily_generation_prefers_a_curated_dated_cover(tmp_path):
+    client = FakeAgnesClient()
+    curated_root = tmp_path / "covers"
+    curated_root.mkdir()
+    curated_content = b"\x89PNG\r\n\x1a\n" + b"curated-operator-cover"
+    (curated_root / "cover-2026-07-29.png").write_bytes(curated_content)
+    service = MediaGenerationService(
+        client=client,
+        config=media_config(tmp_path),
+        output_root=tmp_path / "generated",
+        curated_cover_root=curated_root,
+    )
+
+    bundle = service.generate_daily(daily_article())
+
+    assert len(client.image_calls) == 3
+    assert Path(bundle.cover.local_path).read_bytes() == curated_content
+    assert bundle.cover.model == "curated"
+
+
 def test_daily_generation_regenerates_only_a_missing_asset(tmp_path):
     client = FakeAgnesClient()
     service = MediaGenerationService(
@@ -312,6 +332,20 @@ def test_homepage_generation_is_fixed_until_force_is_explicit(tmp_path):
     assert manifest["image"]["src"] == "/media/home/hero.png"
     assert manifest["video"]["src"] == "/media/home/showcase.mp4"
     assert manifest["video"]["poster"] == "/media/home/hero.png"
+    assert manifest["story"] == [
+        {
+            "label": "发现信号",
+            "description": "检查柜机缺货、陈列与商品周转",
+        },
+        {
+            "label": "核对证据",
+            "description": "对照动销、库存与毛利信息",
+        },
+        {
+            "label": "执行动作",
+            "description": "完成小范围补货和陈列调整",
+        },
+    ]
     assert len(client.image_calls) == 1
     assert len(client.video_calls) == 3
     assert [call[0] for call in client.video_calls] == list(

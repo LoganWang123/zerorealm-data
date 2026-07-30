@@ -25,11 +25,13 @@ class MediaGenerationService:
         client: AgnesClient,
         config: MediaConfig,
         output_root: str | Path = "assets/generated",
+        curated_cover_root: str | Path = "assets/covers",
         prompt_builder: Callable[[Article, int], PromptSet] = build_daily_prompts,
     ):
         self._client = client
         self._config = config
         self._output_root = Path(output_root)
+        self._curated_cover_root = Path(curated_cover_root)
         self._prompt_builder = prompt_builder
 
     def generate_daily(self, article: Article) -> MediaBundle:
@@ -39,17 +41,28 @@ class MediaGenerationService:
         repository = MediaManifestRepository(directory / "media-manifest.json")
         manifest = self._prepare_manifest(repository.load(), article, prompts)
 
-        cover = self._image_asset(
-            repository,
-            manifest,
-            directory,
-            role="cover",
-            filename="cover.png",
-            prompt=prompts.cover,
-            size="900x383",
-            width=900,
-            height=383,
-            prompt_version=prompts.version,
+        curated_cover = self._curated_cover_root / f"cover-{article.date}.png"
+        cover = (
+            self._curated_cover_asset(
+                repository,
+                manifest,
+                directory,
+                curated_cover,
+                prompt_version=prompts.version,
+            )
+            if curated_cover.is_file()
+            else self._image_asset(
+                repository,
+                manifest,
+                directory,
+                role="cover",
+                filename="cover.png",
+                prompt=prompts.cover,
+                size="900x383",
+                width=900,
+                height=383,
+                prompt_version=prompts.version,
+            )
         )
         body_images = [
             self._image_asset(
@@ -127,6 +140,33 @@ class MediaGenerationService:
             height=height,
             prompt_version=prompt_version,
             model=self._client.image_model,
+        )
+        self._record_asset(repository, manifest, asset)
+        return asset
+
+    def _curated_cover_asset(
+        self,
+        repository: MediaManifestRepository,
+        manifest: dict,
+        directory: Path,
+        source: Path,
+        *,
+        prompt_version: str,
+    ) -> MediaAsset:
+        content = source.read_bytes()
+        reusable = self._reusable_asset(manifest, "cover")
+        digest = hashlib.sha256(content).hexdigest()
+        if reusable is not None and reusable.sha256 == digest:
+            return reusable
+        asset = self._write_asset(
+            directory / "cover.png",
+            content,
+            role="cover",
+            mime="image/png",
+            width=900,
+            height=383,
+            prompt_version=prompt_version,
+            model="curated",
         )
         self._record_asset(repository, manifest, asset)
         return asset

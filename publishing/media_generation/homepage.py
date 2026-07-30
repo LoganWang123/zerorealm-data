@@ -95,7 +95,7 @@ def generate_homepage_media(
         "video_model": client.video_model,
         "image": {
             "src": "/media/home/hero.png",
-            "alt": "ZeroRealm AI 将零售行业信号转化为结构化知识",
+            "alt": "智能柜运营负责人检查柜机商品与库存",
             "width": 1920,
             "height": 1080,
             "sha256": hashlib.sha256(image_content).hexdigest(),
@@ -103,12 +103,26 @@ def generate_homepage_media(
         "video": {
             "src": "/media/home/showcase.mp4",
             "poster": "/media/home/hero.png",
-            "title": "ZeroRealm AI 行业情报工作流",
+            "title": "从柜机信号到经营动作",
             "width": 1920,
             "height": 1080,
             "duration_seconds": 15,
             "sha256": hashlib.sha256(video_content).hexdigest(),
         },
+        "story": [
+            {
+                "label": "发现信号",
+                "description": "检查柜机缺货、陈列与商品周转",
+            },
+            {
+                "label": "核对证据",
+                "description": "对照动销、库存与毛利信息",
+            },
+            {
+                "label": "执行动作",
+                "description": "完成小范围补货和陈列调整",
+            },
+        ],
     }
     manifest_partial = manifest_path.with_suffix(".json.partial")
     manifest_partial.write_text(
