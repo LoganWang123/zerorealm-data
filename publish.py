@@ -110,6 +110,8 @@ def cmd_publish(args):
         mode = "dry_run"
     elif args.preview:
         mode = "preview"
+    elif args.notify_followers:
+        mode = "notify"
     elif args.publish:
         mode = "publish"
     else:
@@ -162,8 +164,8 @@ def cmd_publish(args):
             logger.warning("No result returned")
 
 
-def main():
-    """CLI 主入口."""
+def build_parser() -> argparse.ArgumentParser:
+    """Build the CLI parser with mutually exclusive delivery modes."""
     parser = argparse.ArgumentParser(
         description="ZeroRealm Content Publishing Platform",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -172,14 +174,29 @@ def main():
     parser.add_argument("--date", "-d", help="指定日期（YYYY-MM-DD）")
     parser.add_argument("--config", default="config/publish.yaml", help="配置文件路径")
     parser.add_argument("--override", help="环境覆盖配置")
-    parser.add_argument("--dry-run", action="store_true", help="演练模式（不调 API）")
-    parser.add_argument("--preview", action="store_true", help="预览模式（输出 HTML）")
-    parser.add_argument("--publish", action="store_true", help="直接发布")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--dry-run", action="store_true", help="演练模式（不调 API）")
+    mode.add_argument("--preview", action="store_true", help="预览模式（输出 HTML）")
+    mode.add_argument(
+        "--publish",
+        action="store_true",
+        help="自由发表（不会向关注者发送通知）",
+    )
+    mode.add_argument(
+        "--notify-followers",
+        action="store_true",
+        help="群发通知给全部关注者（会产生真实外部发送）",
+    )
     parser.add_argument("--resume", action="store_true", help="从失败处继续")
     parser.add_argument("--list", action="store_true", help="列出已注册渠道")
     parser.add_argument("--check", action="store_true", help="健康检查")
 
-    args = parser.parse_args()
+    return parser
+
+
+def main():
+    """CLI 主入口."""
+    args = build_parser().parse_args()
 
     if args.list:
         cmd_list()

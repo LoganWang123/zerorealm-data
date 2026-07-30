@@ -4,6 +4,7 @@ import pytest
 import requests
 
 import publishing.wechat.client as client_module
+from publish import build_parser
 from publishing.config import PublishConfig
 from publishing.factory import BuilderContext
 from publishing.models import (
@@ -20,6 +21,8 @@ from publishing.wechat.publisher import WechatPublisher
 class FakeWechatClient:
     def __init__(self):
         self.created = []
+        self.mass_created = []
+        self.mass_sent = []
         self.submitted = []
 
     def upload_permanent_image(self, path):
@@ -29,12 +32,20 @@ class FakeWechatClient:
         self.created.append(articles)
         return "draft-id"
 
+    def create_mass_article(self, articles):
+        self.mass_created.append(articles)
+        return "mass-media-id"
+
     def update_draft(self, media_id, index, article):
         return {}
 
     def submit_publish(self, media_id):
         self.submitted.append(media_id)
         return "publish-id"
+
+    def send_mass_article(self, media_id):
+        self.mass_sent.append(media_id)
+        return "mass-message-id"
 
 
 def render_result():
@@ -67,6 +78,32 @@ def test_publish_mode_submits_created_draft():
     assert result.draft_id == "draft-id"
     assert result.publish_id == "publish-id"
     assert client.submitted == ["draft-id"]
+
+
+def test_notification_mode_uses_mass_article_without_free_publishing():
+    client = FakeWechatClient()
+
+    result = WechatPublisher(client).publish(
+        render_result(),
+        notify_followers=True,
+    )
+
+    assert result.status == PublishStatus.SUCCESS
+    assert result.draft_id == "mass-media-id"
+    assert result.publish_id == "mass-message-id"
+    assert client.created == []
+    assert client.submitted == []
+    assert client.mass_sent == ["mass-media-id"]
+
+
+def test_created_article_enables_comments_for_followers():
+    client = FakeWechatClient()
+
+    WechatPublisher(client).publish(render_result())
+
+    article = client.created[0][0]
+    assert article["need_open_comment"] == 1
+    assert article["only_fans_can_comment"] == 1
 
 
 def test_token_network_error_redacts_credentials(monkeypatch, tmp_path):
@@ -141,6 +178,49 @@ def test_create_draft_sends_unescaped_utf8_json(monkeypatch):
     assert "零售AI".encode() in captured["data"]
     assert "中文正文".encode() in captured["data"]
     assert b"\\u96f6" not in captured["data"]
+
+
+def test_mass_notification_uses_all_follower_mpnews_payload(monkeypatch):
+    client = WechatClient("app-id", "app-secret")
+    monkeypatch.setattr(client, "get_access_token", lambda: "token")
+    captured = {}
+
+    class Response:
+        content = json.dumps(
+            {"errcode": 0, "msg_id": 123456},
+        ).encode("utf-8")
+
+    def post(url, **kwargs):
+        captured["url"] = url
+        captured.update(kwargs)
+        return Response()
+
+    monkeypatch.setattr(client._session, "post", post)
+
+    message_id = client.send_mass_article("mass-media-id")
+
+    assert captured["url"].endswith("/cgi-bin/message/mass/sendall")
+    assert captured["json"] == {
+        "filter": {"is_to_all": True},
+        "mpnews": {"media_id": "mass-media-id"},
+        "msgtype": "mpnews",
+        "send_ignore_reprint": 0,
+    }
+    assert message_id == "123456"
+
+
+def test_publish_and_notify_cli_flags_are_mutually_exclusive():
+    parser = build_parser()
+
+    with pytest.raises(SystemExit):
+        parser.parse_args(
+            [
+                "--channel",
+                "wechat",
+                "--publish",
+                "--notify-followers",
+            ]
+        )
 
 
 def test_response_json_is_decoded_from_raw_utf8_bytes():

@@ -94,7 +94,7 @@ class WechatMetadata(BaseChannelMetadata):
     """微信公众号渠道元数据."""
 
     copyright: str = "原创"
-    need_open_comment: int = 0  # 0/1
+    need_open_comment: int = 1  # 0/1
     digest: str = ""
 
 

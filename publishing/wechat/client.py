@@ -151,11 +151,27 @@ class WechatClient:
         return self._check_response(resp)
 
     # ------------------------------------------------------------------
-    # 发布
+    # 群发素材
+    # ------------------------------------------------------------------
+
+    def create_mass_article(self, articles: list[dict]) -> str:
+        """Create permanent mpnews material for an explicit follower send."""
+        token = self.get_access_token()
+        resp = self._post_utf8_json(
+            f"{BASE_URL}/cgi-bin/material/add_news",
+            params={"access_token": token},
+            payload={"articles": articles},
+            timeout=30,
+        )
+        data = self._check_response(resp)
+        return data["media_id"]
+
+    # ------------------------------------------------------------------
+    # 发表 / 群发通知
     # ------------------------------------------------------------------
 
     def submit_publish(self, media_id: str) -> str:
-        """提交发布，返回 publish_id."""
+        """自由发表，返回 publish_id；不会通知关注者."""
         token = self.get_access_token()
         resp = self._post(
             f"{BASE_URL}/cgi-bin/freepublish/submit",
@@ -165,6 +181,23 @@ class WechatClient:
         )
         data = self._check_response(resp)
         return data.get("publish_id", "")
+
+    def send_mass_article(self, media_id: str) -> str:
+        """Send one mpnews item to all followers and return its message id."""
+        token = self.get_access_token()
+        resp = self._post(
+            f"{BASE_URL}/cgi-bin/message/mass/sendall",
+            params={"access_token": token},
+            json={
+                "filter": {"is_to_all": True},
+                "mpnews": {"media_id": media_id},
+                "msgtype": "mpnews",
+                "send_ignore_reprint": 0,
+            },
+            timeout=30,
+        )
+        data = self._check_response(resp)
+        return str(data.get("msg_id", ""))
 
     # ------------------------------------------------------------------
     # Internal

@@ -37,6 +37,7 @@ class BasePublisher(ABC):
         result: RenderResult,
         dry_run: bool = False,
         publish_now: bool = False,
+        notify_followers: bool = False,
     ) -> PublishResult:
         """发布渲染产物到渠道."""
         ...

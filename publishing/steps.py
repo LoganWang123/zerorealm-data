@@ -91,6 +91,7 @@ class PublishStep(PipelineStep):
                 render_result,
                 dry_run=dry_run,
                 publish_now=ctx.mode == "publish",
+                notify_followers=ctx.mode == "notify",
             )
             ctx.set(PipelineState.PUBLISH_RESULT, result)
 

@@ -74,9 +74,23 @@ class CountingRenderer:
 class CountingPublisher:
     def __init__(self):
         self.calls = 0
+        self.options = []
 
-    def publish(self, result, dry_run=False, publish_now=False):
+    def publish(
+        self,
+        result,
+        dry_run=False,
+        publish_now=False,
+        notify_followers=False,
+    ):
         self.calls += 1
+        self.options.append(
+            {
+                "dry_run": dry_run,
+                "publish_now": publish_now,
+                "notify_followers": notify_followers,
+            }
+        )
         return PublishResult(status=PublishStatus.SUCCESS, channel="wechat")
 
 
@@ -187,3 +201,29 @@ def test_dry_run_generates_and_validates_media_without_publishing():
 
     assert result_context.get(PipelineState.MEDIA_BUNDLE) is not None
     assert publisher.calls == 0
+
+
+def test_notify_mode_routes_only_to_explicit_follower_notification():
+    context, _, publisher = pipeline_context(mode="notify")
+    context.set(
+        PipelineState.RENDER_RESULT,
+        RenderResult(
+            article_uuid="article-1",
+            title="title",
+            body="<p>body</p>",
+            summary="summary",
+            cover=MediaAsset("cover", "cover.png", "image/png"),
+            author="ZeroRealm AI",
+        ),
+    )
+
+    result = PublishStep().execute(context)
+
+    assert result.status == StepStatus.SUCCESS
+    assert publisher.options == [
+        {
+            "dry_run": False,
+            "publish_now": False,
+            "notify_followers": True,
+        }
+    ]

@@ -30,6 +30,7 @@ class WechatPublisher(BasePublisher):
         result: RenderResult,
         dry_run: bool = False,
         publish_now: bool = False,
+        notify_followers: bool = False,
     ) -> PublishResult:
         """发布到微信公众号."""
         start = time.time()
@@ -118,7 +119,8 @@ class WechatPublisher(BasePublisher):
             "digest": digest,
             "content": body,
             "thumb_media_id": cover_media_id,
-            "need_open_comment": 0,
+            "need_open_comment": 1,
+            "only_fans_can_comment": 1,
         }
 
         # 幂等：检查 Manifest
@@ -127,7 +129,20 @@ class WechatPublisher(BasePublisher):
             existing = self._manifest.find(result.article_uuid, "wechat")
 
         try:
-            if existing and existing.draft_id:
+            if notify_followers and existing and existing.publish_id:
+                return PublishResult(
+                    status=PublishStatus.SKIPPED,
+                    channel="wechat",
+                    draft_id=existing.draft_id,
+                    publish_id=existing.publish_id,
+                    duration=time.time() - start,
+                    message="Follower notification already sent",
+                )
+
+            if notify_followers:
+                draft_id = self._client.create_mass_article([article_payload])
+                status = PublishStatus.SUCCESS
+            elif existing and existing.draft_id:
                 # 更新已有草稿
                 self._client.update_draft(existing.draft_id, 0, article_payload)
                 status = PublishStatus.UPDATED
@@ -138,7 +153,9 @@ class WechatPublisher(BasePublisher):
                 status = PublishStatus.SUCCESS
 
             publish_id = None
-            if publish_now:
+            if notify_followers:
+                publish_id = self._client.send_mass_article(draft_id)
+            elif publish_now:
                 publish_id = self._client.submit_publish(draft_id)
 
             return PublishResult(
@@ -148,9 +165,13 @@ class WechatPublisher(BasePublisher):
                 publish_id=publish_id,
                 duration=time.time() - start,
                 message=(
-                    f"Publish submitted (draft {'updated' if status == PublishStatus.UPDATED else 'created'})"
-                    if publish_now
-                    else f"Draft {'updated' if status == PublishStatus.UPDATED else 'created'}"
+                    "Follower notification sent"
+                    if notify_followers
+                    else (
+                        f"Free publish submitted (draft {'updated' if status == PublishStatus.UPDATED else 'created'}; followers are not notified)"
+                        if publish_now
+                        else f"Draft {'updated' if status == PublishStatus.UPDATED else 'created'}"
+                    )
                 ),
             )
         except Exception as e:
