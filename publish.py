@@ -30,7 +30,7 @@ from publishing.config import PublishConfig
 from publishing.factory import BuilderContext, PublisherFactory
 from publishing.health import HealthChecker
 from publishing.manifest_repository import ManifestRepository
-from publishing.models import RenderContext
+from publishing.models import PublishResult, PublishStatus, RenderContext
 from publishing.registry import PublisherRegistry
 from publishing.workflow import PublishWorkflow
 
@@ -86,7 +86,19 @@ def cmd_check():
     checker.print_report()
 
 
-def cmd_publish(args):
+def publish_results_exit_code(results: list[PublishResult | None]) -> int:
+    """Return a non-zero process status when no usable publish result exists."""
+    if not results:
+        return 1
+    return int(
+        any(
+            result is None or result.status == PublishStatus.FAILED
+            for result in results
+        )
+    )
+
+
+def cmd_publish(args) -> int:
     """执行发布流程."""
     # 加载配置
     config = PublishConfig.load(
@@ -131,6 +143,7 @@ def cmd_publish(args):
 
     # 逐渠道发布
     channels = [ch.strip() for ch in args.channel.split(",")]
+    results: list[PublishResult | None] = []
     for channel in channels:
         logger.info("=" * 50)
         logger.info("Channel: %s | Mode: %s | Date: %s", channel, mode, date_str)
@@ -148,6 +161,7 @@ def cmd_publish(args):
         # Workflow 执行
         workflow = PublishWorkflow(config=config, manifest=manifest, logger=logger)
         result = workflow.run(article_path, target, render_context, mode=mode)
+        results.append(result)
 
         # 输出结果
         if result:
@@ -162,6 +176,7 @@ def cmd_publish(args):
                 logger.info("Draft ID: %s", result.draft_id)
         else:
             logger.warning("No result returned")
+    return publish_results_exit_code(results)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -211,7 +226,9 @@ def main():
         parser.print_help()
         sys.exit(1)
 
-    cmd_publish(args)
+    exit_code = cmd_publish(args)
+    if exit_code:
+        sys.exit(exit_code)
 
 
 if __name__ == "__main__":

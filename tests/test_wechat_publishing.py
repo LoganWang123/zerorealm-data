@@ -5,11 +5,16 @@ import pytest
 import requests
 
 import publishing.wechat.client as client_module
-from publish import build_parser, main as publish_main
+from publish import (
+    build_parser,
+    main as publish_main,
+    publish_results_exit_code,
+)
 from publishing.config import PublishConfig
 from publishing.factory import BuilderContext
 from publishing.models import (
     MediaReference,
+    PublishResult,
     PublishStatus,
     RenderResult,
     WechatMetadata,
@@ -232,6 +237,18 @@ def test_publish_cli_without_channel_prints_help(monkeypatch, capsys):
 
     assert exc_info.value.code == 1
     assert "usage:" in capsys.readouterr().out
+
+
+def test_publish_results_exit_code_is_nonzero_for_failed_result():
+    failed = PublishResult(status=PublishStatus.FAILED, channel="wechat")
+
+    assert publish_results_exit_code([failed]) == 1
+
+
+def test_publish_results_exit_code_is_zero_for_created_draft():
+    created = PublishResult(status=PublishStatus.SUCCESS, channel="wechat")
+
+    assert publish_results_exit_code([created]) == 0
 
 
 def test_response_json_is_decoded_from_raw_utf8_bytes():
