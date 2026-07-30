@@ -129,44 +129,59 @@ def media_config(tmp_path):
     return config.media
 
 
-def test_daily_prompts_are_role_specific_and_include_article_context():
+def test_daily_prompts_use_documentary_cabinet_operations_without_generic_ai():
     prompts = build_daily_prompts(daily_article(), body_image_count=3)
 
-    assert prompts.version == "daily-v1"
+    assert prompts.version == "daily-v2"
     assert "零域日报 No.4" in prompts.cover
-    assert "封面" in prompts.cover
+    assert "智能柜" in prompts.cover
+    assert "运营现场" in prompts.cover
+    assert "不渲染任何文字" in prompts.cover
     assert len(prompts.body_images) == 3
-    assert "开篇" in prompts.body_images[0]
-    assert "核心分析" in prompts.body_images[1]
-    assert "决策" in prompts.body_images[2]
+    assert "商品与货道" in prompts.body_images[0]
+    assert "补货与库存" in prompts.body_images[1]
+    assert "小范围调整" in prompts.body_images[2]
     assert "9:16" in prompts.video
     assert "15 秒" in prompts.video
+    for prompt in (prompts.cover, *prompts.body_images, prompts.video):
+        assert "霓虹" not in prompt
+        assert "卡通人物" not in prompt
+        assert "发光" not in prompt
 
 
-def test_homepage_prompts_define_three_distinct_retail_intelligence_scenes():
+def test_homepage_prompts_define_three_operator_workflow_scenes():
     prompts = build_homepage_prompts()
 
-    assert prompts.version == "homepage-v2"
+    assert prompts.version == "homepage-v3"
     assert len(prompts.video_scenes) == 3
-    assert "零售信号" in prompts.video_scenes[0]
-    assert "结构化知识" in prompts.video_scenes[1]
-    assert "经营决策" in prompts.video_scenes[2]
+    assert "检查智能柜" in prompts.video_scenes[0]
+    assert "运营证据" in prompts.video_scenes[1]
+    assert "补货和陈列调整" in prompts.video_scenes[2]
     for prompt in (prompts.cover, *prompts.video_scenes):
         assert "禁止任何文字" in prompt
         assert "不循环" in prompt
-        for unwanted_concept in ("芯片", "电路板", "工厂", "玩具"):
+        for unwanted_concept in (
+            "芯片",
+            "电路板",
+            "工厂",
+            "玩具",
+            "光流",
+            "光点",
+            "会议",
+            "平板",
+        ):
             assert unwanted_concept not in prompt
     assert "ZeroRealm AI" not in prompts.cover
-    assert "零售策略团队" in prompts.cover
-    assert "平板" not in prompts.video_scenes[0]
-    assert "现场观察" in prompts.video_scenes[0]
-    assert "食品饮料包装样品" in prompts.video_scenes[1]
+    assert "智能柜运营负责人" in prompts.cover
+    assert "真实柜机" in prompts.cover
+    assert "缺货" in prompts.video_scenes[0]
+    assert "商品样品" in prompts.video_scenes[1]
     assert "俯拍" in prompts.video_scenes[1]
     assert "TOP-DOWN" in prompts.video_scenes[1]
     assert prompts.video_scenes[1].startswith("TOP-DOWN")
     assert "ONLY hands visible" in prompts.video_scenes[1]
     assert "absolutely blank surfaces" in prompts.video_scenes[1]
-    assert "零售经营会议" in prompts.video_scenes[2]
+    assert "同一台智能柜" in prompts.video_scenes[2]
 
 
 def test_daily_generation_reuses_valid_manifest_without_provider_calls(tmp_path):
