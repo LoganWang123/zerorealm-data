@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 import base64
+import io
 import time
 from collections.abc import Callable
 from typing import Any
 from urllib.parse import urlsplit
 
 import requests
+
+# Sizes natively supported by OpenAI DALL-E models.
+_OPENAI_SIZES = {"256x256", "512x512", "1024x1024", "1792x1024", "1024x1792"}
 
 
 class AgnesAPIError(RuntimeError):
@@ -62,15 +66,59 @@ class AgnesClient:
     def video_model(self) -> str:
         return self._video_model
 
+    @property
+    def _needs_size_mapping(self) -> bool:
+        """True when the image model only accepts fixed sizes (e.g. DALL-E)."""
+        return self._image_model.lower().startswith("dall-e")
+
+    def _map_size(self, size: str) -> str:
+        """Map a custom size to the nearest API-supported size."""
+        if size in _OPENAI_SIZES:
+            return size
+        try:
+            width, height = map(int, size.split("x"))
+        except (ValueError, AttributeError):
+            return "1024x1024"
+        aspect = width / height
+        if aspect > 1.3:
+            return "1792x1024"
+        if aspect < 0.77:
+            return "1024x1792"
+        return "1024x1024"
+
+    @staticmethod
+    def _crop_to_size(content: bytes, target_size: str) -> bytes:
+        """Center-crop image bytes to *target_size* (WxH)."""
+        from PIL import Image
+
+        target_width, target_height = map(int, target_size.split("x"))
+        img = Image.open(io.BytesIO(content))
+        src_w, src_h = img.size
+        target_aspect = target_width / target_height
+        src_aspect = src_w / src_h
+        if src_aspect > target_aspect:
+            new_w = int(src_h * target_aspect)
+            left = (src_w - new_w) // 2
+            img = img.crop((left, 0, left + new_w, src_h))
+        else:
+            new_h = int(src_w / target_aspect)
+            top = (src_h - new_h) // 2
+            img = img.crop((0, top, src_w, top + new_h))
+        img = img.resize((target_width, target_height), Image.LANCZOS)
+        buf = io.BytesIO()
+        img.save(buf, format="PNG")
+        return buf.getvalue()
+
     def generate_image(self, prompt: str, size: str) -> bytes:
         """Generate one image and return durable bytes."""
+        api_size = self._map_size(size) if self._needs_size_mapping else size
         response = self._post_json(
             f"{self._base_url}/images/generations",
             {
                 "model": self._image_model,
                 "prompt": prompt,
                 "n": 1,
-                "size": size,
+                "size": api_size,
             },
         )
         data = response.get("data")
@@ -80,16 +128,22 @@ class AgnesClient:
         output = data[0]
         encoded = output.get("b64_json")
         if isinstance(encoded, str) and encoded:
-            return self._decode_base64(encoded)
+            content = self._decode_base64(encoded)
+        else:
+            url = output.get("url")
+            if isinstance(url, str) and url:
+                if url.startswith("data:"):
+                    _, _, encoded_data = url.partition(",")
+                    content = self._decode_base64(encoded_data)
+                else:
+                    content = self._download(url)
+            else:
+                raise AgnesAPIError("Agnes image response did not contain image data")
 
-        url = output.get("url")
-        if isinstance(url, str) and url:
-            if url.startswith("data:"):
-                _, _, encoded_data = url.partition(",")
-                return self._decode_base64(encoded_data)
-            return self._download(url)
+        if self._needs_size_mapping and api_size != size:
+            content = self._crop_to_size(content, size)
 
-        raise AgnesAPIError("Agnes image response did not contain image data")
+        return content
 
     def generate_video(
         self,
