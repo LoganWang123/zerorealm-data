@@ -22,6 +22,13 @@ from knowledge import (
     generate_entity_id,
     generate_relation_id,
 )
+from knowledge.industry_graph import (
+    EvidenceRef,
+    RELATION_STATUSES,
+    evidence_meets_minimum,
+    validate_graph_layer,
+    validate_relation_evidence,
+)
 from utils.helpers import CST
 from utils.logger import get_logger
 
@@ -68,13 +75,17 @@ class KnowledgeStore:
         signal_id: str = "",
         industry_role: str = "",
         confidence: int = 60,
+        graph_layer: str = "",
     ) -> KnowledgeObject:
         """Resolve mention to existing entity, or create a new one.
 
         Returns the canonical KnowledgeObject.
         """
+        validate_graph_layer(graph_layer)
         existing = self.resolve(name)
         if existing is not None:
+            if graph_layer:
+                existing.metadata.setdefault("graph_layer", graph_layer)
             existing.increment_mentions(signal_id)
             return existing
 
@@ -97,6 +108,7 @@ class KnowledgeStore:
             confidence=confidence,
             provenance="derived",
             mention_count=1,
+            metadata={"graph_layer": graph_layer} if graph_layer else {},
             source_signals=[signal_id] if signal_id else [],
         )
 
@@ -126,14 +138,30 @@ class KnowledgeStore:
         relation_type: str,
         signal_id: str = "",
         confidence: int = 60,
+        evidence: EvidenceRef | None = None,
+        status: str | None = None,
     ) -> Relation | None:
         """Add a relation between two entities. Deduplicates by ID."""
         if from_id not in self._objects or to_id not in self._objects:
             return None
 
+        resolved_status = status or ("confirmed" if evidence else "observed")
+        if resolved_status not in RELATION_STATUSES:
+            raise ValueError(f"unknown relation status: {resolved_status}")
+        if resolved_status == "confirmed":
+            validate_relation_evidence(relation_type, evidence)
+
         rel_id = generate_relation_id(from_id, to_id, relation_type)
         if rel_id in self._relations:
-            return self._relations[rel_id]
+            existing = self._relations[rel_id]
+            if evidence and "evidence" not in existing.metadata:
+                existing.metadata["evidence"] = evidence.to_dict()
+                existing.metadata["status"] = resolved_status
+            return existing
+
+        metadata = {"status": resolved_status}
+        if evidence:
+            metadata["evidence"] = evidence.to_dict()
 
         rel = Relation(
             id=rel_id,
@@ -143,6 +171,7 @@ class KnowledgeStore:
             confidence=confidence,
             provenance="derived",
             source_signal=signal_id,
+            metadata=metadata,
         )
         self._relations[rel_id] = rel
         return rel
@@ -153,6 +182,38 @@ class KnowledgeStore:
             r for r in self._relations.values()
             if r.from_id == entity_id or r.to_id == entity_id
         ]
+
+    def list_objects_by_layer(self, graph_layer: str) -> list[KnowledgeObject]:
+        """Return canonical objects assigned to one Industry Graph layer."""
+        validate_graph_layer(graph_layer)
+        return sorted(
+            [
+                obj
+                for obj in self._objects.values()
+                if obj.metadata.get("graph_layer") == graph_layer
+            ],
+            key=lambda obj: obj.canonical_name,
+        )
+
+    def list_relations(
+        self,
+        relation_type: str | None = None,
+        min_evidence_level: str | None = None,
+        status: str = "confirmed",
+    ) -> list[Relation]:
+        """Return stable, evidence-filtered relationships for graph consumers."""
+        if status not in RELATION_STATUSES:
+            raise ValueError(f"unknown relation status: {status}")
+        relations = [
+            relation
+            for relation in self._relations.values()
+            if relation.metadata.get("status", "observed") == status
+            and (relation_type is None or relation.relation_type == relation_type)
+            and evidence_meets_minimum(
+                relation.metadata.get("evidence"), min_evidence_level
+            )
+        ]
+        return sorted(relations, key=lambda item: (item.relation_type, item.from_id, item.to_id))
 
     # ------------------------------------------------------------------
     # Query
