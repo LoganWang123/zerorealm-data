@@ -51,6 +51,10 @@ class MediaAsset:
     model: str = ""
     remote_url: str = ""
     media_id: str = ""
+    visual_reviewed: bool = False
+    text_free: bool = False
+    scene_relevant: bool = False
+    reviewed_sha256: str = ""
 
 
 @dataclass

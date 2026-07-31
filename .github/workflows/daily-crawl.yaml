@@ -2,7 +2,7 @@ name: Daily Pipeline
 
 on:
   schedule:
-    - cron: '0 22 * * *'   # UTC 22:00 = 北京 06:00 采集
+    - cron: '0 15 * * *'   # UTC 15:00 = 北京 23:00 采集
   workflow_dispatch:
     inputs:
       date:
@@ -20,7 +20,7 @@ concurrency:
 jobs:
   pipeline:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 180
     env:
       WEBSITE_REPO_TOKEN: ${{ secrets.WEBSITE_REPO_TOKEN }}
     steps:
@@ -66,10 +66,7 @@ jobs:
           path: website
 
       - name: Run crawler
-        run: >-
-          python main.py
-          --date "${{ steps.report-date.outputs.date }}"
-          --source "36kr_rss,linkshop_web,tmtpost_rss,winshang_web,ubox_web"
+        run: python main.py --date "${{ steps.report-date.outputs.date }}"
         env:
           LLM_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           LLM_BASE_URL: https://api.deepseek.com/v1

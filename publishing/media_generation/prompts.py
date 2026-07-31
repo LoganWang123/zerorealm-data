@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from publishing.article import Article
 
 
-DAILY_PROMPT_VERSION = "daily-v2"
+DAILY_PROMPT_VERSION = "daily-v3-reviewed"
 HOMEPAGE_PROMPT_VERSION = "homepage-v3"
 
 BRAND_STYLE = (

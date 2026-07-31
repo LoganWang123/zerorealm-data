@@ -132,7 +132,7 @@ def media_config(tmp_path):
 def test_daily_prompts_use_documentary_cabinet_operations_without_generic_ai():
     prompts = build_daily_prompts(daily_article(), body_image_count=3)
 
-    assert prompts.version == "daily-v2"
+    assert prompts.version == "daily-v3-reviewed"
     assert "零域日报 No.4" in prompts.cover
     assert "智能柜" in prompts.cover
     assert "运营现场" in prompts.cover
@@ -276,6 +276,60 @@ def test_media_validator_reports_hash_and_video_aspect_ratio_errors(tmp_path):
 
     assert any("cover hash mismatch" in error for error in errors)
     assert any("short_video aspect ratio" in error for error in errors)
+
+
+def test_media_validator_blocks_images_without_visual_review(tmp_path):
+    image_path = tmp_path / "cover.png"
+    image_path.write_bytes(b"\x89PNG\r\n\x1a\ncontent")
+    bundle = MediaBundle(
+        cover=MediaAsset(
+            role="cover",
+            local_path=str(image_path),
+            mime="image/png",
+            sha256=hashlib.sha256(image_path.read_bytes()).hexdigest(),
+        ),
+        body_images=[],
+    )
+    validator = MediaValidator(
+        expected_body_images=0,
+        probe=lambda _path: MediaProbe(
+            mime="image/png",
+            width=900,
+            height=383,
+        ),
+    )
+
+    errors = validator.validate(bundle)
+
+    assert "cover has not passed visual review" in errors
+    assert "cover may contain rendered text" in errors
+    assert "cover is not confirmed relevant to smart-cabinet operations" in errors
+
+
+def test_media_validator_requires_reviewed_asset_hash(tmp_path):
+    image_path = tmp_path / "cover.png"
+    image_path.write_bytes(b"\x89PNG\r\n\x1a\ncontent")
+    bundle = MediaBundle(
+        cover=MediaAsset(
+            role="cover",
+            local_path=str(image_path),
+            mime="image/png",
+            visual_reviewed=True,
+            text_free=True,
+            scene_relevant=True,
+        ),
+        body_images=[],
+    )
+    validator = MediaValidator(
+        expected_body_images=0,
+        probe=lambda _path: MediaProbe(
+            mime="image/png",
+            width=900,
+            height=383,
+        ),
+    )
+
+    assert "cover sha256 is required" in validator.validate(bundle)
 
 
 def test_probe_media_accepts_explicit_ffprobe_path(tmp_path, monkeypatch):

@@ -47,6 +47,18 @@ class MediaValidator:
             )
 
         for asset in bundle.all_assets():
+            if not asset.visual_reviewed:
+                errors.append(f"{asset.role} has not passed visual review")
+            if not asset.text_free:
+                errors.append(f"{asset.role} may contain rendered text")
+            if not asset.scene_relevant:
+                errors.append(
+                    f"{asset.role} is not confirmed relevant to smart-cabinet operations"
+                )
+            if not asset.sha256:
+                errors.append(f"{asset.role} sha256 is required")
+            if asset.reviewed_sha256 != asset.sha256:
+                errors.append(f"{asset.role} review is not bound to current sha256")
             path = Path(asset.local_path)
             if not path.exists() or not path.is_file():
                 errors.append(f"{asset.role} file is missing")

@@ -62,8 +62,20 @@ PAT 只需授予 `LoganWang123/zerorealm-website` 的 Contents read/write 权限
 
 ## Agnes 媒体生成
 
-公众号发布前会通过 Agnes 生成 1 张封面图、3 张正文配图和 1 个 15 秒
-9:16 短视频。生成或媒体校验失败会阻断发布，避免发布不完整内容。
+公众号发布前会生成 1 张封面图和 3 张正文配图；短视频仅在启用且有合格
+素材时生成。生成文件默认处于“未审核”状态，不能直接进入公众号草稿。
+审核者必须逐张打开图片，确认没有生成文字、乱码、品牌和无关场景，然后用
+文件的准确 SHA-256 显式确认全部素材：
+
+```bash
+python review_media.py --date YYYY-MM-DD \
+  --approve cover=<SHA256> \
+  --approve body_1=<SHA256> \
+  --approve body_2=<SHA256> \
+  --approve body_3=<SHA256>
+```
+
+审核确认会与文件哈希绑定；图片被替换、漏审或哈希为空时，发布流程会阻断。
 
 在服务端环境配置新签发的密钥：
 
