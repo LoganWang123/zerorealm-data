@@ -27,6 +27,8 @@ from knowledge.industry_graph import (
     RELATION_STATUSES,
     evidence_meets_minimum,
     validate_graph_layer,
+    validate_maintenance_status,
+    validate_node_kind,
     validate_relation_evidence,
 )
 from utils.helpers import CST
@@ -76,16 +78,26 @@ class KnowledgeStore:
         industry_role: str = "",
         confidence: int = 60,
         graph_layer: str = "",
+        graph_layers: list[str] | None = None,
+        secondary_roles: list[str] | None = None,
+        maintenance_status: str = "",
+        node_kind: str = "",
     ) -> KnowledgeObject:
         """Resolve mention to existing entity, or create a new one.
 
         Returns the canonical KnowledgeObject.
         """
-        validate_graph_layer(graph_layer)
+        metadata = self._graph_metadata(
+            graph_layer=graph_layer,
+            graph_layers=graph_layers,
+            industry_role=industry_role,
+            secondary_roles=secondary_roles,
+            maintenance_status=maintenance_status,
+            node_kind=node_kind,
+        )
         existing = self.resolve(name)
         if existing is not None:
-            if graph_layer:
-                existing.metadata.setdefault("graph_layer", graph_layer)
+            self._merge_metadata(existing.metadata, metadata)
             existing.increment_mentions(signal_id)
             return existing
 
@@ -108,7 +120,7 @@ class KnowledgeStore:
             confidence=confidence,
             provenance="derived",
             mention_count=1,
-            metadata={"graph_layer": graph_layer} if graph_layer else {},
+            metadata=metadata,
             source_signals=[signal_id] if signal_id else [],
         )
 
@@ -190,7 +202,7 @@ class KnowledgeStore:
             [
                 obj
                 for obj in self._objects.values()
-                if obj.metadata.get("graph_layer") == graph_layer
+                if graph_layer in obj.metadata.get("graph_layers", [obj.metadata.get("graph_layer")])
             ],
             key=lambda obj: obj.canonical_name,
         )
@@ -350,3 +362,60 @@ class KnowledgeStore:
     def _register_alias(self, name: str, obj_id: str) -> None:
         """Register a name in the alias index."""
         self._alias_index[name.strip().lower()] = obj_id
+
+    @staticmethod
+    def _graph_metadata(
+        *,
+        graph_layer: str,
+        graph_layers: list[str] | None,
+        industry_role: str,
+        secondary_roles: list[str] | None,
+        maintenance_status: str,
+        node_kind: str,
+    ) -> dict:
+        """Build validated, stable graph metadata without touching old fields."""
+        values = [graph_layer, *(graph_layers or [])]
+        normalized_layers: list[str] = []
+        for value in values:
+            validate_graph_layer(value)
+            if value and value not in normalized_layers:
+                normalized_layers.append(value)
+
+        validate_maintenance_status(maintenance_status)
+        validate_node_kind(node_kind)
+        metadata: dict = {}
+        if normalized_layers:
+            metadata["graph_layer"] = normalized_layers[0]
+            metadata["graph_layers"] = normalized_layers
+        roles = sorted(
+            {
+                role.strip()
+                for role in secondary_roles or []
+                if role.strip() and role.strip() != industry_role
+            }
+        )
+        if roles:
+            metadata["secondary_roles"] = roles
+        if maintenance_status:
+            metadata["maintenance_status"] = maintenance_status
+        if node_kind:
+            metadata["node_kind"] = node_kind
+        return metadata
+
+    @staticmethod
+    def _merge_metadata(target: dict, incoming: dict) -> None:
+        """Merge explicit graph metadata while retaining backwards compatibility."""
+        for key, value in incoming.items():
+            if key == "graph_layers":
+                existing = target.get("graph_layers", [target.get("graph_layer", "")])
+                merged = [layer for layer in existing if layer]
+                for layer in value:
+                    if layer not in merged:
+                        merged.append(layer)
+                target["graph_layers"] = merged
+                if merged:
+                    target.setdefault("graph_layer", merged[0])
+            elif key == "secondary_roles":
+                target[key] = sorted(set(target.get(key, [])) | set(value))
+            else:
+                target[key] = value

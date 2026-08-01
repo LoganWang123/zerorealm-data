@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "cycles": [
+    {"cycle":1,"weeks":"第 1–2 周","question":"L1–L4 如何共同构成无人零售经营链？","backup_topic":"一个证据最完整的运营商或设备商主体研究","evidence_threshold":"具名核心主体有官方身份来源，公开关系有 A/B 级证据","status":"planned"},
+    {"cycle":2,"weeks":"第 3–4 周","question":"运营商如何判断点位质量与持续经营价值？","backup_topic":"公开点位场景与经营口径对比","evidence_threshold":"至少两个可核验公开案例","status":"planned"},
+    {"cycle":3,"weeks":"第 5–6 周","question":"设备采购除价格外还应核验哪些能力？","backup_topic":"两类设备公开参数、交付和服务能力对比","evidence_threshold":"至少两家厂商官方资料","status":"planned"},
+    {"cycle":4,"weeks":"第 7–8 周","question":"商品选择、补货与损耗如何影响单点效率？","backup_topic":"一个公开供应链或补货案例拆解","evidence_threshold":"至少两个公开运营或供应案例","status":"planned"},
+    {"cycle":5,"weeks":"第 9–10 周","question":"品牌进入无人零售渠道有哪些可验证路径？","backup_topic":"一个品牌的公开渠道动作时间线","evidence_threshold":"至少两个品牌渠道动作的 A/B 级来源","status":"planned"},
+    {"cycle":6,"weeks":"第 11–12 周","question":"从品牌到设备，哪些跨层连接已获得证据确认？","backup_topic":"首季证据最完整的单一跨层案例","evidence_threshold":"只使用 A/B 级确认关系","status":"planned"}
+  ]
+}

@@ -33,6 +33,8 @@ VALID_RELATION_TYPES = frozenset(
 
 EVIDENCE_LEVELS = ("A", "B", "C")
 RELATION_STATUSES = frozenset({"confirmed", "observed", "revoked"})
+NODE_KINDS = frozenset({"entity", "archetype"})
+MAINTENANCE_STATUSES = frozenset({"core", "watch", "background"})
 
 
 @dataclass(frozen=True)
@@ -57,6 +59,18 @@ def validate_graph_layer(graph_layer: str) -> None:
     """Reject layers outside the published L0-L7 taxonomy."""
     if graph_layer and graph_layer not in INDUSTRY_LAYERS:
         raise ValueError(f"unknown graph layer: {graph_layer}")
+
+
+def validate_node_kind(node_kind: str) -> None:
+    """Reject node kinds outside the published graph vocabulary."""
+    if node_kind and node_kind not in NODE_KINDS:
+        raise ValueError(f"unknown node kind: {node_kind}")
+
+
+def validate_maintenance_status(maintenance_status: str) -> None:
+    """Reject unsupported research-maintenance states."""
+    if maintenance_status and maintenance_status not in MAINTENANCE_STATUSES:
+        raise ValueError(f"unknown maintenance status: {maintenance_status}")
 
 
 def validate_relation_evidence(relation_type: str, evidence: EvidenceRef | None) -> None:

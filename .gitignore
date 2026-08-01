@@ -1,5 +1,14 @@
 # data
 data/
+!data/
+data/*
+!data/knowledge/
+!data/knowledge/industry-graph-foundation.json
+!data/research/
+!data/research/README.md
+!data/research/feedback-log.json
+!data/research/first-quarter-research.json
+!data/research/weekly-review-template.md
 
 # logs
 logs/
@@ -13,6 +22,7 @@ assets/generated/
 storage/manifest/
 .cache/
 .test-tmp/
+.test-tmp-*/
 
 # python
 __pycache__/
