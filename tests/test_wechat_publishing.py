@@ -214,6 +214,31 @@ def test_create_draft_sends_unescaped_utf8_json(monkeypatch):
     assert b"\\u96f6" not in captured["data"]
 
 
+def test_delete_draft_posts_its_media_id(monkeypatch):
+    client = WechatClient("app-id", "app-secret")
+    monkeypatch.setattr(client, "get_access_token", lambda: "token")
+    captured = {}
+
+    class Response:
+        content = b'{"errcode": 0, "errmsg": "ok"}'
+
+    def post(url, **kwargs):
+        captured["url"] = url
+        captured.update(kwargs)
+        return Response()
+
+    monkeypatch.setattr(client._session, "post", post)
+
+    response = client.delete_draft("draft-media-id")
+
+    assert captured["url"].endswith("/cgi-bin/draft/delete")
+    assert captured["params"] == {"access_token": "token"}
+    assert json.loads(captured["data"].decode("utf-8")) == {
+        "media_id": "draft-media-id"
+    }
+    assert response == {"errcode": 0, "errmsg": "ok"}
+
+
 def test_mass_notification_uses_all_follower_mpnews_payload(monkeypatch):
     client = WechatClient("app-id", "app-secret")
     monkeypatch.setattr(client, "get_access_token", lambda: "token")

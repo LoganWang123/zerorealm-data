@@ -67,6 +67,29 @@ def test_renderer_inserts_three_body_images_and_video_placeholder(tmp_path):
     assert "回复柜机数量和饮料缺货率" in rendered.body
 
 
+def test_renderer_uses_explicit_local_images_without_media_generation(tmp_path):
+    first = tmp_path / "local-first.png"
+    second = tmp_path / "local-second.png"
+    first.write_bytes(b"first")
+    second.write_bytes(b"second")
+    article = Article(
+        metadata=ArticleMeta("article-1", "daily-1", "daily", 1),
+        title="Daily",
+        date="2026-08-01",
+        summary=["summary"],
+        cover=str(first),
+        inline_images=[str(first), str(second)],
+    )
+    context = RenderContext(config=PublishConfig(), asset_manager=AssetManager())
+
+    rendered = WechatRenderer(LocalMediaStorage()).render(article, context)
+
+    assert [asset.role for asset in rendered.media] == ["inline_1", "inline_2"]
+    assert [asset.local_path for asset in rendered.media] == [str(first), str(second)]
+    assert "zr-media://inline_1" in rendered.body
+    assert "zr-media://inline_2" in rendered.body
+
+
 class FakeWechatClient:
     def __init__(self, fail_video=False):
         self.created = []

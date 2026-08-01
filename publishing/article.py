@@ -124,6 +124,7 @@ class Article:
     summary: list[str] = field(default_factory=list)  # 3 条要点
     sections: list = field(default_factory=list)  # V4: 统一列表或分板块
     cover: str = ""  # 封面图路径
+    inline_images: list[str] = field(default_factory=list)
     author: str = "ZeroRealm AI"
     tags: list[str] = field(default_factory=list)
     # v2 fields

@@ -174,7 +174,8 @@ class ArticleParser:
             date=date,
             summary=summary,
             sections=sections,
-            cover="",  # 使用默认封面
+            cover=data.get("cover", ""),
+            inline_images=data.get("inline_images", []),
             author="ZeroRealm AI",
             tags=[source],
             # v2 fields

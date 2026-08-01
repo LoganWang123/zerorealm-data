@@ -321,7 +321,17 @@ class WechatRenderer(BaseRenderer):
     def _body_media_blocks(article) -> list[str]:
         bundle = getattr(article, "media_bundle", None)
         if bundle is None:
-            return []
+            inline_images = getattr(article, "inline_images", [])
+            return [
+                (
+                    '<p style="margin:24px 0;">'
+                    f'<img src="zr-media://inline_{index}" '
+                    'alt="正文配图" '
+                    'style="display:block;width:100%;height:auto;border-radius:8px;" />'
+                    "</p>"
+                )
+                for index, _ in enumerate(inline_images, start=1)
+            ]
         labels = ["今日信号", "核心分析", "决策与趋势"]
         return [
             (
@@ -338,7 +348,10 @@ class WechatRenderer(BaseRenderer):
     def _process_media(article) -> list[MediaReference]:
         bundle = getattr(article, "media_bundle", None)
         if bundle is None:
-            return []
+            return [
+                MediaReference(local_path=path, mime="image/png", role=f"inline_{index}")
+                for index, path in enumerate(getattr(article, "inline_images", []), start=1)
+            ]
         return [
             MediaReference(
                 local_path=asset.local_path,
