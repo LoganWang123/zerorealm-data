@@ -37,7 +37,7 @@ def test_article_explains_revision_and_publishes_sourced_v02_samples():
     assert article["title"] == ARTICLE_TITLE
     assert article["thumb_media_id"] == "cover-media-id"
     assert article["content"].count("<img") == 2
-    assert "原 V0.1 更准确地说，是一套经营系统分析框架" in article["content"]
+    assert "本报告基于公开资料" in article["content"]
     assert "友宝在线" in article["content"]
     assert "丰e足食" in article["content"]
     assert "云拿科技" in article["content"]
@@ -56,6 +56,10 @@ def test_article_explains_revision_and_publishes_sourced_v02_samples():
     assert "市场规模" not in article["content"]
     assert "content_source_url" not in article
     assert "阅读原文" not in article["content"]
+    assert "V0.2" not in article["title"]
+    assert "V0.2" not in article["content"]
+    assert "原 V0.1" not in article["content"]
+    assert "修订" not in article["content"]
 
 
 def test_verified_draft_requires_api_readback_title_match():
@@ -92,7 +96,7 @@ def test_article_payload_is_utf8_json_serializable():
 
     encoded = json.dumps(article, ensure_ascii=False).encode("utf-8")
 
-    assert "中国无人零售产业链图谱 V0.2".encode("utf-8") in encoded
+    assert "中国无人零售产业链研究报告 V0.1".encode("utf-8") in encoded
 
 
 def test_get_draft_posts_media_id_to_readback_endpoint(monkeypatch):

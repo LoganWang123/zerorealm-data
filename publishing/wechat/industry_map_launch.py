@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 from publishing.wechat.client import WechatClient
 
 
-ARTICLE_TITLE = "中国无人零售产业链图谱 V0.2：首批企业、产品与真实案例"
+ARTICLE_TITLE = "中国无人零售产业链研究报告 V0.1：企业、产品与真实案例"
 ARTICLE_URL = "https://zerorealm.tech/research/industry-map"
 BRAND_EMAIL = "hi@zerorealm.tech"
 DEFAULT_DRAFT_MEDIA_ID = "csbrZswCx_5hmuZ_bqWc69eVU-wSK2QwwA2vhXiPdFIMzW4Np_2-9AAsr3cA098O"
@@ -78,7 +78,7 @@ def _case(name: str, scenario: str, solution: str, fact: str) -> str:
 
 
 def build_industry_map_article(image_urls: list[str], *, thumb_media_id: str) -> dict:
-    """Build the corrected V0.2 WeChat draft payload."""
+    """Build the public V0.1 research-report WeChat draft payload."""
     if len(image_urls) != 2:
         raise ValueError("exactly two body image URLs are required")
     if not thumb_media_id:
@@ -121,21 +121,21 @@ def build_industry_map_article(image_urls: list[str], *, thumb_media_id: str) ->
         [
             '<div style="max-width:100%;padding:8px 4px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;">',
             '<p style="margin:0 0 12px;font-size:13px;letter-spacing:1px;color:#2563eb;">ZEROREALM RESEARCH · EVIDENCE MAP</p>',
-            _paragraph("这是一份主动修订，也是一份更接近“产业链图谱”应有形态的版本。", color="#0f172a", bold=True),
-            _paragraph("原 V0.1 更准确地说，是一套经营系统分析框架：它解释了无人零售涉及哪些能力，却没有展示企业、产品和实际案例。继续把它称作产业链图谱并不严谨。"),
-            _paragraph("因此，我们将原内容更名为《中国无人零售经营系统框架 V0.1》，并发布《中国无人零售产业链图谱 V0.2（首批核验版）》。"),
+            _paragraph("无人零售已经从单一设备创新，进入技术、终端、运营与场景协同发展的阶段。", color="#0f172a", bold=True),
+            _paragraph("本报告基于公开资料，从产业链结构、企业产品节点和实际落地案例三个层面，梳理当前中国无人零售的能力构成与应用边界。"),
+            _paragraph("报告关注的核心问题不是设备能否完成一次交易，而是技术能力如何进入终端、运营履约和真实消费场景，并形成可以持续运行的经营系统。"),
             '<div style="margin:24px 0;padding:18px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;">'
-            '<p style="margin:0;font-size:16px;line-height:1.8;font-weight:600;color:#0f172a;">V0.2 新增：产业链结构、6 个企业产品节点、4 个实际案例，以及逐项公开来源和核验日期。</p></div>',
+            '<p style="margin:0;font-size:16px;line-height:1.8;font-weight:600;color:#0f172a;">研究范围：4 个产业环节、6 个企业产品节点、4 个实际案例，以及逐项公开来源和核验日期。</p></div>',
             _section_title("PART 01", "无人零售产业链如何连接"),
             _paragraph("无人零售不是一台设备，而是从能力供给到消费场景的一条经营链。箭头只表示业务承接顺序，不自动代表企业之间存在合作关系。"),
             stage_rows,
             _image(operating_loop_url, "无人零售经营闭环"),
             _section_title("PART 02", "首批企业与产品节点"),
-            _paragraph("本版只收录能够从企业官网、上市文件或监管披露直接核验的公开信息。企业自述只证明其公开披露，不代表 ZeroRealm AI 对产品效果作独立验证。"),
+            _paragraph("报告只收录能够从企业官网、上市文件或监管披露直接核验的公开信息。企业自述只证明其公开披露，不代表 ZeroRealm AI 对产品效果作独立验证。"),
             nodes,
             _section_title("PART 03", "公开可核验的实际场景案例"),
             cases,
-            _paragraph("以上案例均来自方案提供方公开案例库。V0.2 不把单方公开材料进一步推断为市场排名、长期经营效果或商业背书。"),
+            _paragraph("以上案例均来自方案提供方公开案例库。报告不把单方公开材料进一步推断为市场排名、长期经营效果或商业背书。"),
             _section_title("PART 04", "我们如何控制图谱边界"),
             _image(evidence_map_url, "公开证据驱动的产业图谱"),
             '<div style="margin:22px 0;padding:18px;background:#f8fafc;border-top:3px solid #0f172a;">'
@@ -158,7 +158,7 @@ def build_industry_map_article(image_urls: list[str], *, thumb_media_id: str) ->
     return {
         "title": ARTICLE_TITLE,
         "author": "ZeroRealm AI",
-        "digest": "主动修订 V0.1：首批补入企业、产品、真实场景案例及逐项公开来源。",
+            "digest": "基于公开资料，梳理无人零售产业结构、企业产品节点、真实场景案例与证据边界。",
         "content": body,
         "thumb_media_id": thumb_media_id,
         "need_open_comment": 1,
