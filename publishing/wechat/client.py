@@ -150,6 +150,17 @@ class WechatClient:
         )
         return self._check_response(resp)
 
+    def get_draft(self, media_id: str) -> dict:
+        """读取指定草稿，用于创建后的内容核验."""
+        token = self.get_access_token()
+        resp = self._post_utf8_json(
+            f"{BASE_URL}/cgi-bin/draft/get",
+            params={"access_token": token},
+            payload={"media_id": media_id},
+            timeout=30,
+        )
+        return self._check_response(resp)
+
     def delete_draft(self, media_id: str) -> dict:
         """Delete the specified draft."""
         token = self.get_access_token()
