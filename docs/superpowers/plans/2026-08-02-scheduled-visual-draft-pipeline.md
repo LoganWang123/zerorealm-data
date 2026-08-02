@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Generate and validate issue visuals, verify the deployed website, and create a readback-verified WeChat draft on a Monday/Wednesday/Friday schedule.
+**Goal:** Generate and validate issue visuals, verify the deployed website, and create a readback-verified WeChat draft every day at 23:00 Asia/Shanghai.
 
 **Architecture:** Reuse the existing dry-run publishing pipeline as the media preparation boundary, then sync its deterministic asset bundle to the website. Only after production verification runs successfully does the existing draft publisher upload images and call the WeChat draft API.
 
@@ -13,7 +13,7 @@
 - Never call free-publish or mass-send from the scheduled workflow.
 - Require one 900x383 PNG cover and three 1280x720 PNG body images.
 - Stop on media, deployment, upload, or API readback failure.
-- Run at 06:00 Asia/Shanghai on Monday, Wednesday, and Friday.
+- Run every day at 23:00 Asia/Shanghai for manual publication the following morning.
 
 ---
 

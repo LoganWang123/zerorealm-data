@@ -2,7 +2,7 @@ name: Daily Pipeline
 
 on:
   schedule:
-    - cron: '0 22 * * 0,2,4'   # UTC Sun/Tue/Thu 22:00 = 北京 Mon/Wed/Fri 06:00
+    - cron: '0 15 * * *'   # UTC 15:00 = 北京每天 23:00
   workflow_dispatch:
     inputs:
       date:

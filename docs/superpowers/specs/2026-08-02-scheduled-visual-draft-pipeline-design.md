@@ -2,7 +2,7 @@
 
 ## Objective
 
-Run the ZeroRealm content pipeline three times per week and produce a verified website issue plus a complete WeChat draft with one cover and three body images. The automation must never publish, free-publish, or mass-send.
+Run the ZeroRealm content pipeline every day at 23:00 Asia/Shanghai and produce a verified website issue plus a complete WeChat draft with one cover and three body images. The automation must never publish, free-publish, or mass-send.
 
 ## Data flow
 
@@ -21,7 +21,7 @@ Run the ZeroRealm content pipeline three times per week and produce a verified w
 
 ## Schedule and configuration
 
-The workflow runs Monday, Wednesday, and Friday at 06:00 Asia/Shanghai (`0 22 * * 0,2,4` UTC). Required GitHub secrets are `DEEPSEEK_API_KEY`, `WEBSITE_REPO_TOKEN`, `AGNES_API_KEY`, `WECHAT_APPID`, and `WECHAT_SECRET`. `AGNES_BASE_URL` and `AGNES_IMAGE_MODEL` are optional overrides with safe defaults.
+The workflow runs every day at 23:00 Asia/Shanghai (`0 15 * * *` UTC), allowing the issue to cover the full day's public information before manual publication the following morning. Required GitHub secrets are `DEEPSEEK_API_KEY`, `WEBSITE_REPO_TOKEN`, `AGNES_API_KEY`, `WECHAT_APPID`, and `WECHAT_SECRET`. `AGNES_BASE_URL` and `AGNES_IMAGE_MODEL` are optional overrides with safe defaults.
 
 ## Verification
 
