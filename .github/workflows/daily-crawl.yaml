@@ -2,7 +2,7 @@ name: Daily Pipeline
 
 on:
   schedule:
-    - cron: '0 15 * * *'   # UTC 15:00 = 北京 23:00 采集
+    - cron: '0 22 * * 0,2,4'   # UTC Sun/Tue/Thu 22:00 = 北京 Mon/Wed/Fri 06:00
   workflow_dispatch:
     inputs:
       date:
@@ -23,6 +23,11 @@ jobs:
     timeout-minutes: 180
     env:
       WEBSITE_REPO_TOKEN: ${{ secrets.WEBSITE_REPO_TOKEN }}
+      AGNES_API_KEY: ${{ secrets.AGNES_API_KEY }}
+      AGNES_BASE_URL: ${{ secrets.AGNES_BASE_URL || 'https://apihub.agnes-ai.com/v1' }}
+      AGNES_IMAGE_MODEL: ${{ secrets.AGNES_IMAGE_MODEL || 'agnes-image-2.1-flash' }}
+      WECHAT_APPID: ${{ secrets.WECHAT_APPID }}
+      WECHAT_SECRET: ${{ secrets.WECHAT_SECRET }}
     steps:
       - uses: actions/checkout@v4
 
@@ -56,6 +61,17 @@ jobs:
           key: crawl-state-${{ runner.os }}-${{ steps.report-date.outputs.date }}-${{ github.run_id }}
           restore-keys: |
             crawl-state-${{ runner.os }}-
+
+      - name: Restore generated media and draft state
+        uses: actions/cache@v4
+        with:
+          path: |
+            assets/generated
+            storage/manifest
+          key: publish-state-${{ runner.os }}-${{ steps.report-date.outputs.date }}-${{ github.run_id }}
+          restore-keys: |
+            publish-state-${{ runner.os }}-${{ steps.report-date.outputs.date }}-
+            publish-state-${{ runner.os }}-
 
       - name: Checkout website history
         if: env.WEBSITE_REPO_TOKEN != ''
@@ -98,22 +114,15 @@ jobs:
           LLM_BASE_URL: https://api.deepseek.com/v1
           LLM_MODEL: deepseek-chat
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: daily-${{ github.run_number }}
-          path: |
-            data/
-            output_daily/
-            logs/
-          retention-days: 30
-
       - name: Website sync configuration warning
         if: env.WEBSITE_REPO_TOKEN == ''
         run: echo "::warning::WEBSITE_REPO_TOKEN is not configured; report was not synced to the website."
 
-      - name: Publish report to website
+      - name: Generate and validate publishing images
+        if: env.WEBSITE_REPO_TOKEN != '' && steps.generate.outputs.generated == 'true'
+        run: python publish.py --channel wechat --date "${{ steps.report-date.outputs.date }}" --dry-run
+
+      - name: Publish report and images to website
         if: env.WEBSITE_REPO_TOKEN != '' && steps.generate.outputs.generated == 'true'
         shell: bash
         run: |
@@ -121,6 +130,15 @@ jobs:
           REPORT="output_daily/${DATE}.mdx"
           test -f "$REPORT"
           install -D -m 0644 "$REPORT" "website/content/daily/${DATE}.mdx"
+          MEDIA_DIR="assets/generated/${DATE}"
+          test -f "${MEDIA_DIR}/cover.png"
+          test -f "${MEDIA_DIR}/body-1.png"
+          test -f "${MEDIA_DIR}/body-2.png"
+          test -f "${MEDIA_DIR}/body-3.png"
+          install -D -m 0644 "${MEDIA_DIR}/cover.png" "website/public/media/daily/${DATE}/cover.png"
+          install -D -m 0644 "${MEDIA_DIR}/body-1.png" "website/public/media/daily/${DATE}/body-1.png"
+          install -D -m 0644 "${MEDIA_DIR}/body-2.png" "website/public/media/daily/${DATE}/body-2.png"
+          install -D -m 0644 "${MEDIA_DIR}/body-3.png" "website/public/media/daily/${DATE}/body-3.png"
           python - <<'PY'
           import json
           from pathlib import Path
@@ -135,6 +153,67 @@ jobs:
           PY
           git -C website config user.name "LoganWang123"
           git -C website config user.email "LoganWang123@users.noreply.github.com"
-          git -C website add "content/daily/${DATE}.mdx" "data/stats.json"
+          git -C website add "content/daily/${DATE}.mdx" "data/stats.json" "public/media/daily/${DATE}"
           git -C website diff --cached --quiet || git -C website commit -m "feat(daily): publish ${DATE}"
           git -C website push
+
+      - name: Verify production report and images
+        if: env.WEBSITE_REPO_TOKEN != '' && steps.generate.outputs.generated == 'true'
+        shell: bash
+        run: |
+          python - <<'PY'
+          import re
+          import time
+          from pathlib import Path
+
+          import requests
+
+          date = "${{ steps.report-date.outputs.date }}"
+          report = Path(f"output_daily/{date}.mdx").read_text(encoding="utf-8")
+          match = re.search(r'^title:\s*["\']?(.*?)["\']?\s*$', report, re.MULTILINE)
+          if not match:
+              raise SystemExit("Report title is missing")
+          title = match.group(1)
+          urls = [
+              f"https://zerorealm.tech/daily/{date}",
+              *[
+                  f"https://zerorealm.tech/media/daily/{date}/{name}.png"
+                  for name in ("cover", "body-1", "body-2", "body-3")
+              ],
+          ]
+          deadline = time.monotonic() + 600
+          last_error = "deployment not checked"
+          while time.monotonic() < deadline:
+              try:
+                  responses = [requests.get(url, timeout=20) for url in urls]
+                  page = responses[0]
+                  if all(response.status_code == 200 for response in responses):
+                      if title in page.text and date in page.text:
+                          break
+                  last_error = ", ".join(
+                      f"{url}={response.status_code}"
+                      for url, response in zip(urls, responses)
+                  )
+              except requests.RequestException as exc:
+                  last_error = str(exc)
+              time.sleep(15)
+          else:
+              raise SystemExit(f"Production verification failed: {last_error}")
+          PY
+
+      - name: Create or update verified WeChat draft
+        if: env.WEBSITE_REPO_TOKEN != '' && steps.generate.outputs.generated == 'true'
+        run: python publish.py --channel wechat --date "${{ steps.report-date.outputs.date }}"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: daily-${{ github.run_number }}
+          path: |
+            data/
+            output_daily/
+            assets/generated/
+            storage/manifest/
+            logs/
+          retention-days: 30

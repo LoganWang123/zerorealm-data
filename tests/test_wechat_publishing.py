@@ -21,7 +21,7 @@ from publishing.models import (
 )
 from publishing.wechat.client import WechatAPIError, WechatClient
 from publishing.wechat.builder import WechatChannelBuilder
-from publishing.wechat.publisher import WechatPublisher
+from publishing.wechat.publisher import WechatPublisher, append_brand_footer
 from publishing.wechat import templates
 
 
@@ -31,6 +31,7 @@ class FakeWechatClient:
         self.mass_created = []
         self.mass_sent = []
         self.submitted = []
+        self.content_urls = []
 
     def upload_permanent_image(self, path):
         return {"media_id": "cover-id"}
@@ -38,6 +39,15 @@ class FakeWechatClient:
     def create_draft(self, articles):
         self.created.append(articles)
         return "draft-id"
+
+    def get_draft(self, media_id):
+        assert media_id == "draft-id"
+        return {"news_item": self.created[-1]}
+
+    def upload_content_image(self, path):
+        url = f"https://mmbiz.qpic.cn/{len(self.content_urls) + 1}"
+        self.content_urls.append(url)
+        return url
 
     def create_mass_article(self, articles):
         self.mass_created.append(articles)
@@ -74,6 +84,22 @@ def test_draft_mode_only_creates_draft():
     assert result.status == PublishStatus.SUCCESS
     assert result.draft_id == "draft-id"
     assert result.publish_id is None
+    assert client.submitted == []
+
+
+def test_draft_mode_fails_when_api_readback_loses_required_content():
+    class BrokenReadbackClient(FakeWechatClient):
+        def get_draft(self, media_id):
+            article = dict(self.created[-1][0])
+            article["content"] = "<p>truncated</p>"
+            return {"news_item": [article]}
+
+    client = BrokenReadbackClient()
+
+    result = WechatPublisher(client).publish(render_result())
+
+    assert result.status == PublishStatus.FAILED
+    assert "readback" in result.message.lower()
     assert client.submitted == []
 
 
@@ -138,6 +164,26 @@ def test_created_article_enables_comments_for_followers():
     article = client.created[0][0]
     assert article["need_open_comment"] == 1
     assert article["only_fans_can_comment"] == 1
+
+
+def test_created_article_appends_standard_brand_contact_footer_once():
+    client = FakeWechatClient()
+    WechatPublisher(client).publish(render_result())
+
+    content = client.created[0][0]["content"]
+    assert content.count('data-zr-brand-footer="true"') == 1
+    assert "关于 ZeroRealm AI" in content
+    assert "ZeroRealm AI 持续关注智能零售、无人零售与终端运营" in content
+    assert "公开案例征集｜资料纠错｜行业合作" in content
+    assert "运营商访谈" not in content
+    assert "hi@zerorealm.tech" in content
+    assert "https://zerorealm.tech" in content
+
+
+def test_standard_brand_contact_footer_is_idempotent():
+    content = append_brand_footer(append_brand_footer("<p>Body</p>"))
+
+    assert content.count('data-zr-brand-footer="true"') == 1
 
 
 def test_token_network_error_redacts_credentials(monkeypatch, tmp_path):

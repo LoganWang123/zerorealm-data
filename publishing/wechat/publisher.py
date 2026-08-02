@@ -18,6 +18,32 @@ if TYPE_CHECKING:
     from publishing.wechat.client import WechatClient
 
 
+BRAND_FOOTER_MARKER = 'data-zr-brand-footer="true"'
+
+
+def append_brand_footer(body: str) -> str:
+    """Append the standard ZeroRealm AI contact footer exactly once."""
+    if BRAND_FOOTER_MARKER in body:
+        return body
+    footer = (
+        '<section data-zr-brand-footer="true" style="margin:32px 0 0;padding:20px 0 0;'
+        'border-top:1px solid #e5e7eb;color:#4b5563;line-height:1.8;">'
+        '<p style="margin:0 0 8px;font-size:16px;font-weight:bold;color:#111827;">'
+        '关于 ZeroRealm AI</p>'
+        '<p style="margin:0 0 12px;font-size:14px;">'
+        'ZeroRealm AI 持续关注智能零售、无人零售与终端运营，提供每日经营信号、行业洞察与专题研究。'
+        '</p>'
+        '<p style="margin:0 0 4px;font-size:14px;">公开案例征集｜资料纠错｜行业合作</p>'
+        '<p style="margin:0;font-size:14px;">邮箱：'
+        '<a href="mailto:hi@zerorealm.tech" style="color:#2563eb;text-decoration:none;">'
+        'hi@zerorealm.tech</a><br/>官网：'
+        '<a href="https://zerorealm.tech" style="color:#2563eb;text-decoration:none;">'
+        'https://zerorealm.tech</a></p>'
+        '</section>'
+    )
+    return f"{body}\n{footer}"
+
+
 class WechatPublisher(BasePublisher):
     """微信公众号发布器."""
 
@@ -43,7 +69,8 @@ class WechatPublisher(BasePublisher):
                 duration=time.time() - start,
             )
 
-        body = result.body
+        body = append_brand_footer(result.body)
+        uploaded_image_urls: list[str] = []
         for media in result.media:
             token = f"zr-media://{media.role}"
             if token not in body:
@@ -62,6 +89,7 @@ class WechatPublisher(BasePublisher):
                     message=f"Body image upload failed ({media.role}): {e}",
                     duration=time.time() - start,
                 )
+            uploaded_image_urls.append(remote_url)
             body = body.replace(token, remote_url)
 
         if result.video is not None:
@@ -155,8 +183,14 @@ class WechatPublisher(BasePublisher):
             publish_id = None
             if notify_followers:
                 publish_id = self._client.send_mass_article(draft_id)
-            elif publish_now:
-                publish_id = self._client.submit_publish(draft_id)
+            else:
+                _verify_draft_readback(
+                    self._client.get_draft(draft_id),
+                    article_payload,
+                    required_image_urls=uploaded_image_urls,
+                )
+                if publish_now:
+                    publish_id = self._client.submit_publish(draft_id)
 
             return PublishResult(
                 status=status,
@@ -189,3 +223,31 @@ def _truncate_utf8(value: str, max_bytes: int) -> str:
     if len(encoded) <= max_bytes:
         return value
     return encoded[:max_bytes].decode("utf-8", errors="ignore").rstrip()
+
+
+def _verify_draft_readback(
+    response: dict,
+    expected: dict,
+    *,
+    required_image_urls: list[str],
+) -> None:
+    """Fail closed when WeChat did not store the complete draft payload."""
+    items = response.get("news_item") if isinstance(response, dict) else None
+    if not isinstance(items, list) or not items or not isinstance(items[0], dict):
+        raise ValueError("Draft readback did not return an article")
+    stored = items[0]
+    if stored.get("title") != expected["title"]:
+        raise ValueError("Draft readback title mismatch")
+    if stored.get("thumb_media_id", "") != expected["thumb_media_id"]:
+        raise ValueError("Draft readback cover mismatch")
+    if stored.get("content_source_url"):
+        raise ValueError("Draft readback unexpectedly contains a source URL")
+    content = stored.get("content", "")
+    required_fragments = [
+        "hi@zerorealm.tech",
+        "https://zerorealm.tech",
+        *required_image_urls,
+    ]
+    missing = [fragment for fragment in required_fragments if fragment not in content]
+    if missing:
+        raise ValueError("Draft readback is missing required content")

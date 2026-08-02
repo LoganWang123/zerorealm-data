@@ -115,6 +115,10 @@ class FakeWechatClient:
         self.created.append(articles)
         return "draft-id"
 
+    def get_draft(self, media_id):
+        assert media_id == "draft-id"
+        return {"news_item": self.created[-1]}
+
     def update_draft(self, media_id, index, article):
         return {}
 
