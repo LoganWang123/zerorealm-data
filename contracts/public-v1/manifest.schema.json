@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zerorealm.tech/contracts/public-v1/manifest.schema.json",
+  "title": "PublicBundleManifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contractVersion",
+    "generatedAt",
+    "contentRevision",
+    "counts",
+    "files",
+    "bundleHash"
+  ],
+  "properties": {
+    "contractVersion": { "type": "string", "const": "1.0" },
+    "generatedAt": { "type": "string", "minLength": 1 },
+    "contentRevision": { "type": "integer", "minimum": 1 },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "signals",
+        "companies",
+        "cases",
+        "metrics",
+        "topics",
+        "claims",
+        "sources"
+      ],
+      "properties": {
+        "signals": { "type": "integer", "minimum": 0 },
+        "companies": { "type": "integer", "minimum": 0 },
+        "cases": { "type": "integer", "minimum": 0 },
+        "metrics": { "type": "integer", "minimum": 0 },
+        "topics": { "type": "integer", "minimum": 0 },
+        "claims": { "type": "integer", "minimum": 0 },
+        "sources": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "files": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$"
+      }
+    },
+    "bundleHash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  }
+}

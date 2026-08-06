@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zerorealm.tech/contracts/public-v1/bundle.schema.json",
+  "title": "PublicBundleV1",
+  "description": "Logical descriptor for Public Content Bundle v1 layout. Articles/MDX are out of scope for this contract version.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contractVersion", "requiredFiles"],
+  "properties": {
+    "contractVersion": { "type": "string", "const": "1.0" },
+    "requiredFiles": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "type": "string",
+        "enum": [
+          "manifest.json",
+          "signals.json",
+          "claims.json",
+          "sources.json",
+          "content-index.json"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "requiredDirectories": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["companies", "cases", "metrics", "topics"]
+      },
+      "uniqueItems": true
+    }
+  }
+}

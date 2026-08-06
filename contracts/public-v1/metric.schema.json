@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zerorealm.tech/contracts/public-v1/metric.schema.json",
+  "title": "PublicMetricDefinition",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "slug",
+    "name",
+    "definition",
+    "formula",
+    "applicableScenarios",
+    "commonPitfalls",
+    "relatedCaseIds"
+  ],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "slug": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "definition": { "type": "string" },
+    "formula": { "type": "string" },
+    "applicableScenarios": { "type": "array", "items": { "type": "string" } },
+    "commonPitfalls": { "type": "array", "items": { "type": "string" } },
+    "relatedCaseIds": { "type": "array", "items": { "type": "string" } }
+  }
+}

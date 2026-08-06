@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zerorealm.tech/contracts/public-v1/source.schema.json",
+  "title": "PublicSource",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "url",
+    "title",
+    "sourceName",
+    "publishedAt",
+    "credibility"
+  ],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "url": { "type": "string", "minLength": 1 },
+    "title": { "type": "string" },
+    "sourceName": { "type": "string" },
+    "publishedAt": { "type": ["string", "null"] },
+    "credibility": { "type": "string", "enum": ["high", "medium", "low"] }
+  }
+}

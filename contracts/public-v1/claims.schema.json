@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zerorealm.tech/contracts/public-v1/claims.schema.json",
+  "title": "PublicClaimsFile",
+  "type": "array",
+  "items": { "$ref": "claim.schema.json" }
+}

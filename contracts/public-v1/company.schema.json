@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zerorealm.tech/contracts/public-v1/company.schema.json",
+  "title": "PublicCompanyProfile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "slug",
+    "name",
+    "summary",
+    "coreBusiness",
+    "products",
+    "scenarios",
+    "businessModel",
+    "relatedCaseIds",
+    "relatedSignalIds",
+    "verifiedAt"
+  ],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "slug": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "summary": { "type": "string" },
+    "coreBusiness": { "type": "string" },
+    "products": { "type": "array", "items": { "type": "string" } },
+    "scenarios": { "type": "array", "items": { "type": "string" } },
+    "businessModel": { "type": "string" },
+    "relatedCaseIds": { "type": "array", "items": { "type": "string" } },
+    "relatedSignalIds": { "type": "array", "items": { "type": "string" } },
+    "verifiedAt": { "type": "string" }
+  }
+}
