@@ -3,8 +3,1110 @@
   "sources": [],
   "claims": [],
   "signals": [],
-  "companies": [],
+  "companies": [
+    {
+      "id": "co-7a47744412d0",
+      "slug": "co-7a47744412",
+      "name": "元气森林",
+      "summary": "元气森林（公开图谱收录，角色：brand）",
+      "core_business": "brand",
+      "products": [],
+      "scenarios": [
+        "L1"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-9380dd619b0b",
+      "slug": "co-9380dd619b",
+      "name": "可口可乐",
+      "summary": "可口可乐（公开图谱收录，角色：brand）",
+      "core_business": "brand",
+      "products": [],
+      "scenarios": [
+        "L1"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-e09ad08718d4",
+      "slug": "co-e09ad08718",
+      "name": "百事",
+      "summary": "百事（公开图谱收录，角色：brand）",
+      "core_business": "brand",
+      "products": [],
+      "scenarios": [
+        "L1"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-b4b2b580ffbe",
+      "slug": "co-b4b2b580ff",
+      "name": "农夫山泉",
+      "summary": "农夫山泉（公开图谱收录，角色：brand）",
+      "core_business": "brand",
+      "products": [],
+      "scenarios": [
+        "L1"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-4bfdb7b242c4",
+      "slug": "co-4bfdb7b242",
+      "name": "东鹏饮料",
+      "summary": "东鹏饮料（公开图谱收录，角色：brand）",
+      "core_business": "brand",
+      "products": [],
+      "scenarios": [
+        "L1"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-a1108b489091",
+      "slug": "co-a1108b4890",
+      "name": "统一",
+      "summary": "统一（公开图谱收录，角色：brand）",
+      "core_business": "brand",
+      "products": [],
+      "scenarios": [
+        "L1"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-0ae62147b36e",
+      "slug": "co-0ae62147b3",
+      "name": "康师傅",
+      "summary": "康师傅（公开图谱收录，角色：brand）",
+      "core_business": "brand",
+      "products": [],
+      "scenarios": [
+        "L1"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-50bc8e4323c7",
+      "slug": "co-50bc8e4323",
+      "name": "娃哈哈",
+      "summary": "娃哈哈（公开图谱收录，角色：brand）",
+      "core_business": "brand",
+      "products": [],
+      "scenarios": [
+        "L1"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-ae51148ea3a6",
+      "slug": "co-ae51148ea3",
+      "name": "伊利",
+      "summary": "伊利（公开图谱收录，角色：brand）",
+      "core_business": "brand",
+      "products": [],
+      "scenarios": [
+        "L1"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-d1aae59ceaec",
+      "slug": "co-d1aae59cea",
+      "name": "蒙牛",
+      "summary": "蒙牛（公开图谱收录，角色：brand）",
+      "core_business": "brand",
+      "products": [],
+      "scenarios": [
+        "L1"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-ecab89fd68b2",
+      "slug": "co-ecab89fd68",
+      "name": "旺旺",
+      "summary": "旺旺（公开图谱收录，角色：brand）",
+      "core_business": "brand",
+      "products": [],
+      "scenarios": [
+        "L1"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-d41e42f2ead1",
+      "slug": "co-d41e42f2ea",
+      "name": "今麦郎",
+      "summary": "今麦郎（公开图谱收录，角色：brand）",
+      "core_business": "brand",
+      "products": [],
+      "scenarios": [
+        "L1"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-331d12527bc8",
+      "slug": "co-331d12527b",
+      "name": "三只松鼠",
+      "summary": "三只松鼠（公开图谱收录，角色：brand）",
+      "core_business": "brand",
+      "products": [],
+      "scenarios": [
+        "L1"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-c0a574b52cde",
+      "slug": "co-c0a574b52c",
+      "name": "良品铺子",
+      "summary": "良品铺子（公开图谱收录，角色：brand）",
+      "core_business": "brand",
+      "products": [],
+      "scenarios": [
+        "L1"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-73db04fb4e69",
+      "slug": "co-73db04fb4e",
+      "name": "中粮福临门",
+      "summary": "中粮福临门（公开图谱收录，角色：brand）",
+      "core_business": "brand",
+      "products": [],
+      "scenarios": [
+        "L1"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-d39910b6b332",
+      "slug": "co-d39910b6b3",
+      "name": "中粮集团",
+      "summary": "中粮集团（公开图谱收录，角色：supplier）",
+      "core_business": "supplier",
+      "products": [],
+      "scenarios": [
+        "L2"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-f1182f3bd145",
+      "slug": "co-f1182f3bd1",
+      "name": "怡亚通",
+      "summary": "怡亚通（公开图谱收录，角色：supply_chain）",
+      "core_business": "supply_chain",
+      "products": [],
+      "scenarios": [
+        "L2"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-ab926de9725d",
+      "slug": "co-ab926de972",
+      "name": "易久批",
+      "summary": "易久批（公开图谱收录，角色：supply_chain）",
+      "core_business": "supply_chain",
+      "products": [],
+      "scenarios": [
+        "L2"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-31ec83f6b576",
+      "slug": "co-31ec83f6b5",
+      "name": "掌合天下",
+      "summary": "掌合天下（公开图谱收录，角色：supply_chain）",
+      "core_business": "supply_chain",
+      "products": [],
+      "scenarios": [
+        "L2"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-708d23db3e56",
+      "slug": "co-708d23db3e",
+      "name": "京东物流供应链",
+      "summary": "京东物流供应链（公开图谱收录，角色：supply_chain）",
+      "core_business": "supply_chain",
+      "products": [],
+      "scenarios": [
+        "L7"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-ef4f5da54ab2",
+      "slug": "co-ef4f5da54a",
+      "name": "菜鸟供应链",
+      "summary": "菜鸟供应链（公开图谱收录，角色：supply_chain）",
+      "core_business": "supply_chain",
+      "products": [],
+      "scenarios": [
+        "L7"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-afe9e5e2623a",
+      "slug": "co-afe9e5e262",
+      "name": "顺丰供应链",
+      "summary": "顺丰供应链（公开图谱收录，角色：supply_chain）",
+      "core_business": "supply_chain",
+      "products": [],
+      "scenarios": [
+        "L7"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-acde93c6cc3f",
+      "slug": "co-acde93c6cc",
+      "name": "丰e足食",
+      "summary": "丰e足食（公开图谱收录，角色：operator）",
+      "core_business": "operator",
+      "products": [],
+      "scenarios": [
+        "L3"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-dfaf9a68fed0",
+      "slug": "co-dfaf9a68fe",
+      "name": "友宝",
+      "summary": "友宝（公开图谱收录，角色：operator）",
+      "core_business": "operator",
+      "products": [],
+      "scenarios": [
+        "L3"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-f1a5efc9b860",
+      "slug": "co-f1a5efc9b8",
+      "name": "恒生活",
+      "summary": "恒生活（公开图谱收录，角色：operator）",
+      "core_business": "operator",
+      "products": [],
+      "scenarios": [
+        "L3"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-a3bfb59bb1b7",
+      "slug": "24h",
+      "name": "24H 便利柜",
+      "summary": "24H 便利柜（公开图谱收录，角色：operator）",
+      "core_business": "operator",
+      "products": [],
+      "scenarios": [
+        "L3"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-a021d656af5b",
+      "slug": "co-a021d656af",
+      "name": "购吖",
+      "summary": "购吖（公开图谱收录，角色：operator）",
+      "core_business": "operator",
+      "products": [],
+      "scenarios": [
+        "L3"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-8cf330eed395",
+      "slug": "co-8cf330eed3",
+      "name": "自由舱",
+      "summary": "自由舱（公开图谱收录，角色：operator）",
+      "core_business": "operator",
+      "products": [],
+      "scenarios": [
+        "L3"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-2ca09b11f8d7",
+      "slug": "co-2ca09b11f8",
+      "name": "盛马",
+      "summary": "盛马（公开图谱收录，角色：hardware）",
+      "core_business": "hardware",
+      "products": [],
+      "scenarios": [
+        "L4"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-beea57189679",
+      "slug": "co-beea571896",
+      "name": "小麦便利",
+      "summary": "小麦便利（公开图谱收录，角色：hardware）",
+      "core_business": "hardware",
+      "products": [],
+      "scenarios": [
+        "L4"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-1a8a8ce10375",
+      "slug": "co-1a8a8ce103",
+      "name": "中吉",
+      "summary": "中吉（公开图谱收录，角色：hardware）",
+      "core_business": "hardware",
+      "products": [],
+      "scenarios": [
+        "L4"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-116093dbfd8d",
+      "slug": "co-116093dbfd",
+      "name": "富宏智能",
+      "summary": "富宏智能（公开图谱收录，角色：hardware）",
+      "core_business": "hardware",
+      "products": [],
+      "scenarios": [
+        "L4"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-3bdd03122991",
+      "slug": "co-3bdd031229",
+      "name": "合豚科技",
+      "summary": "合豚科技（公开图谱收录，角色：hardware）",
+      "core_business": "hardware",
+      "products": [],
+      "scenarios": [
+        "L4"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-edc10a392d2b",
+      "slug": "co-edc10a392d",
+      "name": "嗨便利",
+      "summary": "嗨便利（公开图谱收录，角色：hardware）",
+      "core_business": "hardware",
+      "products": [],
+      "scenarios": [
+        "L4"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-28de4ac40387",
+      "slug": "co-28de4ac403",
+      "name": "海容冷链",
+      "summary": "海容冷链（公开图谱收录，角色：hardware）",
+      "core_business": "hardware",
+      "products": [],
+      "scenarios": [
+        "L7"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-08b87d74b160",
+      "slug": "co-08b87d74b1",
+      "name": "澳柯玛",
+      "summary": "澳柯玛（公开图谱收录，角色：hardware）",
+      "core_business": "hardware",
+      "products": [],
+      "scenarios": [
+        "L7"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-44b865e51c7c",
+      "slug": "co-44b865e51c",
+      "name": "星星冷链",
+      "summary": "星星冷链（公开图谱收录，角色：hardware）",
+      "core_business": "hardware",
+      "products": [],
+      "scenarios": [
+        "L7"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-fd33cf2876f7",
+      "slug": "co-fd33cf2876",
+      "name": "格力冷链",
+      "summary": "格力冷链（公开图谱收录，角色：hardware）",
+      "core_business": "hardware",
+      "products": [],
+      "scenarios": [
+        "L4"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-95f190f19b53",
+      "slug": "co-95f190f19b",
+      "name": "海尔商用冷链",
+      "summary": "海尔商用冷链（公开图谱收录，角色：hardware）",
+      "core_business": "hardware",
+      "products": [],
+      "scenarios": [
+        "L4"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-e16fc821f342",
+      "slug": "co-e16fc821f3",
+      "name": "阿里云",
+      "summary": "阿里云（公开图谱收录，角色：cloud）",
+      "core_business": "cloud",
+      "products": [],
+      "scenarios": [
+        "L5"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-111abaa79f19",
+      "slug": "co-111abaa79f",
+      "name": "百度智能云",
+      "summary": "百度智能云（公开图谱收录，角色：cloud）",
+      "core_business": "cloud",
+      "products": [],
+      "scenarios": [
+        "L5"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-a7baed72c308",
+      "slug": "co-a7baed72c3",
+      "name": "腾讯云",
+      "summary": "腾讯云（公开图谱收录，角色：cloud）",
+      "core_business": "cloud",
+      "products": [],
+      "scenarios": [
+        "L5"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-4f5d0b82a300",
+      "slug": "co-4f5d0b82a3",
+      "name": "华为云",
+      "summary": "华为云（公开图谱收录，角色：cloud）",
+      "core_business": "cloud",
+      "products": [],
+      "scenarios": [
+        "L5"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-a8100d425f66",
+      "slug": "co-a8100d425f",
+      "name": "商汤科技",
+      "summary": "商汤科技（公开图谱收录，角色：ai_vendor）",
+      "core_business": "ai_vendor",
+      "products": [],
+      "scenarios": [
+        "L5"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-bb755bc9eba4",
+      "slug": "co-bb755bc9eb",
+      "name": "海康威视",
+      "summary": "海康威视（公开图谱收录，角色：ai_vendor）",
+      "core_business": "ai_vendor",
+      "products": [],
+      "scenarios": [
+        "L5"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-5ede9fbfcb36",
+      "slug": "co-5ede9fbfcb",
+      "name": "旷视科技",
+      "summary": "旷视科技（公开图谱收录，角色：ai_vendor）",
+      "core_business": "ai_vendor",
+      "products": [],
+      "scenarios": [
+        "L5"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-ad93a0fe0e2f",
+      "slug": "co-ad93a0fe0e",
+      "name": "云从科技",
+      "summary": "云从科技（公开图谱收录，角色：ai_vendor）",
+      "core_business": "ai_vendor",
+      "products": [],
+      "scenarios": [
+        "L5"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-064464bf6477",
+      "slug": "co-064464bf64",
+      "name": "微信支付",
+      "summary": "微信支付（公开图谱收录，角色：payment）",
+      "core_business": "payment",
+      "products": [],
+      "scenarios": [
+        "L7"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-276a8bc45803",
+      "slug": "co-276a8bc458",
+      "name": "支付宝",
+      "summary": "支付宝（公开图谱收录，角色：payment）",
+      "core_business": "payment",
+      "products": [],
+      "scenarios": [
+        "L7"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-4005e80ed2d9",
+      "slug": "co-4005e80ed2",
+      "name": "顺丰",
+      "summary": "顺丰（公开图谱收录，角色：logistics）",
+      "core_business": "logistics",
+      "products": [],
+      "scenarios": [
+        "L7"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-7e1577e98492",
+      "slug": "co-7e1577e984",
+      "name": "京东物流",
+      "summary": "京东物流（公开图谱收录，角色：logistics）",
+      "core_business": "logistics",
+      "products": [],
+      "scenarios": [
+        "L7"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    },
+    {
+      "id": "co-6a2e88063058",
+      "slug": "co-6a2e880630",
+      "name": "菜鸟",
+      "summary": "菜鸟（公开图谱收录，角色：logistics）",
+      "core_business": "logistics",
+      "products": [],
+      "scenarios": [
+        "L7"
+      ],
+      "business_model": "",
+      "related_case_ids": [],
+      "related_signal_ids": [],
+      "verified_at": "",
+      "status": "draft"
+    }
+  ],
   "cases": [],
-  "metrics": [],
-  "topics": []
+  "metrics": [
+    {
+      "id": "metric-terminal-gmv",
+      "slug": "terminal-gmv",
+      "name": "单终端 GMV",
+      "definition": "统计周期内单个零售终端产生的商品成交额。",
+      "formula": "sum(order_gmv) / active_terminals",
+      "applicable_scenarios": [
+        "智能柜",
+        "无人货架",
+        "便利店"
+      ],
+      "common_pitfalls": [
+        "口径需明确是否含税、退货与测试订单",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "related_case_ids": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-stockout-rate",
+      "slug": "stockout-rate",
+      "name": "缺货率",
+      "definition": "应售 SKU/货道中处于缺货状态的比例。",
+      "formula": "stockout_slots / expected_slots",
+      "applicable_scenarios": [
+        "智能柜补货",
+        "即时零售履约"
+      ],
+      "common_pitfalls": [
+        "临时下架与真实缺货需区分",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "related_case_ids": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-offline-rate",
+      "slug": "offline-rate",
+      "name": "离线率",
+      "definition": "统计周期内设备处于离线状态的时长占比。",
+      "formula": "offline_seconds / observed_seconds",
+      "applicable_scenarios": [
+        "智能柜运维",
+        "设备监控"
+      ],
+      "common_pitfalls": [
+        "短时重连抖动可能高估离线",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "related_case_ids": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-device-online-rate",
+      "slug": "device-online-rate",
+      "name": "设备在线率",
+      "definition": "在线设备数占应监控设备数的比例。",
+      "formula": "online_devices / managed_devices",
+      "applicable_scenarios": [
+        "智能柜运维"
+      ],
+      "common_pitfalls": [
+        "报废设备未移出资产池会压低指标",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "related_case_ids": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-sku-sell-through-rate",
+      "slug": "sku-sell-through-rate",
+      "name": "SKU 动销率",
+      "definition": "有销量的 SKU 数占总在售 SKU 数的比例。",
+      "formula": "skus_with_sales / active_skus",
+      "applicable_scenarios": [
+        "选品",
+        "补货"
+      ],
+      "common_pitfalls": [
+        "新品导入期不宜直接对标成熟 SKU",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "related_case_ids": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-replenish-ontime-rate",
+      "slug": "replenish-ontime-rate",
+      "name": "补货及时率",
+      "definition": "在约定时效内完成的补货任务占比。",
+      "formula": "ontime_replenish_tasks / total_replenish_tasks",
+      "applicable_scenarios": [
+        "智能柜运营"
+      ],
+      "common_pitfalls": [
+        "时效定义因城市与点位类型不同",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "related_case_ids": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-inventory-turnover",
+      "slug": "inventory-turnover",
+      "name": "库存周转",
+      "definition": "一定周期内库存被销售替换的次数。",
+      "formula": "cogs_or_sales / average_inventory",
+      "applicable_scenarios": [
+        "智能柜",
+        "便利店"
+      ],
+      "common_pitfalls": [
+        "分子用销售额或成本需统一",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "related_case_ids": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-gross-margin",
+      "slug": "gross-margin",
+      "name": "毛利率",
+      "definition": "毛利占销售收入的比例。",
+      "formula": "(revenue - cogs) / revenue",
+      "applicable_scenarios": [
+        "经营分析"
+      ],
+      "common_pitfalls": [
+        "促销与损耗未计入会高估",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "related_case_ids": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-shrinkage-rate",
+      "slug": "shrinkage-rate",
+      "name": "损耗率",
+      "definition": "过期、破损、丢失等损耗占应售成本或货量的比例。",
+      "formula": "shrinkage / expected_inventory",
+      "applicable_scenarios": [
+        "智能柜",
+        "无人零售"
+      ],
+      "common_pitfalls": [
+        "需区分自然损耗与异常损耗",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "related_case_ids": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-site-survival-rate",
+      "slug": "site-survival-rate",
+      "name": "点位存活率",
+      "definition": "观察期末仍在运营的点位占期初点位的比例。",
+      "formula": "active_sites_end / sites_start",
+      "applicable_scenarios": [
+        "点位扩张"
+      ],
+      "common_pitfalls": [
+        "搬迁与临时闭店需单独标注",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "related_case_ids": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-order-success-rate",
+      "slug": "order-success-rate",
+      "name": "订单成功率",
+      "definition": "成功完成支付与出货的订单占总发起订单比例。",
+      "formula": "successful_orders / initiated_orders",
+      "applicable_scenarios": [
+        "智能柜交易"
+      ],
+      "common_pitfalls": [
+        "用户取消与设备故障应分层统计",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "related_case_ids": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-lane-availability",
+      "slug": "lane-availability",
+      "name": "货道可用率",
+      "definition": "可正常售卖货道占总货道比例。",
+      "formula": "sellable_lanes / total_lanes",
+      "applicable_scenarios": [
+        "设备运营"
+      ],
+      "common_pitfalls": [
+        "机械卡货与系统锁道都需计入不可用",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "related_case_ids": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-inventory-accuracy",
+      "slug": "inventory-accuracy",
+      "name": "库存准确率",
+      "definition": "盘点结果与系统库存一致的比例。",
+      "formula": "matched_skus / audited_skus",
+      "applicable_scenarios": [
+        "补货与审计"
+      ],
+      "common_pitfalls": [
+        "抽样盘点不能直接外推全网",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "related_case_ids": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-complaint-rate",
+      "slug": "complaint-rate",
+      "name": "客诉率",
+      "definition": "客诉次数占订单或活跃用户的比例。",
+      "formula": "complaints / orders_or_users",
+      "applicable_scenarios": [
+        "服务质量"
+      ],
+      "common_pitfalls": [
+        "分母选择会显著改变数值",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "related_case_ids": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-repurchase-rate",
+      "slug": "repurchase-rate",
+      "name": "复购率",
+      "definition": "在观察窗口内发生再次购买的用户占比。",
+      "formula": "repeat_users / active_users",
+      "applicable_scenarios": [
+        "用户运营"
+      ],
+      "common_pitfalls": [
+        "窗口长度必须固定披露",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "related_case_ids": [],
+      "status": "approved"
+    }
+  ],
+  "topics": [
+    {
+      "id": "topic-smart-cabinet-ops",
+      "slug": "smart-cabinet-ops",
+      "title": "智能柜运营",
+      "summary": "围绕补货、在线率、点位存活与动销的运营专题。",
+      "signal_ids": [],
+      "company_ids": [],
+      "case_ids": [],
+      "metric_ids": [
+        "metric-terminal-gmv",
+        "metric-stockout-rate",
+        "metric-offline-rate",
+        "metric-device-online-rate",
+        "metric-sku-sell-through-rate",
+        "metric-replenish-ontime-rate",
+        "metric-inventory-turnover",
+        "metric-gross-margin"
+      ],
+      "status": "draft"
+    }
+  ]
 }
