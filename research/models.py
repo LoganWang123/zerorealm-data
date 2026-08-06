@@ -94,22 +94,10 @@ class IndustrySignal:
     tags: list[str] = field(default_factory=list)
 
     def to_public_dict(self) -> dict:
-        """Serialize to Public Bundle v1 signal object (camelCase)."""
-        return {
-            "id": self.id,
-            "slug": self.slug,
-            "title": self.title,
-            "summary": self.summary,
-            "whyItMatters": self.why_it_matters,
-            "affectedRoles": list(self.affected_roles),
-            "judgment": self.judgment,
-            "claimIds": list(self.claim_ids),
-            "sourceIds": list(self.source_ids),
-            "companyIds": list(self.company_ids),
-            "verificationStatus": self.verification_status,
-            "publishedAt": self.published_at,
-            "tags": list(self.tags),
-        }
+        """Compatibility wrapper; prefer ``research.serialization.serialize_signal``."""
+        from research.serialization import serialize_signal
+
+        return serialize_signal(self)
 
 
 @dataclass
@@ -127,6 +115,7 @@ class CompanyProfile:
     related_case_ids: list[str] = field(default_factory=list)
     related_signal_ids: list[str] = field(default_factory=list)
     verified_at: str = ""
+    status: str = "draft"  # draft | approved | published
 
 
 @dataclass
@@ -143,6 +132,7 @@ class CaseStudy:
     evidence_ids: list[str] = field(default_factory=list)
     limitations: list[str] = field(default_factory=list)
     company_ids: list[str] = field(default_factory=list)
+    status: str = "draft"  # draft | approved | published
 
 
 @dataclass
@@ -157,6 +147,7 @@ class MetricDefinition:
     applicable_scenarios: list[str] = field(default_factory=list)
     common_pitfalls: list[str] = field(default_factory=list)
     related_case_ids: list[str] = field(default_factory=list)
+    status: str = "draft"  # draft | approved | published
 
 
 @dataclass
@@ -171,6 +162,7 @@ class Topic:
     company_ids: list[str] = field(default_factory=list)
     case_ids: list[str] = field(default_factory=list)
     metric_ids: list[str] = field(default_factory=list)
+    status: str = "draft"  # draft | approved | published
 
 
 @dataclass

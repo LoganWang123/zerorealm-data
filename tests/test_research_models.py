@@ -74,15 +74,15 @@ def test_industry_signal_public_dict_matches_bundle_shape():
         "slug": "smart-cabinet-replenish-2026-08-06",
         "title": "智能柜补货策略出现动销导向试点",
         "summary": "运营商宣布按动销率试点补货",
-        "whyItMatters": "直接影响缺货率与周转",
-        "affectedRoles": ["operators", "brands"],
+            "whyItMatters": "直接影响缺货率与周转",
+        "affectedRoles": ["brands", "operators"],
         "judgment": "值得本周跟踪补货时效指标",
         "claimIds": ["cl-1"],
         "sourceIds": ["src-1"],
         "companyIds": ["co-1"],
         "verificationStatus": "verified",
         "publishedAt": "2026-08-06",
-        "tags": ["smart_cabinet", "ops"],
+        "tags": ["ops", "smart_cabinet"],
     }
 
 
