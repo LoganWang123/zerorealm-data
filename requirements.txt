@@ -9,6 +9,7 @@ openai==2.48.0
 playwright==1.60.0
 python-dotenv==1.2.2
 supabase==2.31.0
+jsonschema==4.25.1
 
 # dev
 black==24.10.0
