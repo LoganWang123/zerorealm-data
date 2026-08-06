@@ -9,6 +9,7 @@ data/*
 !data/research/feedback-log.json
 !data/research/first-quarter-research.json
 !data/research/weekly-review-template.md
+!data/research/public-catalog.json
 
 # logs
 logs/

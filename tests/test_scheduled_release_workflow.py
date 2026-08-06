@@ -20,12 +20,28 @@ def test_release_generates_media_before_website_and_wechat_draft():
     workflow = load_workflow()
     names = [step.get("name", "") for step in workflow["jobs"]["pipeline"]["steps"]]
 
+    assert names.index("Export and validate Public Bundle v1") < names.index(
+        "Publish report, images, and Public Bundle to website"
+    )
     assert names.index("Generate and validate publishing images") < names.index(
-        "Publish report and images to website"
+        "Publish report, images, and Public Bundle to website"
     )
     assert names.index("Verify production report and images") < names.index(
         "Create or update verified WeChat draft"
     )
+
+
+def test_workflow_keeps_legacy_mdx_and_bundle_feature_flags():
+    text = WORKFLOW.read_text(encoding="utf-8")
+    assert "SYNC_PUBLIC_BUNDLE" in text
+    assert "SYNC_LEGACY_DAILY_MDX" in text
+    assert "scripts/export_public_bundle.py" in text
+    assert "website/data/public-v1" in text
+    assert "bundleHash" in text
+    assert "WEBSITE_REPO_TOKEN" in text
+    assert "secrets.WEBSITE_REPO_TOKEN" in text
+    assert "echo $WEBSITE_REPO_TOKEN" not in text
+    assert "print(os.environ" not in text
 
 
 def test_scheduled_wechat_command_can_only_create_a_draft():
