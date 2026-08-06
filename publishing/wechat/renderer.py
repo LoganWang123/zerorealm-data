@@ -70,8 +70,42 @@ class WechatRenderer(BaseRenderer):
             ),
         )
 
+    def _build_research_html(self, article: Article, kind: str) -> str:
+        """Render research-derived drafts with dedicated compact templates."""
+        parts = [templates.research_template_header(kind, article.title, article.date)]
+        if getattr(article, "summary", None):
+            parts.append(
+                templates.research_section("摘要", "<br/>".join(article.summary))
+            )
+        signal_text = getattr(article, "signal", "")
+        if signal_text and isinstance(signal_text, str):
+            parts.append(templates.research_section("ZeroRealm 判断", signal_text))
+        counter = getattr(article, "counter_view", "")
+        if counter:
+            parts.append(templates.research_section("边界与反方", counter))
+        for item in getattr(article, "sections", []) or []:
+            title = getattr(item, "title", "")
+            excerpt = getattr(item, "excerpt", "")
+            insight = getattr(item, "insight", "")
+            body = excerpt
+            if insight:
+                body = f"{excerpt}<br/>{insight}" if excerpt else insight
+            if title or body:
+                parts.append(templates.research_section(title or "要点", body))
+        parts.append(templates.footer(article.author))
+        return "".join(parts)
+
     def _build_html(self, article: Article, context: RenderContext) -> str:
         """构建完整 HTML (V7: 6栏目固定阅读节奏)."""
+        source = getattr(getattr(article, "metadata", None), "source", "") or ""
+        if source in {
+            "signal_digest",
+            "deep_insight",
+            "case_study",
+            "company_profile",
+        }:
+            return self._build_research_html(article, source)
+
         parts: list[str] = []
 
         # === ① Signal ===

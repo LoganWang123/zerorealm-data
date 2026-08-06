@@ -95,8 +95,7 @@ class PublishWorkflow:
         context: RenderContext,
         mode: str = "draft",
     ) -> PublishResult:
-        """执行完整发布流程."""
-        # 1. Parse（含版本迁移）
+        """Parse an article path and publish via ``run_article`` (backward compatible)."""
         self.logger.info("Parsing: %s", article_path)
         article = self.parser.parse(article_path)
         self.logger.info(
@@ -105,12 +104,18 @@ class PublishWorkflow:
             article.metadata.uuid,
             len(article.sections),
         )
+        return self.run_article(article, target, context, mode=mode)
 
-        # 2. 组装 Pipeline（Step 序列由 Workflow 定义）
+    def run_article(
+        self,
+        article,
+        target: ChannelTarget,
+        context: RenderContext,
+        mode: str = "draft",
+    ) -> PublishResult:
+        """Publish an in-memory Article through the existing step pipeline."""
         steps = self.build_steps()
         pipeline = PublishPipeline(steps=steps)
-
-        # 3. 构建 Context
         ctx = PipelineContext(
             article=article,
             target=target,
@@ -121,11 +126,5 @@ class PublishWorkflow:
             manifest=self.manifest,
             logger=self.logger,
         )
-
-        # 4. 执行（Pipeline 返回 Context，不耦合具体结果类型）
         ctx = pipeline.run(ctx)
-
-        # 5. Notify（预留）
-        # 6. Metrics（预留）
-
         return ctx.get(PipelineState.PUBLISH_RESULT)
