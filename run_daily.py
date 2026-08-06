@@ -1,20 +1,22 @@
-"""ZeroRealm Daily Pipeline — 一条命令完成全流程.
+"""ZeroRealm Daily Pipeline — 一条命令完成本地采集与生成.
 
 Usage:
-    python run_daily.py                # 采集 + 生成日报 + 同步官网 + 推送
+    python run_daily.py                # 采集 + 生成日报 + 本地复制到网站目录（默认不 push）
     python run_daily.py --skip-crawl   # 跳过采集（用已有数据生成日报）
     python run_daily.py --date 2026-07-27
-    python run_daily.py --no-push      # 不推送官网（只本地生成）
+    python run_daily.py --push-website # 显式启用本地 git push 网站仓库
+    python run_daily.py --no-push      # 兼容旧参数：保持不推送（默认已是不推送）
 
 流程：
     1. 采集（main.py）
     2. 生成日报（generate_daily.py）
-    3. 同步到官网（copy → zerorealm-website/content/daily/）
-    4. Git commit + push 官网（触发 Vercel 部署）
+    3. 同步到本地官网目录（copy → zerorealm-website/content/daily/）
+    4. 仅在 --push-website 时：Git commit + push 官网（触发 Vercel 部署）
+
+跨仓库自动同步以 GitHub Actions 为准；本地 push 仅为过渡期逃生舱。
 """
 
 import argparse
-import os
 import shutil
 import subprocess
 import sys
@@ -42,6 +44,32 @@ def run_cmd(cmd: list[str], cwd: str | None = None) -> int:
     print(f"  > {' '.join(cmd)}")
     result = subprocess.run(cmd, cwd=cwd or str(DATA_DIR))
     return result.returncode
+
+
+def build_parser() -> argparse.ArgumentParser:
+    """Build CLI parser for the local daily pipeline."""
+    parser = argparse.ArgumentParser(
+        description="ZeroRealm Daily Pipeline — 本地采集/生成（默认不 push 官网）",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument("--date", type=str, help="指定日期 (YYYY-MM-DD)，默认今天")
+    parser.add_argument("--skip-crawl", action="store_true", help="跳过采集步骤")
+    parser.add_argument(
+        "--push-website",
+        action="store_true",
+        help="显式启用本地 git push 网站仓库（默认关闭）",
+    )
+    parser.add_argument(
+        "--no-push",
+        action="store_true",
+        help="兼容旧参数：不推送官网（默认已是不推送）",
+    )
+    return parser
+
+
+def should_push_website(args: argparse.Namespace) -> bool:
+    """Return True only when local website push is explicitly requested."""
+    return bool(args.push_website) and not bool(args.no_push)
 
 
 def step_crawl() -> bool:
@@ -72,7 +100,7 @@ def step_generate(date: str) -> str | None:
 
 def step_sync_website(date: str, source_path: str) -> bool:
     """Step 3: Copy MDX to website content directory."""
-    log("Step 3/4: 同步到官网")
+    log("Step 3/4: 同步到本地官网目录")
 
     if not WEBSITE_DIR.exists():
         print(f"  ❌ 官网目录不存在: {WEBSITE_DIR}")
@@ -126,20 +154,16 @@ def step_push_website(date: str) -> bool:
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="ZeroRealm Daily Pipeline — 一条命令全流程",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-    )
-    parser.add_argument("--date", type=str, help="指定日期 (YYYY-MM-DD)，默认今天")
-    parser.add_argument("--skip-crawl", action="store_true", help="跳过采集步骤")
-    parser.add_argument("--no-push", action="store_true", help="不推送官网")
+    parser = build_parser()
     args = parser.parse_args()
 
     date = args.date or datetime.now(CST).strftime("%Y-%m-%d")
+    push_website = should_push_website(args)
 
     print(f"\n🚀 ZeroRealm Daily Pipeline — {date}")
     print(f"   数据目录: {DATA_DIR}")
     print(f"   官网目录: {WEBSITE_DIR}")
+    print(f"   本地推送: {'开启 (--push-website)' if push_website else '关闭（默认）'}")
 
     # Step 1: Crawl
     if not args.skip_crawl:
@@ -158,18 +182,20 @@ def main():
         print("\n❌ 管线中断：同步官网失败")
         sys.exit(1)
 
-    # Step 4: Push
-    if not args.no_push:
+    # Step 4: Push only when explicitly requested
+    if push_website:
         step_push_website(date)
     else:
-        log("Step 4/4: 跳过推送 (--no-push)")
+        log("Step 4/4: 跳过推送（默认不 push；需要时加 --push-website）")
 
     # Done
     log("✅ 全流程完成")
     print(f"   日报: output_daily/{date}.mdx")
     print(f"   官网: content/daily/{date}.mdx")
-    if not args.no_push:
+    if push_website:
         print("   部署: Vercel 自动更新中...")
+    else:
+        print("   部署: 未推送；自动同步请使用 GitHub Actions")
     print()
 
 
