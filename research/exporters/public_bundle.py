@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
+from urllib.parse import urlparse, urlunparse
 
 from research.models import (
     CaseStudy,
@@ -20,6 +22,7 @@ from research.models import (
     Topic,
 )
 from research.serialization import (
+    FORBIDDEN_PUBLIC_KEYS,
     serialize_case,
     serialize_claim,
     serialize_company,
@@ -34,6 +37,7 @@ EXPORTABLE_ENTITY_STATUSES = frozenset({"approved", "published"})
 EXPORTABLE_SIGNAL_STATUSES = frozenset({"verified", "approved", "published"})
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CONTRACTS_DIR = REPOSITORY_ROOT / "contracts" / "public-v1"
+SAFE_STEM = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 
 
 class PublicBundleError(ValueError):
@@ -65,12 +69,41 @@ class _SelectedBundle:
     topics: dict[str, Topic]
 
 
-def canonical_json(data: object) -> str:
-    return json.dumps(data, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
+def canonical_json(data: object, *, pretty: bool = True) -> str:
+    if pretty:
+        return json.dumps(data, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
+    return json.dumps(data, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 
 def _sha256_text(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def safe_file_stem(value: str) -> str:
+    if not value or ".." in value or "/" in value or "\\" in value:
+        raise PublicBundleError(f"UNSAFE_PATH: '{value}'")
+    if value.startswith("/") or re.match(r"^[A-Za-z]:", value):
+        raise PublicBundleError(f"UNSAFE_PATH: '{value}'")
+    if not SAFE_STEM.fullmatch(value):
+        raise PublicBundleError(f"UNSAFE_SLUG: '{value}'")
+    return value
+
+
+def normalize_url(url: str) -> str:
+    parsed = urlparse((url or "").strip())
+    if not parsed.scheme or not parsed.netloc:
+        return (url or "").strip().lower()
+    path = parsed.path.rstrip("/") or ""
+    return urlunparse(
+        (
+            parsed.scheme.lower(),
+            parsed.netloc.lower(),
+            path,
+            "",
+            parsed.query,
+            "",
+        )
+    )
 
 
 def _select_exportable(catalog: ResearchCatalog) -> _SelectedBundle:
@@ -111,10 +144,15 @@ def _select_exportable(catalog: ResearchCatalog) -> _SelectedBundle:
     for signal in signals.values():
         referenced_source_ids.update(signal.source_ids)
 
+    missing = sorted(referenced_source_ids - set(catalog.sources))
+    if missing:
+        raise PublicBundleError(
+            f"BROKEN_REFERENCE: source '{missing[0]}' missing for exported objects"
+        )
+
     sources = {
         source_id: catalog.sources[source_id]
         for source_id in sorted(referenced_source_ids)
-        if source_id in catalog.sources
     }
     return _SelectedBundle(
         sources=sources,
@@ -127,26 +165,52 @@ def _select_exportable(catalog: ResearchCatalog) -> _SelectedBundle:
     )
 
 
-def _require_ref(
-    kind: str,
-    ref_id: str,
-    available: dict,
-    *,
-    owner_id: str,
-) -> None:
+def _require_ref(kind: str, ref_id: str, available: dict, *, owner_id: str) -> None:
     if ref_id not in available:
         raise PublicBundleError(
             f"BROKEN_REFERENCE: {kind} '{ref_id}' missing for '{owner_id}'"
         )
 
 
+def _assert_unique(kind: str, values: list[str]) -> None:
+    seen: set[str] = set()
+    for value in values:
+        if value in seen:
+            raise PublicBundleError(f"DUPLICATE_{kind.upper()}: '{value}'")
+        seen.add(value)
+
+
 def validate_selected_bundle(selected: _SelectedBundle) -> None:
-    """Enforce publish gates and referential integrity."""
+    """Enforce publish gates, uniqueness, and referential integrity."""
+    _assert_unique("id", [c.id for c in selected.claims.values()])
+    _assert_unique("id", [s.id for s in selected.signals.values()])
+    _assert_unique("id", [c.id for c in selected.companies.values()])
+    _assert_unique("id", [c.id for c in selected.cases.values()])
+    _assert_unique("id", [m.id for m in selected.metrics.values()])
+    _assert_unique("id", [t.id for t in selected.topics.values()])
+    _assert_unique("id", [s.id for s in selected.sources.values()])
+
+    _assert_unique("slug", [s.slug for s in selected.signals.values()])
+    _assert_unique("slug", [c.slug for c in selected.companies.values()])
+    _assert_unique("slug", [c.slug for c in selected.cases.values()])
+    _assert_unique("slug", [m.slug for m in selected.metrics.values()])
+    _assert_unique("slug", [t.slug for t in selected.topics.values()])
+
+    _assert_unique(
+        "url",
+        [normalize_url(s.url) for s in selected.sources.values() if s.url],
+    )
+
     for claim in selected.claims.values():
         if claim.type is ClaimType.FACT and not claim.source_ids:
             raise PublicBundleError(
                 f"FACT_MISSING_SOURCE: claim '{claim.id}' has no sources"
             )
+        if claim.type is ClaimType.INFERENCE:
+            if not claim.source_ids and not claim.based_on_claim_ids:
+                raise PublicBundleError(
+                    f"INFERENCE_MISSING_BASIS: claim '{claim.id}' needs sources or facts"
+                )
         for source_id in claim.source_ids:
             _require_ref("source", source_id, selected.sources, owner_id=claim.id)
             if not (selected.sources[source_id].url or "").strip():
@@ -155,8 +219,14 @@ def validate_selected_bundle(selected: _SelectedBundle) -> None:
                 )
         for basis_id in claim.based_on_claim_ids:
             _require_ref("claim", basis_id, selected.claims, owner_id=claim.id)
+            basis = selected.claims[basis_id]
+            if basis.type is not ClaimType.FACT:
+                raise PublicBundleError(
+                    f"INFERENCE_MISSING_BASIS: '{claim.id}' based on non-fact '{basis_id}'"
+                )
 
     for signal in selected.signals.values():
+        safe_file_stem(signal.slug)
         for claim_id in signal.claim_ids:
             _require_ref("claim", claim_id, selected.claims, owner_id=signal.id)
         for source_id in signal.source_ids:
@@ -165,20 +235,24 @@ def validate_selected_bundle(selected: _SelectedBundle) -> None:
             _require_ref("company", company_id, selected.companies, owner_id=signal.id)
 
     for company in selected.companies.values():
+        safe_file_stem(company.slug)
         for case_id in company.related_case_ids:
             _require_ref("case", case_id, selected.cases, owner_id=company.id)
         for signal_id in company.related_signal_ids:
             _require_ref("signal", signal_id, selected.signals, owner_id=company.id)
 
     for case in selected.cases.values():
+        safe_file_stem(case.slug)
         for company_id in case.company_ids:
             _require_ref("company", company_id, selected.companies, owner_id=case.id)
 
     for metric in selected.metrics.values():
+        safe_file_stem(metric.slug)
         for case_id in metric.related_case_ids:
             _require_ref("case", case_id, selected.cases, owner_id=metric.id)
 
     for topic in selected.topics.values():
+        safe_file_stem(topic.slug)
         for signal_id in topic.signal_ids:
             _require_ref("signal", signal_id, selected.signals, owner_id=topic.id)
         for company_id in topic.company_ids:
@@ -188,34 +262,39 @@ def validate_selected_bundle(selected: _SelectedBundle) -> None:
         for metric_id in topic.metric_ids:
             _require_ref("metric", metric_id, selected.metrics, owner_id=topic.id)
 
+    for source in selected.sources.values():
+        safe_file_stem(source.id)
+    for claim in selected.claims.values():
+        safe_file_stem(claim.id)
+
 
 def _build_payloads(selected: _SelectedBundle) -> dict[str, object]:
     signals = [
         serialize_signal(selected.signals[key])
         for key in sorted(selected.signals, key=lambda i: selected.signals[i].id)
     ]
-    claims = [
-        serialize_claim(selected.claims[key])
-        for key in sorted(selected.claims, key=lambda i: selected.claims[i].id)
-    ]
-    sources = [
-        serialize_source(selected.sources[key])
-        for key in sorted(selected.sources, key=lambda i: selected.sources[i].id)
-    ]
+    claim_files = {
+        f"claims/{safe_file_stem(claim.id)}.json": serialize_claim(claim)
+        for claim in sorted(selected.claims.values(), key=lambda item: item.id)
+    }
+    source_files = {
+        f"sources/{safe_file_stem(source.id)}.json": serialize_source(source)
+        for source in sorted(selected.sources.values(), key=lambda item: item.id)
+    }
     companies = {
-        f"companies/{company.slug}.json": serialize_company(company)
+        f"companies/{safe_file_stem(company.slug)}.json": serialize_company(company)
         for company in sorted(selected.companies.values(), key=lambda item: item.slug)
     }
     cases = {
-        f"cases/{case.slug}.json": serialize_case(case)
+        f"cases/{safe_file_stem(case.slug)}.json": serialize_case(case)
         for case in sorted(selected.cases.values(), key=lambda item: item.slug)
     }
     metrics = {
-        f"metrics/{metric.slug}.json": serialize_metric(metric)
+        f"metrics/{safe_file_stem(metric.slug)}.json": serialize_metric(metric)
         for metric in sorted(selected.metrics.values(), key=lambda item: item.slug)
     }
     topics = {
-        f"topics/{topic.slug}.json": serialize_topic(topic)
+        f"topics/{safe_file_stem(topic.slug)}.json": serialize_topic(topic)
         for topic in sorted(selected.topics.values(), key=lambda item: item.slug)
     }
     content_index = {
@@ -239,15 +318,21 @@ def _build_payloads(selected: _SelectedBundle) -> dict[str, object]:
             {"id": payload["id"], "slug": payload["slug"], "title": payload["title"]}
             for _, payload in sorted(topics.items())
         ],
-        "claims": [{"id": item["id"], "type": item["type"]} for item in claims],
-        "sources": [{"id": item["id"], "title": item["title"]} for item in sources],
+        "claims": [
+            {"id": payload["id"], "type": payload["type"]}
+            for _, payload in sorted(claim_files.items())
+        ],
+        "sources": [
+            {"id": payload["id"], "title": payload["title"]}
+            for _, payload in sorted(source_files.items())
+        ],
     }
     payloads: dict[str, object] = {
         "signals.json": signals,
-        "claims.json": claims,
-        "sources.json": sources,
         "content-index.json": content_index,
     }
+    payloads.update(claim_files)
+    payloads.update(source_files)
     payloads.update(companies)
     payloads.update(cases)
     payloads.update(metrics)
@@ -255,11 +340,15 @@ def _build_payloads(selected: _SelectedBundle) -> dict[str, object]:
     return payloads
 
 
+def _assert_no_sensitive_keys(payloads: dict[str, object]) -> None:
+    blob = canonical_json(payloads)
+    for key in FORBIDDEN_PUBLIC_KEYS:
+        if f'"{key}"' in blob:
+            raise PublicBundleError(f"SENSITIVE_FIELD: '{key}' leaked into bundle")
+
+
 def _load_schema_registry(contracts_dir: Path):
-    try:
-        from referencing import Registry, Resource
-    except ImportError as exc:  # pragma: no cover
-        raise PublicBundleError("referencing is required via jsonschema") from exc
+    from referencing import Registry, Resource
 
     registry = Registry()
     for path in sorted(contracts_dir.glob("*.schema.json")):
@@ -275,15 +364,10 @@ def _validate_against_schemas(
     payloads: dict[str, object],
     contracts_dir: Path,
 ) -> None:
-    try:
-        import jsonschema
-    except ImportError as exc:  # pragma: no cover - dependency declared in requirements
-        raise PublicBundleError("jsonschema is required for Public Bundle export") from exc
+    import jsonschema
 
     schema_by_file = {
         "signals.json": "signals.schema.json",
-        "claims.json": "claims.schema.json",
-        "sources.json": "sources.schema.json",
         "content-index.json": "content-index.schema.json",
     }
     single_schemas = {
@@ -291,14 +375,15 @@ def _validate_against_schemas(
         "cases/": "case.schema.json",
         "metrics/": "metric.schema.json",
         "topics/": "topic.schema.json",
+        "claims/": "claim.schema.json",
+        "sources/": "source.schema.json",
     }
     cache: dict[str, dict] = {}
     registry = _load_schema_registry(contracts_dir)
 
     def load_schema(name: str) -> dict:
         if name not in cache:
-            path = contracts_dir / name
-            cache[name] = json.loads(path.read_text(encoding="utf-8"))
+            cache[name] = json.loads((contracts_dir / name).read_text(encoding="utf-8"))
         return cache[name]
 
     for rel, payload in payloads.items():
@@ -310,9 +395,9 @@ def _validate_against_schemas(
                     break
         if schema_name is None:
             continue
-        schema = load_schema(schema_name)
-        validator = jsonschema.Draft202012Validator(schema, registry=registry)
-        validator.validate(payload)
+        jsonschema.Draft202012Validator(
+            load_schema(schema_name), registry=registry
+        ).validate(payload)
 
 
 def _write_atomic(output_dir: Path, file_texts: dict[str, str]) -> None:
@@ -346,27 +431,35 @@ def _write_atomic(output_dir: Path, file_texts: dict[str, str]) -> None:
             shutil.rmtree(staging, ignore_errors=True)
 
 
-def export_public_bundle(
+def build_bundle_payloads(
     catalog: ResearchCatalog,
-    output_dir: str | Path,
     *,
-    generated_at: str,
     contracts_dir: str | Path | None = None,
-) -> dict:
-    """Validate, serialize, and atomically write a Public Bundle v1 directory."""
-    output_path = Path(output_dir)
+    pretty: bool = True,
+) -> tuple[_SelectedBundle, dict[str, str], dict]:
+    """Validate and build file texts + provisional metadata without writing."""
     contracts_path = Path(contracts_dir) if contracts_dir else DEFAULT_CONTRACTS_DIR
-
     selected = _select_exportable(catalog)
     validate_selected_bundle(selected)
     payloads = _build_payloads(selected)
+    _assert_no_sensitive_keys(payloads)
     _validate_against_schemas(payloads, contracts_path)
 
-    file_texts = {rel: canonical_json(payload) for rel, payload in payloads.items()}
-    files = {rel: _sha256_text(text) for rel, text in sorted(file_texts.items())}
-    bundle_hash = _sha256_text(
-        canonical_json([{"path": rel, "sha256": digest} for rel, digest in files.items()])
+    file_texts = {
+        rel: canonical_json(payload, pretty=pretty) for rel, payload in payloads.items()
+    }
+    files = {
+        rel: {
+            "sha256": _sha256_text(text),
+            "size": len(text.encode("utf-8")),
+        }
+        for rel, text in sorted(file_texts.items())
+    }
+    bundle_material = canonical_json(
+        [{"path": rel, "sha256": meta["sha256"]} for rel, meta in files.items()],
+        pretty=pretty,
     )
+    bundle_hash = f"sha256:{_sha256_text(bundle_material)}"
     counts = {
         "signals": len(selected.signals),
         "companies": len(selected.companies),
@@ -376,23 +469,46 @@ def export_public_bundle(
         "claims": len(selected.claims),
         "sources": len(selected.sources),
     }
+    return selected, file_texts, {
+        "counts": counts,
+        "files": files,
+        "bundleHash": bundle_hash,
+        "contracts_path": contracts_path,
+    }
+
+
+def export_public_bundle(
+    catalog: ResearchCatalog,
+    output_dir: str | Path,
+    *,
+    generated_at: str,
+    contracts_dir: str | Path | None = None,
+    pretty: bool = True,
+    validate_only: bool = False,
+) -> dict:
+    """Validate, serialize, and atomically write a Public Bundle v1 directory."""
+    import jsonschema
+
+    selected, file_texts, meta = build_bundle_payloads(
+        catalog, contracts_dir=contracts_dir, pretty=pretty
+    )
+    contracts_path = meta["contracts_path"]
     manifest = {
         "contractVersion": CONTRACT_VERSION,
         "generatedAt": generated_at,
         "contentRevision": catalog.content_revision,
-        "counts": counts,
-        "files": files,
-        "bundleHash": bundle_hash,
+        "counts": meta["counts"],
+        "files": meta["files"],
+        "bundleHash": meta["bundleHash"],
     }
-    try:
-        import jsonschema
-    except ImportError as exc:  # pragma: no cover
-        raise PublicBundleError("jsonschema is required for Public Bundle export") from exc
     manifest_schema = json.loads(
         (contracts_path / "manifest.schema.json").read_text(encoding="utf-8")
     )
     jsonschema.validate(manifest, manifest_schema)
 
-    file_texts["manifest.json"] = canonical_json(manifest)
-    _write_atomic(output_path, file_texts)
+    if validate_only:
+        return manifest
+
+    file_texts["manifest.json"] = canonical_json(manifest, pretty=pretty)
+    _write_atomic(Path(output_dir), file_texts)
     return manifest

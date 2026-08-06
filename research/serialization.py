@@ -33,6 +33,8 @@ FORBIDDEN_PUBLIC_KEYS = frozenset(
         "reviewedAt",
         "reviewed_at",
         "status",
+        "sourceName",
+        "source_name",
     }
 )
 
@@ -42,13 +44,17 @@ def _sorted_ids(values: list[str] | tuple[str, ...] | None) -> list[str]:
 
 
 def serialize_source(source: SourceDocument) -> dict:
-    """PublicSource whitelist."""
+    """PublicSource whitelist (camelCase)."""
+    accessed_at = getattr(source, "accessed_at", "") or ""
+    source_type = getattr(source, "source_type", "") or "web"
     return {
         "id": source.id,
-        "url": source.url,
         "title": source.title,
-        "sourceName": source.source_name,
+        "url": source.url,
+        "publisher": source.source_name,
         "publishedAt": source.published_at,
+        "accessedAt": accessed_at,
+        "sourceType": source_type,
         "credibility": source.credibility,
     }
 

@@ -6,18 +6,22 @@
   "additionalProperties": false,
   "required": [
     "id",
-    "url",
     "title",
-    "sourceName",
+    "url",
+    "publisher",
     "publishedAt",
+    "accessedAt",
+    "sourceType",
     "credibility"
   ],
   "properties": {
     "id": { "type": "string", "minLength": 1 },
-    "url": { "type": "string", "minLength": 1 },
     "title": { "type": "string" },
-    "sourceName": { "type": "string" },
+    "url": { "type": "string", "minLength": 1 },
+    "publisher": { "type": "string" },
     "publishedAt": { "type": ["string", "null"] },
+    "accessedAt": { "type": "string" },
+    "sourceType": { "type": "string", "minLength": 1 },
     "credibility": { "type": "string", "enum": ["high", "medium", "low"] }
   }
 }

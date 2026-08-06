@@ -11,7 +11,11 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 if str(REPOSITORY_ROOT) not in sys.path:
     sys.path.insert(0, str(REPOSITORY_ROOT))
 
-from research.exporters.public_bundle import ResearchCatalog, export_public_bundle
+from research.exporters.public_bundle import (
+    PublicBundleError,
+    ResearchCatalog,
+    export_public_bundle,
+)
 from research.models import (
     CaseStudy,
     Claim,
@@ -34,11 +38,15 @@ def _load_catalog(path: Path) -> ResearchCatalog:
             id=item["id"],
             url=item.get("url", ""),
             title=item.get("title", ""),
-            source_name=item.get("source_name", item.get("sourceName", "")),
+            source_name=item.get(
+                "source_name", item.get("sourceName", item.get("publisher", ""))
+            ),
             published_at=item.get("published_at", item.get("publishedAt")),
             fetched_at=item.get("fetched_at", item.get("fetchedAt", "")),
             raw_excerpt=item.get("raw_excerpt", item.get("rawExcerpt", "")),
             credibility=item.get("credibility", "medium"),
+            accessed_at=item.get("accessed_at", item.get("accessedAt", "")),
+            source_type=item.get("source_type", item.get("sourceType", "web")),
         )
         for item in raw.get("sources", [])
     }
@@ -75,7 +83,7 @@ def _load_catalog(path: Path) -> ResearchCatalog:
             verification_status=item.get(
                 "verification_status", item.get("verificationStatus", "draft")
             ),
-            company_ids=list(item.get("company_ids", item.get("companyIds", []))),
+            company_ids=list(item.get("company_ids", item.get("companyIds", [])),),
             published_at=item.get("published_at", item.get("publishedAt", "")),
             tags=list(item.get("tags", [])),
         )
@@ -166,9 +174,16 @@ def _load_catalog(path: Path) -> ResearchCatalog:
     )
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--catalog", type=Path, required=True, help="Research catalog JSON")
+    parser.add_argument(
+        "--input",
+        "--catalog",
+        dest="catalog",
+        type=Path,
+        required=True,
+        help="Research catalog JSON",
+    )
     parser.add_argument(
         "--output",
         type=Path,
@@ -177,18 +192,50 @@ def main() -> None:
     )
     parser.add_argument(
         "--generated-at",
-        required=True,
-        help="ISO-8601 timestamp written into manifest.generatedAt",
+        default="1970-01-01T00:00:00+00:00",
+        help="ISO-8601 timestamp for manifest.generatedAt",
     )
-    args = parser.parse_args()
-    catalog = _load_catalog(args.catalog)
-    manifest = export_public_bundle(
-        catalog,
-        args.output,
-        generated_at=args.generated_at,
+    parser.add_argument(
+        "--validate-only",
+        action="store_true",
+        help="Validate without writing output",
     )
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Fail on any PublicBundleError (default behavior)",
+    )
+    parser.add_argument(
+        "--pretty",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Pretty-print JSON (default: true)",
+    )
+    args = parser.parse_args(argv)
+
+    if not args.catalog.exists():
+        print(f"error: catalog not found: {args.catalog}", file=sys.stderr)
+        return 2
+
+    try:
+        catalog = _load_catalog(args.catalog)
+        manifest = export_public_bundle(
+            catalog,
+            args.output,
+            generated_at=args.generated_at,
+            pretty=args.pretty,
+            validate_only=args.validate_only,
+        )
+    except PublicBundleError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 1
+    except (OSError, json.JSONDecodeError, KeyError, ValueError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
     print(json.dumps(manifest, ensure_ascii=False, indent=2))
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

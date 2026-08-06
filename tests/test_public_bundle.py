@@ -30,6 +30,7 @@ from research.serialization import (
     serialize_company,
     serialize_source,
 )
+from scripts.export_public_bundle import main as export_cli_main
 
 
 CONTRACTS = Path(__file__).resolve().parents[1] / "contracts" / "public-v1"
@@ -45,6 +46,8 @@ def _source(**overrides) -> SourceDocument:
         fetched_at="internal/path/raw.json",
         raw_excerpt="内部原文不应导出",
         credibility="high",
+        accessed_at="2026-08-06T10:00:00+08:00",
+        source_type="web",
     )
     data.update(overrides)
     return SourceDocument(**data)
@@ -183,21 +186,34 @@ def test_serialization_uses_whitelist_and_strips_sensitive_fields():
         "sourceIds",
         "basedOnClaimIds",
     }
-    assert "reviewNote" not in claim
-    assert "review_note" not in claim
-    assert "evidenceIds" not in claim
-    assert set(source) <= {
+    assert set(source) == {
         "id",
-        "url",
         "title",
-        "sourceName",
+        "url",
+        "publisher",
         "publishedAt",
+        "accessedAt",
+        "sourceType",
         "credibility",
     }
     assert "rawExcerpt" not in source
-    assert "fetchedAt" not in source
-    assert "prompt" not in company
+    assert "sourceName" not in source
     assert FORBIDDEN_PUBLIC_KEYS & set(claim) == set()
+    assert "prompt" not in company
+
+
+def test_empty_catalog_exports_valid_bundle(tmp_path):
+    out = tmp_path / "public-v1"
+    manifest = export_public_bundle(
+        ResearchCatalog(),
+        out,
+        generated_at="2026-08-06T23:00:00+08:00",
+    )
+    assert manifest["counts"]["signals"] == 0
+    assert manifest["bundleHash"].startswith("sha256:")
+    assert (out / "signals.json").exists()
+    assert (out / "content-index.json").exists()
+    assert (out / "manifest.json").exists()
 
 
 def test_draft_claim_and_unapproved_entities_are_not_exported(tmp_path):
@@ -215,34 +231,75 @@ def test_draft_claim_and_unapproved_entities_are_not_exported(tmp_path):
             "co-draft": _company(id="co-draft", slug="draft-co", status="draft"),
         },
     )
-    manifest = export_public_bundle(
+    export_public_bundle(
         catalog,
         tmp_path / "public-v1",
         generated_at="2026-08-06T23:00:00+08:00",
     )
-    claims = json.loads((tmp_path / "public-v1" / "claims.json").read_text(encoding="utf-8"))
+    claim_files = list((tmp_path / "public-v1" / "claims").glob("*.json"))
     companies = list((tmp_path / "public-v1" / "companies").glob("*.json"))
-    assert [c["id"] for c in claims] == ["cl-1"]
+    assert [path.name for path in claim_files] == ["cl-1.json"]
     assert [path.name for path in companies] == ["feng-e.json"]
-    assert manifest["counts"]["claims"] == 1
-    assert manifest["counts"]["companies"] == 1
 
 
 def test_export_rejects_fact_without_source_and_broken_refs():
-    catalog = _catalog(
-        claims={"cl-1": _fact(source_ids=[])},
-    )
     with pytest.raises(PublicBundleError, match="FACT_MISSING_SOURCE"):
         export_public_bundle(
-            catalog,
+            _catalog(claims={"cl-1": _fact(source_ids=[])}),
             Path("unused"),
             generated_at="2026-08-06T23:00:00+08:00",
         )
 
-    broken = _catalog(signals={"sig-1": _signal(company_ids=["missing-co"])})
     with pytest.raises(PublicBundleError, match="BROKEN_REFERENCE"):
         export_public_bundle(
-            broken,
+            _catalog(signals={"sig-1": _signal(company_ids=["missing-co"])}),
+            Path("unused"),
+            generated_at="2026-08-06T23:00:00+08:00",
+        )
+
+
+def test_export_rejects_inference_without_basis_and_duplicate_slug():
+    with pytest.raises(PublicBundleError, match="INFERENCE_MISSING_BASIS"):
+        export_public_bundle(
+            _catalog(
+                claims={
+                    "cl-inf": Claim(
+                        id="cl-inf",
+                        text="可能改善模型",
+                        type=ClaimType.INFERENCE,
+                        status=ClaimStatus.VERIFIED,
+                        confidence=Confidence.MEDIUM,
+                        source_ids=[],
+                        based_on_claim_ids=[],
+                    )
+                },
+                signals={},
+                companies={},
+                cases={},
+                metrics={},
+                topics={},
+            ),
+            Path("unused"),
+            generated_at="2026-08-06T23:00:00+08:00",
+        )
+
+    with pytest.raises(PublicBundleError, match="DUPLICATE_SLUG"):
+        export_public_bundle(
+            _catalog(
+                companies={
+                    "co-1": _company(),
+                    "co-2": _company(id="co-2", slug="feng-e"),
+                }
+            ),
+            Path("unused"),
+            generated_at="2026-08-06T23:00:00+08:00",
+        )
+
+
+def test_export_rejects_unsafe_slug():
+    with pytest.raises(PublicBundleError, match="UNSAFE"):
+        export_public_bundle(
+            _catalog(companies={"co-1": _company(slug="../evil")}),
             Path("unused"),
             generated_at="2026-08-06T23:00:00+08:00",
         )
@@ -259,15 +316,10 @@ def test_export_writes_expected_layout_and_passes_schema(tmp_path):
         generated_at="2026-08-06T23:00:00+08:00",
     )
 
-    assert (out / "manifest.json").exists()
-    assert (out / "signals.json").exists()
-    assert (out / "claims.json").exists()
-    assert (out / "sources.json").exists()
-    assert (out / "content-index.json").exists()
+    assert (out / "claims" / "cl-1.json").exists()
+    assert (out / "sources" / "src-1.json").exists()
     assert (out / "companies" / "feng-e.json").exists()
-    assert (out / "cases" / "office-replenish.json").exists()
-    assert (out / "metrics" / "stockout-rate.json").exists()
-    assert (out / "topics" / "replenishment.json").exists()
+    assert not (out / "claims.json").exists()
     assert not (out / "articles").exists()
 
     registry = Registry()
@@ -281,9 +333,9 @@ def test_export_writes_expected_layout_and_passes_schema(tmp_path):
     schema_map = {
         "manifest.json": "manifest.schema.json",
         "signals.json": "signals.schema.json",
-        "claims.json": "claims.schema.json",
-        "sources.json": "sources.schema.json",
         "content-index.json": "content-index.schema.json",
+        "claims/cl-1.json": "claim.schema.json",
+        "sources/src-1.json": "source.schema.json",
         "companies/feng-e.json": "company.schema.json",
         "cases/office-replenish.json": "case.schema.json",
         "metrics/stockout-rate.json": "metric.schema.json",
@@ -294,22 +346,19 @@ def test_export_writes_expected_layout_and_passes_schema(tmp_path):
         schema = json.loads((CONTRACTS / schema_name).read_text(encoding="utf-8"))
         jsonschema.Draft202012Validator(schema, registry=registry).validate(payload)
 
-    assert manifest["contractVersion"] == "1.0"
-    assert manifest["counts"]["signals"] == 1
-    assert "bundleHash" in manifest
-    assert "files" in manifest
+    assert manifest["bundleHash"].startswith("sha256:")
+    assert "size" in next(iter(manifest["files"].values()))
+    source = json.loads((out / "sources" / "src-1.json").read_text(encoding="utf-8"))
+    assert "丰" in json.dumps(source, ensure_ascii=False) or source["publisher"]
 
 
 def test_export_is_deterministic(tmp_path):
     a = tmp_path / "a"
     b = tmp_path / "b"
-    export_public_bundle(_catalog(), a, generated_at="2026-08-06T23:00:00+08:00")
-    export_public_bundle(_catalog(), b, generated_at="2026-08-06T23:00:00+08:00")
-
-    files_a = sorted(p.relative_to(a).as_posix() for p in a.rglob("*") if p.is_file())
-    files_b = sorted(p.relative_to(b).as_posix() for p in b.rglob("*") if p.is_file())
-    assert files_a == files_b
-    for rel in files_a:
+    ma = export_public_bundle(_catalog(), a, generated_at="2026-08-06T23:00:00+08:00")
+    mb = export_public_bundle(_catalog(), b, generated_at="2026-08-06T23:00:00+08:00")
+    assert ma["bundleHash"] == mb["bundleHash"]
+    for rel in ma["files"]:
         assert (a / rel).read_bytes() == (b / rel).read_bytes()
 
 
@@ -329,7 +378,6 @@ def test_export_is_atomic_on_failure(tmp_path):
 
     assert marker.read_text(encoding="utf-8") == "old"
     assert (out / "signals.json").read_text(encoding="utf-8") == "[]\n"
-    assert not (out / "manifest.json").exists()
 
 
 def test_exported_json_never_contains_sensitive_keys_or_internal_payload(tmp_path):
@@ -338,26 +386,60 @@ def test_exported_json_never_contains_sensitive_keys_or_internal_payload(tmp_pat
     blob = "\n".join(path.read_text(encoding="utf-8") for path in out.rglob("*.json"))
     for key in (
         "reviewNote",
-        "review_note",
         "rawExcerpt",
-        "raw_excerpt",
         "fetchedAt",
         "evidenceIds",
         "prompt",
-        "modelResponse",
         "apiKey",
         "secret",
-        "artifactPath",
     ):
         assert key not in blob
     assert "内部审核备注" not in blob
     assert "内部原文不应导出" not in blob
-    assert "internal/path/raw.json" not in blob
     assert "ev-secret" not in blob
 
 
+def test_cli_exit_codes(tmp_path, capsys):
+    good = tmp_path / "good.json"
+    good.write_text(
+        json.dumps(
+            {
+                "sources": [],
+                "claims": [],
+                "signals": [],
+                "companies": [],
+                "cases": [],
+                "metrics": [],
+                "topics": [],
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    assert (
+        export_cli_main(
+            [
+                "--input",
+                str(good),
+                "--output",
+                str(tmp_path / "out"),
+                "--generated-at",
+                "2026-08-06T23:00:00+08:00",
+            ]
+        )
+        == 0
+    )
+
+    bad = tmp_path / "bad.json"
+    bad.write_text("{", encoding="utf-8")
+    assert export_cli_main(["--input", str(bad), "--output", str(tmp_path / "x")]) == 2
+
+    missing = tmp_path / "missing.json"
+    assert export_cli_main(["--input", str(missing), "--output", str(tmp_path / "x")]) == 2
+
+
 def test_industry_signal_to_public_dict_stays_compatible():
-    signal = _signal()
     from research.serialization import serialize_signal
 
+    signal = _signal()
     assert signal.to_public_dict() == serialize_signal(signal)

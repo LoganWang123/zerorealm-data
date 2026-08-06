@@ -47,6 +47,8 @@ class SourceDocument:
     fetched_at: str = ""
     raw_excerpt: str = ""
     credibility: str = "medium"
+    accessed_at: str = ""
+    source_type: str = "web"
 
 
 @dataclass
