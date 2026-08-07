@@ -19,11 +19,19 @@ logs/
 
 # output
 output_daily/
+output/
+output/media/
 assets/generated/
 storage/manifest/
 .cache/
 .test-tmp/
 .test-tmp-*/
+tmp/
+dist/media-jobs/
+dist/review/
+dist/content-package/
+release/
+*.partial
 
 # python
 __pycache__/

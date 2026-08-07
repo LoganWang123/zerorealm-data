@@ -1,10 +1,16 @@
-"""Small, testable Agnes image and video API client."""
+"""Deprecated Agnes image/video API client (kept for historical tests only).
+
+Production publishing MUST NOT construct or call AgnesClient for images.
+Use LocalImageGenerator / programmatic templates instead.
+See docs/reports/agnes-image-generation-deprecation.md.
+"""
 
 from __future__ import annotations
 
 import base64
 import io
 import time
+import warnings
 from collections.abc import Callable
 from typing import Any
 from urllib.parse import urlsplit
@@ -24,7 +30,7 @@ class AgnesAPIError(RuntimeError):
 
 
 class AgnesClient:
-    """Call Agnes without exposing provider details to publishing code."""
+    """DEPRECATED: historical Agnes transport. Do not use for production images."""
 
     def __init__(
         self,
@@ -39,6 +45,12 @@ class AgnesClient:
         monotonic: Callable[[], float] = time.monotonic,
         request_timeout_seconds: int = 300,
     ):
+        warnings.warn(
+            "AgnesClient is deprecated for image generation and must not be used "
+            "in production publishing paths.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         if not api_key:
             raise ValueError("AGNES_API_KEY is required")
         self._api_key = api_key

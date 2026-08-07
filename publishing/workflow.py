@@ -12,7 +12,11 @@ import uuid as uuid_mod
 from typing import TYPE_CHECKING
 
 from publishing.parser import ArticleParser
-from publishing.media_generation.client import AgnesAPIError, AgnesClient
+from publishing.media_generation.errors import (
+    AgnesImageGenerationDisabled,
+    LocalImageGeneratorUnavailable,
+)
+from publishing.media_generation.providers import build_default_image_provider
 from publishing.media_generation.service import MediaGenerationService
 from publishing.media_generation.steps import GenerateMediaStep, ValidateMediaStep
 from publishing.media_generation.validation import MediaValidator
@@ -68,24 +72,25 @@ class PublishWorkflow:
         ]
 
     def _build_media_service(self) -> MediaGenerationService:
-        api_key = os.getenv("AGNES_API_KEY", "")
-        if not api_key:
-            raise AgnesAPIError(
-                "AGNES_API_KEY is required for media generation",
-                retryable=False,
+        """Build local-only media service. Never constructs AgnesClient."""
+        # Explicit guard: even if AGNES_API_KEY is present, production must not use it.
+        if os.getenv("ZEROREALM_FORCE_AGNES_IMAGE", "").strip() in {"1", "true", "yes"}:
+            raise AgnesImageGenerationDisabled(
+                "ZEROREALM_FORCE_AGNES_IMAGE is rejected; Agnes image generation is disabled"
             )
-        base_url = os.getenv(
-            "AGNES_BASE_URL",
-            "https://apihub.agnes-ai.com/v1",
-        )
-        client = AgnesClient(
-            api_key=api_key,
-            base_url=base_url,
-            image_model=os.getenv("AGNES_IMAGE_MODEL", self.config.media.image_model),
-            video_model=os.getenv("AGNES_VIDEO_MODEL", self.config.media.video_model),
-            video_create_path=os.getenv("AGNES_VIDEO_CREATE_PATH", "/videos"),
-            video_status_url_template=os.getenv("AGNES_VIDEO_STATUS_URL_TEMPLATE") or None,
-        )
+        provider_name = getattr(self.config.media, "provider", "local") or "local"
+        allow_programmatic = getattr(self.config.media, "allow_programmatic", True)
+        try:
+            client = build_default_image_provider(
+                provider_name=provider_name,
+                image_model=os.getenv(
+                    "ZEROREALM_LOCAL_IMAGE_MODEL",
+                    self.config.media.image_model,
+                ),
+                allow_programmatic=allow_programmatic,
+            )
+        except (AgnesImageGenerationDisabled, LocalImageGeneratorUnavailable):
+            raise
         return MediaGenerationService(client=client, config=self.config.media)
 
     def run(

@@ -36,19 +36,20 @@ class CoverConfig:
 
 @dataclass
 class MediaConfig:
-    """AI media generation settings. Secrets are read from the environment."""
+    """Local media generation settings. Agnes image generation is deprecated."""
 
     enabled: bool = True
-    provider: str = "agnes"
-    image_model: str = "agnes-image-2.1-flash"
-    video_model: str = "agnes-video-v2.0"
+    provider: str = "local"
+    image_model: str = "local-programmatic"
+    video_model: str = "disabled"
     body_image_count: int = 3
-    video_enabled: bool = True
+    video_enabled: bool = False
     video_duration_seconds: int = 15
     video_aspect_ratio: str = "9:16"
     poll_interval_seconds: int = 5
     poll_timeout_seconds: int = 600
     reuse_existing: bool = True
+    allow_programmatic: bool = True
 
 
 @dataclass

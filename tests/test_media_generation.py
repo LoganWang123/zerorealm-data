@@ -25,21 +25,22 @@ def test_publish_config_loads_media_generation_settings(tmp_path):
     config_path.write_text(
         "media:\n"
         "  enabled: true\n"
-        "  provider: agnes\n"
-        "  image_model: agnes-image-2.1-flash\n"
-        "  video_model: agnes-video-v2.0\n"
+        "  provider: local\n"
+        "  image_model: local-programmatic\n"
+        "  video_model: disabled\n"
         "  body_image_count: 3\n"
         "  video_duration_seconds: 15\n"
-        '  video_aspect_ratio: "9:16"\n',
+        '  video_aspect_ratio: "9:16"\n'
+        "  allow_programmatic: true\n",
         encoding="utf-8",
     )
 
     config = PublishConfig.load(str(config_path))
 
     assert config.media.enabled is True
-    assert config.media.provider == "agnes"
-    assert config.media.image_model == "agnes-image-2.1-flash"
-    assert config.media.video_model == "agnes-video-v2.0"
+    assert config.media.provider == "local"
+    assert config.media.image_model == "local-programmatic"
+    assert config.media.video_model == "disabled"
     assert config.media.body_image_count == 3
     assert config.media.video_duration_seconds == 15
     assert config.media.video_aspect_ratio == "9:16"
@@ -126,6 +127,8 @@ def media_config(tmp_path):
     config = PublishConfig()
     config.media.poll_interval_seconds = 0
     config.media.poll_timeout_seconds = 30
+    # Historical FakeAgnesClient tests still exercise optional video generation.
+    config.media.video_enabled = True
     return config.media
 
 

@@ -1,4 +1,8 @@
-"""Manual media generation commands."""
+"""Manual media commands.
+
+Agnes homepage generation is disabled. Prefer:
+  python scripts/generate_local_media.py <content-id>
+"""
 
 from __future__ import annotations
 
@@ -8,44 +12,38 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from publishing.media_generation.homepage import (
-    client_from_environment,
-    generate_homepage_media,
-)
+from publishing.media_generation.errors import AgnesImageGenerationDisabled
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Generate ZeroRealm media with Agnes")
+    parser = argparse.ArgumentParser(
+        description="Deprecated Agnes entrypoint — use scripts/generate_local_media.py"
+    )
     subparsers = parser.add_subparsers(dest="command", required=True)
-    homepage = subparsers.add_parser("homepage", help="Generate fixed homepage media")
-    homepage.add_argument(
-        "--website-root",
-        default="../zerorealm-website",
-        help="Path to the zerorealm-website repository",
+    homepage = subparsers.add_parser(
+        "homepage",
+        help="DEPRECATED: Agnes homepage generation is disabled",
     )
-    homepage.add_argument(
-        "--force",
-        action="store_true",
-        help="Replace existing homepage media after a successful generation",
-    )
+    homepage.add_argument("--website-root", default="../zerorealm-website")
+    homepage.add_argument("--force", action="store_true")
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     load_dotenv(Path(__file__).parent / ".env")
-    args = build_parser().parse_args(argv)
-    try:
-        manifest = generate_homepage_media(
-            client=client_from_environment(),
-            website_root=args.website_root,
-            force=args.force,
-        )
-    except Exception as exc:
-        print(f"Media generation failed: {exc}", file=sys.stderr)
-        return 1
-    print(f"Homepage media manifest: {manifest}")
-    return 0
+    build_parser().parse_args(argv)
+    print(
+        "AGNES_IMAGE_GENERATION_DISABLED: use python scripts/generate_local_media.py",
+        file=sys.stderr,
+    )
+    raise AgnesImageGenerationDisabled(
+        "generate_media.py homepage path is disabled; use scripts/generate_local_media.py"
+    )
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except AgnesImageGenerationDisabled as exc:
+        print(str(exc), file=sys.stderr)
+        raise SystemExit(2) from exc

@@ -13,9 +13,10 @@ cover:
 
 media:
   enabled: true
-  provider: agnes
-  image_model: agnes-image-2.1-flash
-  video_model: agnes-video-v2.0
+  # Agnes image generation is deprecated. Production provider must stay local.
+  provider: local
+  image_model: local-programmatic
+  video_model: disabled
   body_image_count: 3
   video_enabled: false
   video_duration_seconds: 15
@@ -23,6 +24,7 @@ media:
   poll_interval_seconds: 5
   poll_timeout_seconds: 600
   reuse_existing: true
+  allow_programmatic: true
 
 pipeline:
   validate: true

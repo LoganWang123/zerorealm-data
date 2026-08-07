@@ -23,11 +23,10 @@ jobs:
     timeout-minutes: 180
     env:
       WEBSITE_REPO_TOKEN: ${{ secrets.WEBSITE_REPO_TOKEN }}
-      AGNES_API_KEY: ${{ secrets.AGNES_API_KEY }}
-      AGNES_BASE_URL: ${{ secrets.AGNES_BASE_URL || 'https://apihub.agnes-ai.com/v1' }}
-      AGNES_IMAGE_MODEL: ${{ secrets.AGNES_IMAGE_MODEL || 'agnes-image-2.1-flash' }}
+      # Agnes image generation deprecated — do not inject AGNES_* for production media.
       WECHAT_APPID: ${{ secrets.WECHAT_APPID }}
       WECHAT_SECRET: ${{ secrets.WECHAT_SECRET }}
+      ZEROREALM_LOCAL_IMAGE_CMD: ${{ vars.ZEROREALM_LOCAL_IMAGE_CMD || '' }}
       SYNC_PUBLIC_BUNDLE: ${{ vars.SYNC_PUBLIC_BUNDLE || 'true' }}
       SYNC_LEGACY_DAILY_MDX: ${{ vars.SYNC_LEGACY_DAILY_MDX || 'true' }}
     steps:
@@ -137,8 +136,10 @@ jobs:
           )
           echo "bundle_hash=$HASH" >> "$GITHUB_OUTPUT"
 
-      - name: Generate and validate publishing images
+      - name: Generate local publishing images (no Agnes)
         if: env.WEBSITE_REPO_TOKEN != '' && steps.generate.outputs.generated == 'true'
+        id: media
+        continue-on-error: true
         run: python publish.py --channel wechat --date "${{ steps.report-date.outputs.date }}" --dry-run
 
       - name: Publish report, images, and Public Bundle to website
@@ -155,14 +156,16 @@ jobs:
             test -f "$REPORT"
             install -D -m 0644 "$REPORT" "website/content/daily/${DATE}.mdx"
             MEDIA_DIR="assets/generated/${DATE}"
-            test -f "${MEDIA_DIR}/cover.png"
-            test -f "${MEDIA_DIR}/body-1.png"
-            test -f "${MEDIA_DIR}/body-2.png"
-            test -f "${MEDIA_DIR}/body-3.png"
-            install -D -m 0644 "${MEDIA_DIR}/cover.png" "website/public/media/daily/${DATE}/cover.png"
-            install -D -m 0644 "${MEDIA_DIR}/body-1.png" "website/public/media/daily/${DATE}/body-1.png"
-            install -D -m 0644 "${MEDIA_DIR}/body-2.png" "website/public/media/daily/${DATE}/body-2.png"
-            install -D -m 0644 "${MEDIA_DIR}/body-3.png" "website/public/media/daily/${DATE}/body-3.png"
+            # Media may be pending_local_generation; sync only when local files exist.
+            if [ -f "${MEDIA_DIR}/cover.png" ] && [ -f "${MEDIA_DIR}/body-1.png" ] && [ -f "${MEDIA_DIR}/body-2.png" ] && [ -f "${MEDIA_DIR}/body-3.png" ]; then
+              install -D -m 0644 "${MEDIA_DIR}/cover.png" "website/public/media/daily/${DATE}/cover.png"
+              install -D -m 0644 "${MEDIA_DIR}/body-1.png" "website/public/media/daily/${DATE}/body-1.png"
+              install -D -m 0644 "${MEDIA_DIR}/body-2.png" "website/public/media/daily/${DATE}/body-2.png"
+              install -D -m 0644 "${MEDIA_DIR}/body-3.png" "website/public/media/daily/${DATE}/body-3.png"
+              git -C website add "public/media/daily/${DATE}"
+            else
+              echo "::warning::Local media incomplete for ${DATE}; prompt packages may be under dist/media-jobs/"
+            fi
             python - <<'PY'
           import json
           from pathlib import Path
@@ -175,7 +178,7 @@ jobs:
               encoding="utf-8",
           )
           PY
-            git -C website add "content/daily/${DATE}.mdx" "data/stats.json" "public/media/daily/${DATE}"
+            git -C website add "content/daily/${DATE}.mdx" "data/stats.json"
           fi
 
           if [ "${SYNC_PUBLIC_BUNDLE}" = "true" ]; then
@@ -237,7 +240,7 @@ jobs:
           PY
 
       - name: Create or update verified WeChat draft
-        if: env.WEBSITE_REPO_TOKEN != '' && steps.generate.outputs.generated == 'true'
+        if: env.WEBSITE_REPO_TOKEN != '' && steps.generate.outputs.generated == 'true' && steps.media.outcome == 'success'
         run: python publish.py --channel wechat --date "${{ steps.report-date.outputs.date }}"
 
       - name: Upload artifacts

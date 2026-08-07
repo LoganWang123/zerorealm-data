@@ -23,7 +23,7 @@ def test_release_generates_media_before_website_and_wechat_draft():
     assert names.index("Export and validate Public Bundle v1") < names.index(
         "Publish report, images, and Public Bundle to website"
     )
-    assert names.index("Generate and validate publishing images") < names.index(
+    assert names.index("Generate local publishing images (no Agnes)") < names.index(
         "Publish report, images, and Public Bundle to website"
     )
     assert names.index("Verify production report and images") < names.index(
@@ -42,6 +42,8 @@ def test_workflow_keeps_legacy_mdx_and_bundle_feature_flags():
     assert "secrets.WEBSITE_REPO_TOKEN" in text
     assert "echo $WEBSITE_REPO_TOKEN" not in text
     assert "print(os.environ" not in text
+    assert "secrets.AGNES_API_KEY" not in text
+    assert "AGNES_API_KEY:" not in text
 
 
 def test_scheduled_wechat_command_can_only_create_a_draft():

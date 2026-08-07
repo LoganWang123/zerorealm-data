@@ -7,32 +7,42 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable
 
+from publishing.media_generation.errors import (
+    LocalImageGeneratorUnavailable,
+    PendingLocalGeneration,
+)
 from publishing.media_generation.manifest import MediaManifestRepository
+from publishing.media_generation.prompt_package import (
+    build_brief_for_article,
+    write_prompt_package,
+)
 from publishing.media_generation.prompts import PromptSet, build_daily_prompts
 from publishing.models import MediaAsset, MediaBundle
 
 if TYPE_CHECKING:
     from publishing.article import Article
     from publishing.config import MediaConfig
-    from publishing.media_generation.client import AgnesClient
+    from publishing.media_generation.providers import ImageGenerationProvider
 
 
 class MediaGenerationService:
-    """Create or safely reuse the required daily media set."""
+    """Create or safely reuse the required daily media set (local provider only)."""
 
     def __init__(
         self,
-        client: AgnesClient,
+        client: ImageGenerationProvider,
         config: MediaConfig,
         output_root: str | Path = "assets/generated",
         curated_cover_root: str | Path = "assets/covers",
         prompt_builder: Callable[[Article, int], PromptSet] = build_daily_prompts,
+        media_jobs_root: str | Path = "dist/media-jobs",
     ):
         self._client = client
         self._config = config
         self._output_root = Path(output_root)
         self._curated_cover_root = Path(curated_cover_root)
         self._prompt_builder = prompt_builder
+        self._media_jobs_root = Path(media_jobs_root)
 
     def generate_daily(self, article: Article) -> MediaBundle:
         prompts = self._prompt_builder(article, self._config.body_image_count)
@@ -40,56 +50,120 @@ class MediaGenerationService:
         directory.mkdir(parents=True, exist_ok=True)
         repository = MediaManifestRepository(directory / "media-manifest.json")
         manifest = self._prepare_manifest(repository.load(), article, prompts)
+        pending_jobs: list[str] = []
 
         curated_cover = self._curated_cover_root / f"cover-{article.date}.png"
-        cover = (
-            self._curated_cover_asset(
-                repository,
-                manifest,
-                directory,
-                curated_cover,
-                prompt_version=prompts.version,
+        try:
+            cover = (
+                self._curated_cover_asset(
+                    repository,
+                    manifest,
+                    directory,
+                    curated_cover,
+                    prompt_version=prompts.version,
+                )
+                if curated_cover.is_file()
+                else self._image_asset(
+                    repository,
+                    manifest,
+                    directory,
+                    role="cover",
+                    filename="cover.png",
+                    prompt=prompts.cover,
+                    size="900x383",
+                    width=900,
+                    height=383,
+                    prompt_version=prompts.version,
+                )
             )
-            if curated_cover.is_file()
-            else self._image_asset(
-                repository,
-                manifest,
-                directory,
-                role="cover",
-                filename="cover.png",
-                prompt=prompts.cover,
-                size="900x383",
-                width=900,
-                height=383,
-                prompt_version=prompts.version,
+        except LocalImageGeneratorUnavailable:
+            pending_jobs.append(
+                str(
+                    write_prompt_package(
+                        build_brief_for_article(
+                            content_id=article.metadata.slug or article.date,
+                            channel="wechat",
+                            purpose="cover",
+                            title=article.title,
+                            width=900,
+                            height=383,
+                            aspect_ratio="900:383",
+                        ),
+                        self._media_jobs_root,
+                    )
+                )
             )
-        )
-        body_images = [
-            self._image_asset(
-                repository,
-                manifest,
-                directory,
-                role=f"body_{index}",
-                filename=f"body-{index}.png",
-                prompt=prompt,
-                size="1280x720",
-                width=1280,
-                height=720,
-                prompt_version=prompts.version,
+            cover = None
+
+        body_images = []
+        for index, prompt in enumerate(prompts.body_images, 1):
+            try:
+                body_images.append(
+                    self._image_asset(
+                        repository,
+                        manifest,
+                        directory,
+                        role=f"body_{index}",
+                        filename=f"body-{index}.png",
+                        prompt=prompt,
+                        size="1280x720",
+                        width=1280,
+                        height=720,
+                        prompt_version=prompts.version,
+                    )
+                )
+            except LocalImageGeneratorUnavailable:
+                pending_jobs.append(
+                    str(
+                        write_prompt_package(
+                            build_brief_for_article(
+                                content_id=article.metadata.slug or article.date,
+                                channel="wechat",
+                                purpose=f"illustration-{index}",
+                                title=article.title,
+                                width=1280,
+                                height=720,
+                                aspect_ratio="16:9",
+                            ),
+                            self._media_jobs_root,
+                        )
+                    )
+                )
+
+        video = None
+        if self._config.video_enabled:
+            try:
+                video = self._video_asset(
+                    repository,
+                    manifest,
+                    directory,
+                    prompt=prompts.video,
+                    prompt_version=prompts.version,
+                )
+            except LocalImageGeneratorUnavailable:
+                pending_jobs.append(
+                    str(
+                        write_prompt_package(
+                            build_brief_for_article(
+                                content_id=article.metadata.slug or article.date,
+                                channel="wechat",
+                                purpose="video",
+                                title=article.title,
+                                width=720,
+                                height=1280,
+                                aspect_ratio=self._config.video_aspect_ratio,
+                            ),
+                            self._media_jobs_root,
+                        )
+                    )
+                )
+
+        if pending_jobs or cover is None or len(body_images) != self._config.body_image_count:
+            raise PendingLocalGeneration(
+                "local generation incomplete; prompt packages written",
+                job_dir=";".join(pending_jobs),
             )
-            for index, prompt in enumerate(prompts.body_images, 1)
-        ]
-        video = (
-            self._video_asset(
-                repository,
-                manifest,
-                directory,
-                prompt=prompts.video,
-                prompt_version=prompts.version,
-            )
-            if self._config.video_enabled
-            else None
-        )
+
         manifest["complete"] = True
         repository.save(manifest)
         return MediaBundle(cover=cover, body_images=body_images, video=video)
