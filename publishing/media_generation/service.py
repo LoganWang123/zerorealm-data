@@ -12,10 +12,7 @@ from publishing.media_generation.errors import (
     PendingLocalGeneration,
 )
 from publishing.media_generation.manifest import MediaManifestRepository
-from publishing.media_generation.prompt_package import (
-    build_brief_for_article,
-    write_prompt_package,
-)
+from publishing.media_generation.media_job import create_job
 from publishing.media_generation.prompts import PromptSet, build_daily_prompts
 from publishing.models import MediaAsset, MediaBundle
 
@@ -77,22 +74,18 @@ class MediaGenerationService:
                 )
             )
         except LocalImageGeneratorUnavailable:
-            pending_jobs.append(
-                str(
-                    write_prompt_package(
-                        build_brief_for_article(
-                            content_id=article.metadata.slug or article.date,
-                            channel="wechat",
-                            purpose="cover",
-                            title=article.title,
-                            width=900,
-                            height=383,
-                            aspect_ratio="900:383",
-                        ),
-                        self._media_jobs_root,
-                    )
-                )
+            job = create_job(
+                content_id=article.metadata.slug or article.date,
+                content_type="daily",
+                channel="wechat",
+                purpose="cover",
+                title=article.title,
+                width=900,
+                height=383,
+                aspect_ratio="900:383",
+                root=self._media_jobs_root,
             )
+            pending_jobs.append(str(job.id))
             cover = None
 
         body_images = []
@@ -113,22 +106,18 @@ class MediaGenerationService:
                     )
                 )
             except LocalImageGeneratorUnavailable:
-                pending_jobs.append(
-                    str(
-                        write_prompt_package(
-                            build_brief_for_article(
-                                content_id=article.metadata.slug or article.date,
-                                channel="wechat",
-                                purpose=f"illustration-{index}",
-                                title=article.title,
-                                width=1280,
-                                height=720,
-                                aspect_ratio="16:9",
-                            ),
-                            self._media_jobs_root,
-                        )
-                    )
+                job = create_job(
+                    content_id=article.metadata.slug or article.date,
+                    content_type="daily",
+                    channel="wechat",
+                    purpose="illustration",
+                    title=f"{article.title} #{index}",
+                    width=1280,
+                    height=720,
+                    aspect_ratio="16:9",
+                    root=self._media_jobs_root,
                 )
+                pending_jobs.append(str(job.id))
 
         video = None
         if self._config.video_enabled:
@@ -141,26 +130,22 @@ class MediaGenerationService:
                     prompt_version=prompts.version,
                 )
             except LocalImageGeneratorUnavailable:
-                pending_jobs.append(
-                    str(
-                        write_prompt_package(
-                            build_brief_for_article(
-                                content_id=article.metadata.slug or article.date,
-                                channel="wechat",
-                                purpose="video",
-                                title=article.title,
-                                width=720,
-                                height=1280,
-                                aspect_ratio=self._config.video_aspect_ratio,
-                            ),
-                            self._media_jobs_root,
-                        )
-                    )
+                job = create_job(
+                    content_id=article.metadata.slug or article.date,
+                    content_type="daily",
+                    channel="wechat",
+                    purpose="illustration",
+                    title=f"{article.title} video",
+                    width=720,
+                    height=1280,
+                    aspect_ratio=self._config.video_aspect_ratio,
+                    root=self._media_jobs_root,
                 )
+                pending_jobs.append(str(job.id))
 
         if pending_jobs or cover is None or len(body_images) != self._config.body_image_count:
             raise PendingLocalGeneration(
-                "local generation incomplete; prompt packages written",
+                "IDE-native MediaJobs pending_generation; scene images not faked",
                 job_dir=";".join(pending_jobs),
             )
 

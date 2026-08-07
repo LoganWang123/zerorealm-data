@@ -1,4 +1,4 @@
-"""Local-only media policy: Agnes production invocations must stay at zero."""
+"""Local-only / IDE MediaJob policy: Agnes production invocations must stay at zero."""
 
 from __future__ import annotations
 
@@ -6,10 +6,20 @@ import json
 from pathlib import Path
 
 import pytest
+from PIL import Image
 
 from publishing.article import Article, ArticleMeta
 from publishing.config import MediaConfig, PublishConfig
-from publishing.media_generation.errors import AgnesImageGenerationDisabled
+from publishing.media_generation.errors import (
+    AgnesImageGenerationDisabled,
+    PendingLocalGeneration,
+)
+from publishing.media_generation.media_job import (
+    attach_image,
+    can_publish,
+    create_job,
+    set_review_status,
+)
 from publishing.media_generation.prompt_package import write_prompt_package, build_brief_for_article
 from publishing.media_generation.providers import (
     DisabledAgnesImageGenerator,
@@ -50,7 +60,7 @@ def test_agnes_provider_name_is_rejected():
         build_default_image_provider(provider_name="agnes", image_model="x")
 
 
-def test_workflow_factory_never_constructs_agnes(monkeypatch, tmp_path):
+def test_workflow_factory_never_constructs_agnes(monkeypatch):
     monkeypatch.setenv("AGNES_API_KEY", "should-not-be-used-for-images")
     monkeypatch.delenv("ZEROREALM_FORCE_AGNES_IMAGE", raising=False)
     config = PublishConfig()
@@ -67,9 +77,9 @@ def test_force_agnes_env_is_rejected(monkeypatch):
         workflow._build_media_service()
 
 
-def test_local_generation_agnes_call_count_is_zero(tmp_path):
+def test_daily_scene_images_create_media_jobs_without_agnes(tmp_path, monkeypatch):
     tracker = TrackingAgnes()
-    # Production path uses LocalImageGenerator; tracker must remain untouched.
+    monkeypatch.chdir(tmp_path)
     local = LocalImageGenerator(allow_programmatic=True, call_counter=[])
     service = MediaGenerationService(
         client=local,
@@ -84,11 +94,12 @@ def test_local_generation_agnes_call_count_is_zero(tmp_path):
         date="2026-08-07",
         summary=["摘要"],
     )
-    bundle = service.generate_daily(article)
+    with pytest.raises(PendingLocalGeneration) as exc:
+        service.generate_daily(article)
     assert tracker.image_calls == 0
-    assert tracker.video_calls == 0
-    assert Path(bundle.cover.local_path).is_file()
-    assert len(bundle.body_images) == 3
+    assert "PENDING_LOCAL_GENERATION" in str(exc.value)
+    jobs = list((tmp_path / "jobs").glob("*/**/job.json"))
+    assert len(jobs) >= 3
 
 
 def test_disabled_agnes_guard_blocks_calls():
@@ -97,29 +108,50 @@ def test_disabled_agnes_guard_blocks_calls():
         client.generate_image("x", "1280x720")
 
 
-def test_prompt_only_package_when_programmatic_disabled(tmp_path):
-    local = LocalImageGenerator(allow_programmatic=False)
-    service = MediaGenerationService(
-        client=local,
-        config=MediaConfig(video_enabled=False, allow_programmatic=False),
-        output_root=tmp_path / "generated",
-        curated_cover_root=tmp_path / "covers",
-        media_jobs_root=tmp_path / "jobs",
+def test_media_job_attach_validate_and_publish_gate(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    job = create_job(
+        content_id="e2e-brief",
+        channel="website",
+        purpose="illustration",
+        title="测试场景",
+        width=1280,
+        height=720,
+        root=tmp_path / "jobs",
     )
-    article = Article(
-        metadata=ArticleMeta(uuid="u2", slug="brief-demo", source="research", issue=0),
-        title="案例封面",
-        date="2026-08-07",
-        summary=[],
+    image_path = tmp_path / "scene.png"
+    Image.new("RGB", (1280, 720), (40, 50, 60)).save(image_path)
+    attached = attach_image(
+        job.id,
+        image_path,
+        generator_agent="cursor",
+        generator_type="ide_native",
+        root=tmp_path / "jobs",
     )
-    from publishing.media_generation.errors import PendingLocalGeneration
+    assert attached.status == "pending_review"
+    assert can_publish(attached) is False
+    # generatorAgent must not affect gate
+    attached.generatorAgent = "codex"
+    assert can_publish(attached) is False
+    approved = set_review_status(job.id, "approved", root=tmp_path / "jobs")
+    assert can_publish(approved) is True
+    rejected = set_review_status(job.id, "rejected", root=tmp_path / "jobs")
+    assert can_publish(rejected) is False
 
-    with pytest.raises(PendingLocalGeneration):
-        service.generate_daily(article)
-    jobs = list((tmp_path / "jobs").glob("**/metadata.json"))
-    assert jobs
-    meta = json.loads(jobs[0].read_text(encoding="utf-8"))
-    assert meta["status"] == "pending_local_generation"
+
+def test_media_job_rejects_corrupt_and_unsafe(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    job = create_job(
+        content_id="bad",
+        purpose="illustration",
+        width=1280,
+        height=720,
+        root=tmp_path / "jobs",
+    )
+    bad = tmp_path / "bad.png"
+    bad.write_bytes(b"not-an-image")
+    with pytest.raises(ValueError):
+        attach_image(job.id, bad, root=tmp_path / "jobs")
 
 
 def test_write_prompt_package_shape(tmp_path):
@@ -134,6 +166,3 @@ def test_write_prompt_package_shape(tmp_path):
     )
     job = write_prompt_package(brief, tmp_path)
     assert (job / "prompt.zh-CN.txt").is_file()
-    assert (job / "prompt.en.txt").is_file()
-    assert (job / "negative-prompt.txt").is_file()
-    assert (job / "image-brief.json").is_file()

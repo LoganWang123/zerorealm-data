@@ -40,23 +40,27 @@ def parse_size(size: str) -> tuple[int, int]:
 
 
 class LocalImageGenerator:
-    """Generate images via local command or programmatic templates.
+    """COMPATIBILITY helper for programmatic brand covers only.
 
-    Never calls Agnes. External local model is optional via ZEROREALM_LOCAL_IMAGE_CMD.
+    Scene photography must come from IDE-native MediaJob attach workflow.
+    Do not treat ZEROREALM_LOCAL_IMAGE_CMD as the core ZeroRealm image strategy.
+    Never calls Agnes.
     """
 
     def __init__(
         self,
         *,
-        image_model: str = "local-programmatic",
+        image_model: str = "programmatic-brand",
         video_model: str = "disabled",
         allow_programmatic: bool = True,
         local_command: str | None = None,
         call_counter: list[str] | None = None,
+        allow_programmatic_scenes: bool = False,
     ):
         self.image_model = image_model
         self.video_model = video_model
         self.allow_programmatic = allow_programmatic
+        self.allow_programmatic_scenes = allow_programmatic_scenes
         self.local_command = local_command or os.getenv("ZEROREALM_LOCAL_IMAGE_CMD", "")
         self._calls = call_counter if call_counter is not None else []
 
@@ -71,13 +75,20 @@ class LocalImageGenerator:
             return self._run_local_command(prompt, width, height)
         if not self.allow_programmatic:
             raise LocalImageGeneratorUnavailable(
-                "No ZEROREALM_LOCAL_IMAGE_CMD and programmatic templates disabled"
+                "Programmatic templates disabled; create a MediaJob for IDE-native generation"
             )
-        # Prefer brand cover for WeChat cover aspect; otherwise editorial illustration
-        if width >= height * 2 or (width == 900 and height == 383):
+        # Brand covers / OG-like wide banners only — never fake scene photography.
+        if width >= height * 2 or (width == 900 and height == 383) or (
+            width == 1200 and height == 630
+        ):
             title = _extract_title(prompt)
             return render_brand_cover(width=width, height=height, title=title)
-        return render_editorial_illustration(width=width, height=height)
+        if self.allow_programmatic_scenes:
+            return render_editorial_illustration(width=width, height=height)
+        raise LocalImageGeneratorUnavailable(
+            "Scene images require IDE-native MediaJob generation; "
+            "programmatic placeholders must not impersonate AI photography"
+        )
 
     def generate_video(
         self,
