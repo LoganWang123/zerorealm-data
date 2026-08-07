@@ -10,6 +10,7 @@ data/*
 !data/research/first-quarter-research.json
 !data/research/weekly-review-template.md
 !data/research/public-catalog.json
+!data/research/review-queue-companies.json
 
 # logs
 logs/
