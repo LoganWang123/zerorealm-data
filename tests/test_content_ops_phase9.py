@@ -63,13 +63,13 @@ def test_content_package_has_no_agnes_and_pending_media(tmp_path):
 
 
 def test_industry_map_dataset_draft_marked_review_only(tmp_path):
-    out = tmp_path / "map.json"
+    out = tmp_path / "map-dir"
     report = export_dataset(
         Path("data/research/public-catalog.json"),
         out,
         include_draft=True,
     )
-    payload = json.loads(out.read_text(encoding="utf-8"))
+    payload = json.loads((out / "review-status.json").read_text(encoding="utf-8"))
     assert report["visibility"] == "FOR_REVIEW_ONLY"
     assert payload["visibility"] == "FOR_REVIEW_ONLY"
     assert payload["autoApproved"] is False

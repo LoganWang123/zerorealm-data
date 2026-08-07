@@ -1,0 +1,38 @@
+{
+  "autoApproved": false,
+  "notes": {
+    "cloudpick-suzhou-energy-ai-store": {
+      "公开事实": "云拿官网案例文章披露项目引入与经营描述。",
+      "ZeroRealm推断": "交通能源场景可能对 24 小时可达性更敏感。",
+      "ZeroRealm观点": "适合作为 AI 无人店公开证据样本，不宜直接当作智能柜通用标杆。",
+      "缺失资料": "缺可核验 GMV/客流/损耗数据。",
+      "人工审核事项": "核对原文链接是否仍可访问，摘录是否过度解读。",
+      "source": {
+        "label": "云拿案例文章",
+        "url": "https://www.cloudpick.com/company/news/company-info/data_119.html"
+      }
+    },
+    "cloudpick-shanghai-business-school": {
+      "公开事实": "云拿案例库公开列出该校园项目定位。",
+      "ZeroRealm推断": "教育场景可能同时承担教学演示功能。",
+      "ZeroRealm观点": "可作为校园无人零售公开样本，不宜夸大商业回报。",
+      "缺失资料": "缺人流、客单、损耗等核验数据。",
+      "人工审核事项": "确认案例库条目与项目名称一致。",
+      "source": {
+        "label": "云拿科技案例库",
+        "url": "https://www.cloudpick.com/case-studies/case-studies-all"
+      }
+    },
+    "cloudpick-leiyunshang-pharmacy": {
+      "公开事实": "案例库公开列出雷允上 AI 无人药店品类范围。",
+      "ZeroRealm推断": "非处方药场景对识别准确率与售后流程要求更高。",
+      "ZeroRealm观点": "是垂直场景证据，不是通用智能柜效率证明。",
+      "缺失资料": "缺差错率、客诉、监管合规材料。",
+      "人工审核事项": "区分营销表述与可核验事实。",
+      "source": {
+        "label": "云拿科技案例库",
+        "url": "https://www.cloudpick.com/case-studies/case-studies-all"
+      }
+    }
+  }
+}

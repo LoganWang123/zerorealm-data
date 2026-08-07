@@ -11,6 +11,8 @@ data/*
 !data/research/weekly-review-template.md
 !data/research/public-catalog.json
 !data/research/review-queue-companies.json
+!data/research/metric-briefs.json
+!data/research/case-review-notes.json
 
 # logs
 logs/

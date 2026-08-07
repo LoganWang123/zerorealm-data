@@ -1,8 +1,214 @@
 {
   "contentRevision": 1,
-  "sources": [],
+  "sources": [
+    {
+      "id": "src-ubox-home",
+      "url": "https://www.ubox.cn/",
+      "title": "友宝在线官网",
+      "source_name": "友宝在线",
+      "credibility": "high",
+      "source_type": "official",
+      "published_at": null,
+      "accessed_at": "2026-08-02"
+    },
+    {
+      "id": "src-feng1-home",
+      "url": "https://www.feng1.com/zh-CN",
+      "title": "丰e足食官网",
+      "source_name": "丰e足食",
+      "credibility": "high",
+      "source_type": "official",
+      "published_at": null,
+      "accessed_at": "2026-08-02"
+    },
+    {
+      "id": "src-cloudpick-cases",
+      "url": "https://www.cloudpick.com/case-studies/case-studies-all",
+      "title": "云拿科技案例库",
+      "source_name": "云拿科技",
+      "credibility": "high",
+      "source_type": "official",
+      "published_at": null,
+      "accessed_at": "2026-08-02"
+    },
+    {
+      "id": "src-cloudpick-suzhou",
+      "url": "https://www.cloudpick.com/company/news/company-info/data_119.html",
+      "title": "云拿案例文章：苏州交投能源",
+      "source_name": "云拿科技",
+      "credibility": "high",
+      "source_type": "official",
+      "published_at": null,
+      "accessed_at": "2026-08-02"
+    },
+    {
+      "id": "src-hetun-home",
+      "url": "https://www.hetunai.cn/",
+      "title": "合豚科技官网",
+      "source_name": "合豚科技",
+      "credibility": "high",
+      "source_type": "official",
+      "published_at": null,
+      "accessed_at": "2026-08-02"
+    },
+    {
+      "id": "src-hibianli-home",
+      "url": "https://www.hibianli.cn/",
+      "title": "嗨便利官网",
+      "source_name": "嗨便利",
+      "credibility": "high",
+      "source_type": "official",
+      "published_at": null,
+      "accessed_at": "2026-08-02"
+    },
+    {
+      "id": "src-inhand-product",
+      "url": "https://www.inhand.com.cn/products/ai-vending-machines/",
+      "title": "映翰通 AI 智能售货柜产品页",
+      "source_name": "映翰通",
+      "credibility": "high",
+      "source_type": "official",
+      "published_at": null,
+      "accessed_at": "2026-08-02"
+    }
+  ],
   "claims": [],
-  "signals": [],
+  "signals": [
+    {
+      "id": "sig-ubox-platform-scope",
+      "slug": "ubox-platform-scope-public",
+      "title": "友宝公开披露多形态智能零售终端与平台服务",
+      "summary": "友宝在线官网披露其运营多种智能零售终端，并提供设备销售、代运营、商品采销与广告服务。",
+      "why_it_matters": "说明头部运营商已从单设备走向平台化能力组合。",
+      "affected_roles": [
+        "operators",
+        "brands"
+      ],
+      "judgment": "值得持续跟踪其设备结构与场景分布的公开披露，而非推测市占率。",
+      "claim_ids": [],
+      "source_ids": [
+        "src-ubox-home"
+      ],
+      "company_ids": [],
+      "verification_status": "reviewing",
+      "published_at": "",
+      "tags": [
+        "operator",
+        "smart_retail"
+      ]
+    },
+    {
+      "id": "sig-feng1-office-focus",
+      "slug": "feng1-office-unmanned-positioning",
+      "title": "丰e足食公开定位办公室小场景无人零售",
+      "summary": "丰e足食官网将其定位为办公室小场景无人零售运营商，并披露智能柜、自动贩卖机及直营服务能力。",
+      "why_it_matters": "办公楼场景是智能柜高频讨论场景，公开定位有助于对照运营模型。",
+      "affected_roles": [
+        "operators"
+      ],
+      "judgment": "应优先核验其场景定义与服务边界，避免把直营模型当成通用加盟模型。",
+      "claim_ids": [],
+      "source_ids": [
+        "src-feng1-home"
+      ],
+      "company_ids": [],
+      "verification_status": "reviewing",
+      "published_at": "",
+      "tags": [
+        "office",
+        "smart_cabinet"
+      ]
+    },
+    {
+      "id": "sig-cloudpick-case-library",
+      "slug": "cloudpick-public-case-library",
+      "title": "云拿公开案例库展示无人店与无人仓落地",
+      "summary": "云拿科技官网公开展示无人店和无人仓方案，以及多个国内外落地案例。",
+      "why_it_matters": "为 AI 视觉零售提供可引用的公开项目清单。",
+      "affected_roles": [
+        "hardware",
+        "operators"
+      ],
+      "judgment": "案例库适合做证据入口，量化结论仍需逐案核验。",
+      "claim_ids": [],
+      "source_ids": [
+        "src-cloudpick-cases"
+      ],
+      "company_ids": [],
+      "verification_status": "reviewing",
+      "published_at": "",
+      "tags": [
+        "ai_vision",
+        "case"
+      ]
+    },
+    {
+      "id": "sig-hetun-stack",
+      "slug": "hetun-integrated-stack",
+      "title": "合豚公开披露视觉识别到运营后台的一体化能力",
+      "summary": "合豚科技官网披露从视觉识别、硬件、支付、IoT 到运营后台的一体化能力。",
+      "why_it_matters": "反映软硬件一体供应商的产品叙事方式。",
+      "affected_roles": [
+        "hardware",
+        "software"
+      ],
+      "judgment": "需区分能力清单与可核验交付边界。",
+      "claim_ids": [],
+      "source_ids": [
+        "src-hetun-home"
+      ],
+      "company_ids": [],
+      "verification_status": "reviewing",
+      "published_at": "",
+      "tags": [
+        "saas",
+        "vision"
+      ]
+    },
+    {
+      "id": "sig-hibianli-dynamic-vision",
+      "slug": "hibianli-dynamic-vision-cabinet",
+      "title": "嗨便利公开展示动态视觉智能售货柜",
+      "summary": "嗨便利官网展示动态视觉识别智能售货柜及其适用场景。",
+      "why_it_matters": "动态视觉柜是智能柜技术路线之一，公开产品页可作对照。",
+      "affected_roles": [
+        "hardware",
+        "operators"
+      ],
+      "judgment": "产品展示不等于统一识别准确率结论。",
+      "claim_ids": [],
+      "source_ids": [
+        "src-hibianli-home"
+      ],
+      "company_ids": [],
+      "verification_status": "reviewing",
+      "published_at": "",
+      "tags": [
+        "smart_cabinet"
+      ]
+    },
+    {
+      "id": "sig-inhand-grab-go",
+      "slug": "inhand-grab-go-cabinet",
+      "title": "映翰通公开 Grab & Go 智能售货柜与运营平台",
+      "summary": "映翰通产品页披露 Grab & Go 智能售货柜及库存、销售数据运营能力。",
+      "why_it_matters": "边缘视觉路线在公开材料中可被定位。",
+      "affected_roles": [
+        "hardware"
+      ],
+      "judgment": "应以其产品页陈述为边界，避免外推市场份额。",
+      "claim_ids": [],
+      "source_ids": [
+        "src-inhand-product"
+      ],
+      "company_ids": [],
+      "verification_status": "reviewing",
+      "published_at": "",
+      "tags": [
+        "edge_vision"
+      ]
+    }
+  ],
   "companies": [
     {
       "id": "co-7a47744412d0",
@@ -837,7 +1043,59 @@
       "status": "draft"
     }
   ],
-  "cases": [],
+  "cases": [
+    {
+      "id": "case-cloudpick-suzhou-energy",
+      "slug": "cloudpick-suzhou-energy-ai-store",
+      "title": "苏州交投能源 AI 无人店（公开案例）",
+      "problem": "交通能源场景需要延长服务时间、降低人工值守成本。",
+      "solution": "引入 AI 无人店方案。",
+      "how_it_works": "云拿官网披露该项目于 2020 年引入无人店，并公开了员工使用与开店后的经营描述。",
+      "public_results": [
+        "公开资料未披露可核验的量化结果。"
+      ],
+      "limitations": [
+        "公开材料偏项目介绍，缺少可复核的经营指标时间序列",
+        "场景与商品结构不可直接外推到办公楼智能柜"
+      ],
+      "company_ids": [],
+      "status": "draft"
+    },
+    {
+      "id": "case-cloudpick-shanghai-business-school",
+      "slug": "cloudpick-shanghai-business-school",
+      "title": "上海商学院无人零售项目（公开案例）",
+      "problem": "校园场景需要补充就餐与零售便利性。",
+      "solution": "AI 无人店作为“第二食堂”式补充。",
+      "how_it_works": "云拿案例库将项目描述为丰富师生就餐选择，并兼具实践基地用途。",
+      "public_results": [
+        "公开资料未披露可核验的量化结果。"
+      ],
+      "limitations": [
+        "案例描述偏定性",
+        "校园场景规则与办公楼不同"
+      ],
+      "company_ids": [],
+      "status": "draft"
+    },
+    {
+      "id": "case-cloudpick-leiyunshang",
+      "slug": "cloudpick-leiyunshang-pharmacy",
+      "title": "雷允上 AI 无人药店（公开案例）",
+      "problem": "医药零售需要延长服务时段并控制值守成本。",
+      "solution": "24 小时 AI 无人药店。",
+      "how_it_works": "云拿案例库公开列出雷允上 AI 无人药店，覆盖非处方药与健康日用品。",
+      "public_results": [
+        "公开资料未披露可核验的量化结果。"
+      ],
+      "limitations": [
+        "医药合规要求高，不可简单复制到普通智能柜",
+        "缺量化结果"
+      ],
+      "company_ids": [],
+      "status": "draft"
+    }
+  ],
   "metrics": [
     {
       "id": "metric-terminal-gmv",
