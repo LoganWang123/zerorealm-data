@@ -43,7 +43,9 @@ local unavailable → `dist/media-jobs/<slug>/`（brief + prompts + metadata）�
 
 ## 8–11. 文件 / Commit / Tags / Tests
 
-以 `git log` / `git tag` 为准；本报告提交后更新 HEAD。
+- HEAD: `c89a5ff`
+- Tags: `research-phase8-complete` … `research-phase11-complete`, `zerorealm-release-candidate-v1`
+- Tests: `364 passed`, ruff clean
 
 ## 12. Security
 
