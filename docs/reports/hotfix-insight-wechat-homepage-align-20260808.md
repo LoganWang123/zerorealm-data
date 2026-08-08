@@ -10,6 +10,6 @@ Website Insight body/media already matched `article.md`, but homepage featured D
 - Insight MDX lead quote aligned with WeChat digest
 - Content package metadata marked website-aligned
 
-## Out of scope
+## Follow-up
+- Daily 2026-08-08《东鹏饮料…》已按用户要求撤回：`visibility: private` + `gate_status: rejected`
 - No WeChat re-publish
-- Daily 2026-08-08 kept (separate channel); only demoted below Insight on home
