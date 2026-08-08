@@ -5,7 +5,11 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import TYPE_CHECKING
 
-from publishing.media_generation.client import AgnesAPIError
+from publishing.media_generation.errors import (
+    AgnesImageGenerationDisabled,
+    LocalImageGeneratorUnavailable,
+    PendingLocalGeneration,
+)
 from publishing.pipeline import PipelineContext, PipelineState, PipelineStep, StepResult, StepStatus
 
 if TYPE_CHECKING:
@@ -14,7 +18,7 @@ if TYPE_CHECKING:
 
 
 class GenerateMediaStep(PipelineStep):
-    """Create the complete daily media set before rendering."""
+    """Create the complete daily media set before rendering (local-only)."""
 
     name = "generate_media"
 
@@ -33,11 +37,23 @@ class GenerateMediaStep(PipelineStep):
             )
         try:
             bundle = self._service_factory().generate_daily(ctx.article)
-        except AgnesAPIError as exc:
+        except AgnesImageGenerationDisabled as exc:
             return StepResult(
                 status=StepStatus.FAILED,
                 message=str(exc),
-                retryable=exc.retryable,
+                retryable=False,
+            )
+        except PendingLocalGeneration as exc:
+            return StepResult(
+                status=StepStatus.FAILED,
+                message=str(exc),
+                retryable=False,
+            )
+        except LocalImageGeneratorUnavailable as exc:
+            return StepResult(
+                status=StepStatus.FAILED,
+                message=str(exc),
+                retryable=False,
             )
         except (OSError, ValueError) as exc:
             return StepResult(

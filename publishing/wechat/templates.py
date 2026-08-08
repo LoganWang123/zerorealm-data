@@ -1410,3 +1410,27 @@ def signal_block(immediate: str = "", this_week: str = "", this_month: str = "")
         + "".join(rows)
         + f"</div>"
     )
+
+def research_template_header(kind: str, title: str, date: str) -> str:
+    """Compact header for research-derived WeChat drafts."""
+    labels = {
+        "signal_digest": "零域信号",
+        "deep_insight": "零域洞察",
+        "case_study": "案例拆解",
+        "company_profile": "企业观察",
+    }
+    label = labels.get(kind, "零域研究")
+    return (
+        f'<p style="margin:0 0 8px;font-size:13px;color:#888;">{label}</p>'
+        f'<h1 style="margin:0 0 12px;font-size:22px;color:#222;line-height:1.4;">{title}</h1>'
+        f'<p style="margin:0 0 20px;font-size:13px;color:#999;">{date}</p>'
+    )
+
+
+def research_section(title: str, body: str) -> str:
+    return (
+        f'<div style="margin:0 0 18px;">'
+        f'<p style="margin:0 0 6px;font-size:15px;font-weight:bold;color:#222;">{title}</p>'
+        f'<p style="margin:0;font-size:15px;color:#444;line-height:1.75;">{body}</p>'
+        f"</div>"
+    )

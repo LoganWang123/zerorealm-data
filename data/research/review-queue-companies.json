@@ -1,0 +1,237 @@
+{
+  "generatedFor": "human-review-only",
+  "autoApproved": false,
+  "items": [
+    {
+      "name": "丰e足食",
+      "slug": "co-acde93c6cc",
+      "status": "draft",
+      "source_count": 0,
+      "source_types": [],
+      "verified_at": "",
+      "missing_fields": [
+        "summary",
+        "verifiedAt"
+      ],
+      "risks": [
+        "摘要仍为图谱引导语",
+        "仍为 draft，不会进入 Public Bundle"
+      ],
+      "relations": {
+        "relatedCaseIds": [],
+        "relatedSignalIds": []
+      },
+      "readiness": "NOT_READY",
+      "core_business": "operator",
+      "summary": "丰e足食（公开图谱收录，角色：operator）"
+    },
+    {
+      "name": "友宝",
+      "slug": "co-dfaf9a68fe",
+      "status": "draft",
+      "source_count": 0,
+      "source_types": [],
+      "verified_at": "",
+      "missing_fields": [
+        "summary",
+        "verifiedAt"
+      ],
+      "risks": [
+        "摘要仍为图谱引导语",
+        "仍为 draft，不会进入 Public Bundle"
+      ],
+      "relations": {
+        "relatedCaseIds": [],
+        "relatedSignalIds": []
+      },
+      "readiness": "NOT_READY",
+      "core_business": "operator",
+      "summary": "友宝（公开图谱收录，角色：operator）"
+    },
+    {
+      "name": "嗨便利",
+      "slug": "co-edc10a392d",
+      "status": "draft",
+      "source_count": 0,
+      "source_types": [],
+      "verified_at": "",
+      "missing_fields": [
+        "summary",
+        "verifiedAt"
+      ],
+      "risks": [
+        "摘要仍为图谱引导语",
+        "仍为 draft，不会进入 Public Bundle"
+      ],
+      "relations": {
+        "relatedCaseIds": [],
+        "relatedSignalIds": []
+      },
+      "readiness": "NOT_READY",
+      "core_business": "hardware",
+      "summary": "嗨便利（公开图谱收录，角色：hardware）"
+    },
+    {
+      "name": "恒生活",
+      "slug": "co-f1a5efc9b8",
+      "status": "draft",
+      "source_count": 0,
+      "source_types": [],
+      "verified_at": "",
+      "missing_fields": [
+        "summary",
+        "verifiedAt"
+      ],
+      "risks": [
+        "摘要仍为图谱引导语",
+        "仍为 draft，不会进入 Public Bundle"
+      ],
+      "relations": {
+        "relatedCaseIds": [],
+        "relatedSignalIds": []
+      },
+      "readiness": "NOT_READY",
+      "core_business": "operator",
+      "summary": "恒生活（公开图谱收录，角色：operator）"
+    },
+    {
+      "name": "24H 便利柜",
+      "slug": "24h",
+      "status": "draft",
+      "source_count": 0,
+      "source_types": [],
+      "verified_at": "",
+      "missing_fields": [
+        "summary",
+        "verifiedAt"
+      ],
+      "risks": [
+        "摘要含数字但缺少核验时间/来源绑定",
+        "摘要仍为图谱引导语",
+        "仍为 draft，不会进入 Public Bundle"
+      ],
+      "relations": {
+        "relatedCaseIds": [],
+        "relatedSignalIds": []
+      },
+      "readiness": "NOT_READY",
+      "core_business": "operator",
+      "summary": "24H 便利柜（公开图谱收录，角色：operator）"
+    },
+    {
+      "name": "购吖",
+      "slug": "co-a021d656af",
+      "status": "draft",
+      "source_count": 0,
+      "source_types": [],
+      "verified_at": "",
+      "missing_fields": [
+        "summary",
+        "verifiedAt"
+      ],
+      "risks": [
+        "摘要仍为图谱引导语",
+        "仍为 draft，不会进入 Public Bundle"
+      ],
+      "relations": {
+        "relatedCaseIds": [],
+        "relatedSignalIds": []
+      },
+      "readiness": "NOT_READY",
+      "core_business": "operator",
+      "summary": "购吖（公开图谱收录，角色：operator）"
+    },
+    {
+      "name": "自由舱",
+      "slug": "co-8cf330eed3",
+      "status": "draft",
+      "source_count": 0,
+      "source_types": [],
+      "verified_at": "",
+      "missing_fields": [
+        "summary",
+        "verifiedAt"
+      ],
+      "risks": [
+        "摘要仍为图谱引导语",
+        "仍为 draft，不会进入 Public Bundle"
+      ],
+      "relations": {
+        "relatedCaseIds": [],
+        "relatedSignalIds": []
+      },
+      "readiness": "NOT_READY",
+      "core_business": "operator",
+      "summary": "自由舱（公开图谱收录，角色：operator）"
+    },
+    {
+      "name": "盛马",
+      "slug": "co-2ca09b11f8",
+      "status": "draft",
+      "source_count": 0,
+      "source_types": [],
+      "verified_at": "",
+      "missing_fields": [
+        "summary",
+        "verifiedAt"
+      ],
+      "risks": [
+        "摘要仍为图谱引导语",
+        "仍为 draft，不会进入 Public Bundle"
+      ],
+      "relations": {
+        "relatedCaseIds": [],
+        "relatedSignalIds": []
+      },
+      "readiness": "NOT_READY",
+      "core_business": "hardware",
+      "summary": "盛马（公开图谱收录，角色：hardware）"
+    },
+    {
+      "name": "小麦便利",
+      "slug": "co-beea571896",
+      "status": "draft",
+      "source_count": 0,
+      "source_types": [],
+      "verified_at": "",
+      "missing_fields": [
+        "summary",
+        "verifiedAt"
+      ],
+      "risks": [
+        "摘要仍为图谱引导语",
+        "仍为 draft，不会进入 Public Bundle"
+      ],
+      "relations": {
+        "relatedCaseIds": [],
+        "relatedSignalIds": []
+      },
+      "readiness": "NOT_READY",
+      "core_business": "hardware",
+      "summary": "小麦便利（公开图谱收录，角色：hardware）"
+    },
+    {
+      "name": "中吉",
+      "slug": "co-1a8a8ce103",
+      "status": "draft",
+      "source_count": 0,
+      "source_types": [],
+      "verified_at": "",
+      "missing_fields": [
+        "summary",
+        "verifiedAt"
+      ],
+      "risks": [
+        "摘要仍为图谱引导语",
+        "仍为 draft，不会进入 Public Bundle"
+      ],
+      "relations": {
+        "relatedCaseIds": [],
+        "relatedSignalIds": []
+      },
+      "readiness": "NOT_READY",
+      "core_business": "hardware",
+      "summary": "中吉（公开图谱收录，角色：hardware）"
+    }
+  ]
+}

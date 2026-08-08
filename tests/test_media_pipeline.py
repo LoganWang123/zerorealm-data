@@ -3,7 +3,7 @@ import logging
 from publishing.article import Article, ArticleMeta
 from publishing.asset_manager import AssetManager
 from publishing.config import PublishConfig
-from publishing.media_generation.client import AgnesAPIError
+from publishing.media_generation.errors import PendingLocalGeneration
 from publishing.media_generation.steps import GenerateMediaStep, ValidateMediaStep
 from publishing.models import (
     ChannelTarget,
@@ -132,7 +132,7 @@ def test_workflow_places_media_steps_between_validation_and_rendering():
 def test_generation_failure_prevents_rendering_and_publishing():
     class FailingService:
         def generate_daily(self, current_article):
-            raise AgnesAPIError("Agnes unavailable", retryable=False)
+            raise PendingLocalGeneration("local generation pending", job_dir="dist/media-jobs/x")
 
     context, renderer, publisher = pipeline_context()
     pipeline = PublishPipeline(

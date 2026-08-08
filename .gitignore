@@ -9,6 +9,10 @@ data/*
 !data/research/feedback-log.json
 !data/research/first-quarter-research.json
 !data/research/weekly-review-template.md
+!data/research/public-catalog.json
+!data/research/review-queue-companies.json
+!data/research/metric-briefs.json
+!data/research/case-review-notes.json
 
 # logs
 logs/
@@ -18,11 +22,19 @@ logs/
 
 # output
 output_daily/
+output/
+output/media/
 assets/generated/
 storage/manifest/
 .cache/
 .test-tmp/
 .test-tmp-*/
+tmp/
+dist/media-jobs/
+dist/review/
+dist/content-package/
+release/
+*.partial
 
 # python
 __pycache__/

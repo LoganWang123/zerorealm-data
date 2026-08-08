@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zerorealm.tech/contracts/public-v1/signals.schema.json",
+  "title": "PublicSignalsFile",
+  "type": "array",
+  "items": { "$ref": "signal.schema.json" }
+}

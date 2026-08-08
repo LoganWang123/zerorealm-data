@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zerorealm.tech/contracts/public-v1/signal.schema.json",
+  "title": "PublicIndustrySignal",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "slug",
+    "title",
+    "summary",
+    "whyItMatters",
+    "affectedRoles",
+    "judgment",
+    "claimIds",
+    "sourceIds",
+    "companyIds",
+    "verificationStatus",
+    "publishedAt",
+    "tags"
+  ],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "slug": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "summary": { "type": "string" },
+    "whyItMatters": { "type": "string" },
+    "affectedRoles": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "judgment": { "type": "string" },
+    "claimIds": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "sourceIds": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "companyIds": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "verificationStatus": {
+      "type": "string",
+      "enum": ["verified", "approved", "published"]
+    },
+    "publishedAt": { "type": "string" },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

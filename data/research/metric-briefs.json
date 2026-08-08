@@ -1,0 +1,448 @@
+{
+  "disclaimer": "不同企业在数据口径、统计周期、终端定义和业务场景上可能存在差异，实际使用时应结合自身业务口径。",
+  "autoApproved": false,
+  "metrics": [
+    {
+      "id": "metric-terminal-gmv",
+      "slug": "terminal-gmv",
+      "name": "单终端 GMV",
+      "definition": "统计周期内单个零售终端产生的商品成交额。",
+      "whyItMatters": "衡量单点产出，是选址与运营是否划算的基础尺子。",
+      "formula": "sum(order_gmv) / active_terminals",
+      "variableNotes": "公式变量需在企业内统一定义统计周期、终端集合与订单范围。",
+      "applicableScenarios": [
+        "智能柜",
+        "无人货架",
+        "便利店"
+      ],
+      "commonPitfalls": [
+        "口径需明确是否含税、退货与测试订单",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "口径差异": "不同企业在数据口径、统计周期、终端定义和业务场景上可能存在差异，实际使用时应结合自身业务口径。",
+      "relatedMetricSlugs": [
+        "stockout-rate",
+        "sku-sell-through-rate",
+        "gross-margin"
+      ],
+      "misleadingWhen": "在口径未对齐时做跨企业排名或对外宣传。",
+      "relatedTopics": [
+        "终端运营",
+        "补货履约",
+        "设备运维"
+      ],
+      "relatedCases": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-stockout-rate",
+      "slug": "stockout-rate",
+      "name": "缺货率",
+      "definition": "应售 SKU/货道中处于缺货状态的比例。",
+      "whyItMatters": "缺货直接损失成交，也放大补货与选品问题。",
+      "formula": "stockout_slots / expected_slots",
+      "variableNotes": "公式变量需在企业内统一定义统计周期、终端集合与订单范围。",
+      "applicableScenarios": [
+        "智能柜补货",
+        "即时零售履约"
+      ],
+      "commonPitfalls": [
+        "临时下架与真实缺货需区分",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "口径差异": "不同企业在数据口径、统计周期、终端定义和业务场景上可能存在差异，实际使用时应结合自身业务口径。",
+      "relatedMetricSlugs": [
+        "replenish-ontime-rate",
+        "lane-availability",
+        "sku-sell-through-rate"
+      ],
+      "misleadingWhen": "在口径未对齐时做跨企业排名或对外宣传。",
+      "relatedTopics": [
+        "终端运营",
+        "补货履约",
+        "设备运维"
+      ],
+      "relatedCases": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-offline-rate",
+      "slug": "offline-rate",
+      "name": "离线率",
+      "definition": "统计周期内设备处于离线状态的时长占比。",
+      "whyItMatters": "离线意味着交易与库存同步中断，影响履约与对账。",
+      "formula": "offline_seconds / observed_seconds",
+      "variableNotes": "公式变量需在企业内统一定义统计周期、终端集合与订单范围。",
+      "applicableScenarios": [
+        "智能柜运维",
+        "设备监控"
+      ],
+      "commonPitfalls": [
+        "短时重连抖动可能高估离线",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "口径差异": "不同企业在数据口径、统计周期、终端定义和业务场景上可能存在差异，实际使用时应结合自身业务口径。",
+      "relatedMetricSlugs": [
+        "device-online-rate"
+      ],
+      "misleadingWhen": "在口径未对齐时做跨企业排名或对外宣传。",
+      "relatedTopics": [
+        "终端运营",
+        "补货履约",
+        "设备运维"
+      ],
+      "relatedCases": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-device-online-rate",
+      "slug": "device-online-rate",
+      "name": "设备在线率",
+      "definition": "在线设备数占应监控设备数的比例。",
+      "whyItMatters": "在线率是运维健康度的首要观察指标。",
+      "formula": "online_devices / managed_devices",
+      "variableNotes": "公式变量需在企业内统一定义统计周期、终端集合与订单范围。",
+      "applicableScenarios": [
+        "智能柜运维"
+      ],
+      "commonPitfalls": [
+        "报废设备未移出资产池会压低指标",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "口径差异": "不同企业在数据口径、统计周期、终端定义和业务场景上可能存在差异，实际使用时应结合自身业务口径。",
+      "relatedMetricSlugs": [
+        "offline-rate"
+      ],
+      "misleadingWhen": "在口径未对齐时做跨企业排名或对外宣传。",
+      "relatedTopics": [
+        "终端运营",
+        "补货履约",
+        "设备运维"
+      ],
+      "relatedCases": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-sku-sell-through-rate",
+      "slug": "sku-sell-through-rate",
+      "name": "SKU 动销率",
+      "definition": "有销量的 SKU 数占总在售 SKU 数的比例。",
+      "whyItMatters": "识别无效库存与滞销，指导汰换。",
+      "formula": "skus_with_sales / active_skus",
+      "variableNotes": "公式变量需在企业内统一定义统计周期、终端集合与订单范围。",
+      "applicableScenarios": [
+        "选品",
+        "补货"
+      ],
+      "commonPitfalls": [
+        "新品导入期不宜直接对标成熟 SKU",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "口径差异": "不同企业在数据口径、统计周期、终端定义和业务场景上可能存在差异，实际使用时应结合自身业务口径。",
+      "relatedMetricSlugs": [
+        "stockout-rate",
+        "inventory-turnover"
+      ],
+      "misleadingWhen": "在口径未对齐时做跨企业排名或对外宣传。",
+      "relatedTopics": [
+        "终端运营",
+        "补货履约",
+        "设备运维"
+      ],
+      "relatedCases": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-replenish-ontime-rate",
+      "slug": "replenish-ontime-rate",
+      "name": "补货及时率",
+      "definition": "在约定时效内完成的补货任务占比。",
+      "whyItMatters": "连接缺货与运力，衡量履约承诺。",
+      "formula": "ontime_replenish_tasks / total_replenish_tasks",
+      "variableNotes": "公式变量需在企业内统一定义统计周期、终端集合与订单范围。",
+      "applicableScenarios": [
+        "智能柜运营"
+      ],
+      "commonPitfalls": [
+        "时效定义因城市与点位类型不同",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "口径差异": "不同企业在数据口径、统计周期、终端定义和业务场景上可能存在差异，实际使用时应结合自身业务口径。",
+      "relatedMetricSlugs": [
+        "stockout-rate",
+        "inventory-accuracy"
+      ],
+      "misleadingWhen": "在口径未对齐时做跨企业排名或对外宣传。",
+      "relatedTopics": [
+        "终端运营",
+        "补货履约",
+        "设备运维"
+      ],
+      "relatedCases": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-inventory-turnover",
+      "slug": "inventory-turnover",
+      "name": "库存周转",
+      "definition": "一定周期内库存被销售替换的次数。",
+      "whyItMatters": "资金占用与动销效率的综合观察。",
+      "formula": "cogs_or_sales / average_inventory",
+      "variableNotes": "公式变量需在企业内统一定义统计周期、终端集合与订单范围。",
+      "applicableScenarios": [
+        "智能柜",
+        "便利店"
+      ],
+      "commonPitfalls": [
+        "分子用销售额或成本需统一",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "口径差异": "不同企业在数据口径、统计周期、终端定义和业务场景上可能存在差异，实际使用时应结合自身业务口径。",
+      "relatedMetricSlugs": [
+        "inventory-accuracy",
+        "sku-sell-through-rate"
+      ],
+      "misleadingWhen": "在口径未对齐时做跨企业排名或对外宣传。",
+      "relatedTopics": [
+        "终端运营",
+        "补货履约",
+        "设备运维"
+      ],
+      "relatedCases": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-gross-margin",
+      "slug": "gross-margin",
+      "name": "毛利率",
+      "definition": "毛利占销售收入的比例。",
+      "whyItMatters": "收入质量指标，需与损耗、履约成本同看。",
+      "formula": "(revenue - cogs) / revenue",
+      "variableNotes": "公式变量需在企业内统一定义统计周期、终端集合与订单范围。",
+      "applicableScenarios": [
+        "经营分析"
+      ],
+      "commonPitfalls": [
+        "促销与损耗未计入会高估",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "口径差异": "不同企业在数据口径、统计周期、终端定义和业务场景上可能存在差异，实际使用时应结合自身业务口径。",
+      "relatedMetricSlugs": [
+        "terminal-gmv",
+        "order-success-rate"
+      ],
+      "misleadingWhen": "在口径未对齐时做跨企业排名或对外宣传。",
+      "relatedTopics": [
+        "终端运营",
+        "补货履约",
+        "设备运维"
+      ],
+      "relatedCases": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-shrinkage-rate",
+      "slug": "shrinkage-rate",
+      "name": "损耗率",
+      "definition": "过期、破损、丢失等损耗占应售成本或货量的比例。",
+      "whyItMatters": "损耗影响毛利，也提示识别/防损问题。",
+      "formula": "shrinkage / expected_inventory",
+      "variableNotes": "公式变量需在企业内统一定义统计周期、终端集合与订单范围。",
+      "applicableScenarios": [
+        "智能柜",
+        "无人零售"
+      ],
+      "commonPitfalls": [
+        "需区分自然损耗与异常损耗",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "口径差异": "不同企业在数据口径、统计周期、终端定义和业务场景上可能存在差异，实际使用时应结合自身业务口径。",
+      "relatedMetricSlugs": [
+        "inventory-accuracy",
+        "complaint-rate"
+      ],
+      "misleadingWhen": "在口径未对齐时做跨企业排名或对外宣传。",
+      "relatedTopics": [
+        "终端运营",
+        "补货履约",
+        "设备运维"
+      ],
+      "relatedCases": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-site-survival-rate",
+      "slug": "site-survival-rate",
+      "name": "点位存活率",
+      "definition": "观察期末仍在运营的点位占期初点位的比例。",
+      "whyItMatters": "点位是否可持续，避免只看短期 GMV。",
+      "formula": "active_sites_end / sites_start",
+      "variableNotes": "公式变量需在企业内统一定义统计周期、终端集合与订单范围。",
+      "applicableScenarios": [
+        "点位扩张"
+      ],
+      "commonPitfalls": [
+        "搬迁与临时闭店需单独标注",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "口径差异": "不同企业在数据口径、统计周期、终端定义和业务场景上可能存在差异，实际使用时应结合自身业务口径。",
+      "relatedMetricSlugs": [
+        "terminal-gmv",
+        "gross-margin"
+      ],
+      "misleadingWhen": "在口径未对齐时做跨企业排名或对外宣传。",
+      "relatedTopics": [
+        "终端运营",
+        "补货履约",
+        "设备运维"
+      ],
+      "relatedCases": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-order-success-rate",
+      "slug": "order-success-rate",
+      "name": "订单成功率",
+      "definition": "成功完成支付与出货的订单占总发起订单比例。",
+      "whyItMatters": "交易完成能力，影响用户信任。",
+      "formula": "successful_orders / initiated_orders",
+      "variableNotes": "公式变量需在企业内统一定义统计周期、终端集合与订单范围。",
+      "applicableScenarios": [
+        "智能柜交易"
+      ],
+      "commonPitfalls": [
+        "用户取消与设备故障应分层统计",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "口径差异": "不同企业在数据口径、统计周期、终端定义和业务场景上可能存在差异，实际使用时应结合自身业务口径。",
+      "relatedMetricSlugs": [
+        "complaint-rate",
+        "device-online-rate"
+      ],
+      "misleadingWhen": "在口径未对齐时做跨企业排名或对外宣传。",
+      "relatedTopics": [
+        "终端运营",
+        "补货履约",
+        "设备运维"
+      ],
+      "relatedCases": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-lane-availability",
+      "slug": "lane-availability",
+      "name": "货道可用率",
+      "definition": "可正常售卖货道占总货道比例。",
+      "whyItMatters": "货道可用是成交机会的物理上限。",
+      "formula": "sellable_lanes / total_lanes",
+      "variableNotes": "公式变量需在企业内统一定义统计周期、终端集合与订单范围。",
+      "applicableScenarios": [
+        "设备运营"
+      ],
+      "commonPitfalls": [
+        "机械卡货与系统锁道都需计入不可用",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "口径差异": "不同企业在数据口径、统计周期、终端定义和业务场景上可能存在差异，实际使用时应结合自身业务口径。",
+      "relatedMetricSlugs": [
+        "stockout-rate",
+        "replenish-ontime-rate"
+      ],
+      "misleadingWhen": "在口径未对齐时做跨企业排名或对外宣传。",
+      "relatedTopics": [
+        "终端运营",
+        "补货履约",
+        "设备运维"
+      ],
+      "relatedCases": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-inventory-accuracy",
+      "slug": "inventory-accuracy",
+      "name": "库存准确率",
+      "definition": "盘点结果与系统库存一致的比例。",
+      "whyItMatters": "账实不符会误导补货与财务。",
+      "formula": "matched_skus / audited_skus",
+      "variableNotes": "公式变量需在企业内统一定义统计周期、终端集合与订单范围。",
+      "applicableScenarios": [
+        "补货与审计"
+      ],
+      "commonPitfalls": [
+        "抽样盘点不能直接外推全网",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "口径差异": "不同企业在数据口径、统计周期、终端定义和业务场景上可能存在差异，实际使用时应结合自身业务口径。",
+      "relatedMetricSlugs": [
+        "inventory-turnover",
+        "shrinkage-rate"
+      ],
+      "misleadingWhen": "在口径未对齐时做跨企业排名或对外宣传。",
+      "relatedTopics": [
+        "终端运营",
+        "补货履约",
+        "设备运维"
+      ],
+      "relatedCases": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-complaint-rate",
+      "slug": "complaint-rate",
+      "name": "客诉率",
+      "definition": "客诉次数占订单或活跃用户的比例。",
+      "whyItMatters": "体验与售后压力的早期信号。",
+      "formula": "complaints / orders_or_users",
+      "variableNotes": "公式变量需在企业内统一定义统计周期、终端集合与订单范围。",
+      "applicableScenarios": [
+        "服务质量"
+      ],
+      "commonPitfalls": [
+        "分母选择会显著改变数值",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "口径差异": "不同企业在数据口径、统计周期、终端定义和业务场景上可能存在差异，实际使用时应结合自身业务口径。",
+      "relatedMetricSlugs": [
+        "order-success-rate",
+        "shrinkage-rate"
+      ],
+      "misleadingWhen": "在口径未对齐时做跨企业排名或对外宣传。",
+      "relatedTopics": [
+        "终端运营",
+        "补货履约",
+        "设备运维"
+      ],
+      "relatedCases": [],
+      "status": "approved"
+    },
+    {
+      "id": "metric-repurchase-rate",
+      "slug": "repurchase-rate",
+      "name": "复购率",
+      "definition": "在观察窗口内发生再次购买的用户占比。",
+      "whyItMatters": "点位粘性与商品匹配度的代理指标。",
+      "formula": "repeat_users / active_users",
+      "variableNotes": "公式变量需在企业内统一定义统计周期、终端集合与订单范围。",
+      "applicableScenarios": [
+        "用户运营"
+      ],
+      "commonPitfalls": [
+        "窗口长度必须固定披露",
+        "不同企业口径可能不同，不能当作统一行业标准"
+      ],
+      "口径差异": "不同企业在数据口径、统计周期、终端定义和业务场景上可能存在差异，实际使用时应结合自身业务口径。",
+      "relatedMetricSlugs": [
+        "terminal-gmv",
+        "sku-sell-through-rate"
+      ],
+      "misleadingWhen": "在口径未对齐时做跨企业排名或对外宣传。",
+      "relatedTopics": [
+        "终端运营",
+        "补货履约",
+        "设备运维"
+      ],
+      "relatedCases": [],
+      "status": "approved"
+    }
+  ]
+}

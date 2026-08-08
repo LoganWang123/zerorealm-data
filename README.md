@@ -84,12 +84,24 @@ Scheduler (GitHub Actions)
 跨仓库同步需要在数据仓库配置 `WEBSITE_REPO_TOKEN` Secret。该 Fine-grained
 PAT 只需授予 `LoganWang123/zerorealm-website` 的 Contents read/write 权限。
 
-## Agnes 媒体生成
+## 本地媒体生成（Agnes 生图已停用）
 
-公众号发布前会生成 1 张封面图和 3 张正文配图；短视频仅在启用且有合格
-素材时生成。生成文件默认处于“未审核”状态，不能直接进入公众号草稿。
-审核者必须逐张打开图片，确认没有生成文字、乱码、品牌和无关场景，然后用
-文件的准确 SHA-256 显式确认全部素材：
+**Agnes 不再用于任何图片生成。** 生产默认 `media.provider=local`。
+无本地模型时写入 `dist/media-jobs/` prompt package（`pending_local_generation`），
+**不会** fallback 到 Agnes。
+
+```bash
+python scripts/generate_local_media.py <content-id> --channel wechat --purpose cover
+python scripts/generate_local_media.py <content-id> --prompt-only
+```
+
+可选本机命令（不设则用程序化品牌模板）：
+
+```text
+ZEROREALM_LOCAL_IMAGE_CMD
+```
+
+公众号素材仍须人工审核（SHA 绑定）：
 
 ```bash
 python review_media.py --date YYYY-MM-DD \
@@ -99,43 +111,9 @@ python review_media.py --date YYYY-MM-DD \
   --approve body_3=<SHA256>
 ```
 
-审核确认会与文件哈希绑定；图片被替换、漏审或哈希为空时，发布流程会阻断。
-
-在服务端环境配置新签发的密钥：
-
-```text
-AGNES_API_KEY
-```
-
-如 Agnes 接口或模型配置有调整，可覆盖：
-
-```text
-AGNES_BASE_URL
-AGNES_IMAGE_MODEL
-AGNES_VIDEO_MODEL
-AGNES_VIDEO_CREATE_PATH
-AGNES_VIDEO_STATUS_URL_TEMPLATE
-```
-
-官网主页素材采用“一次生成后固定使用”策略：
-
-```bash
-python generate_media.py homepage
-```
-
-已有有效素材时命令不会覆盖。需要人工更新时显式执行：
-
-```bash
-python generate_media.py homepage --website-root ../zerorealm-website --force
-```
-
-命令会调用 Agnes 生成一张主图和最多三段独立视频镜头，再通过 FFmpeg
-规范化并拼接为约 15 秒的官网视频。每个完整镜头都会保留为可恢复的临时文件；
-中途失败后重试只补缺失部分，且不会覆盖当前官网素材。
-
-本机需要提供 FFmpeg 和 ffprobe。可通过 `FFMPEG_PATH`、`FFPROBE_PATH`
-指定可执行文件；默认视频编码器为 `libx264`，不包含该编码器的 Windows
-版本可设置 `FFMPEG_VIDEO_ENCODER=h264_mf`。
+`generate_media.py homepage` 与 `AGNES_API_KEY` 仅保留为历史兼容/文档说明，
+生产路径会拒绝 Agnes 生图。详见
+`docs/reports/agnes-image-generation-deprecation.md`。
 
 最终图片、视频和 `homepage-media.json` 写入官网的 `public/media/home/`。
 密钥只允许通过环境变量提供，不应写入仓库或日志。

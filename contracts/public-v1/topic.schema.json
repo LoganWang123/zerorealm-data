@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zerorealm.tech/contracts/public-v1/topic.schema.json",
+  "title": "PublicTopic",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "slug",
+    "title",
+    "summary",
+    "signalIds",
+    "companyIds",
+    "caseIds",
+    "metricIds"
+  ],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "slug": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "summary": { "type": "string" },
+    "signalIds": { "type": "array", "items": { "type": "string" } },
+    "companyIds": { "type": "array", "items": { "type": "string" } },
+    "caseIds": { "type": "array", "items": { "type": "string" } },
+    "metricIds": { "type": "array", "items": { "type": "string" } }
+  }
+}

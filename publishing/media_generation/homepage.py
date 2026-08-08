@@ -137,21 +137,16 @@ def generate_homepage_media(
 
 
 def client_from_environment(config: MediaConfig | None = None) -> AgnesClient:
-    """Build an Agnes client without accepting a key from CLI arguments."""
-    media = config or MediaConfig()
-    api_key = os.getenv("AGNES_API_KEY", "")
-    if not api_key:
-        raise ValueError("AGNES_API_KEY is required")
-    return AgnesClient(
-        api_key=api_key,
-        base_url=os.getenv(
-            "AGNES_BASE_URL",
-            "https://apihub.agnes-ai.com/v1",
-        ),
-        image_model=os.getenv("AGNES_IMAGE_MODEL", media.image_model),
-        video_model=os.getenv("AGNES_VIDEO_MODEL", media.video_model),
-        video_create_path=os.getenv("AGNES_VIDEO_CREATE_PATH", "/videos"),
-        video_status_url_template=os.getenv("AGNES_VIDEO_STATUS_URL_TEMPLATE") or None,
+    """DEPRECATED: Agnes homepage generation is disabled.
+
+    Use scripts/generate_local_media.py instead. This helper remains only so
+    historical imports fail closed instead of silently calling Agnes.
+    """
+    del config  # unused — Agnes path disabled
+    from publishing.media_generation.errors import AgnesImageGenerationDisabled
+
+    raise AgnesImageGenerationDisabled(
+        "homepage Agnes generation is disabled; use local media pipeline"
     )
 
 

@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zerorealm.tech/contracts/public-v1/content-index.schema.json",
+  "title": "PublicContentIndex",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "signals",
+    "companies",
+    "cases",
+    "metrics",
+    "topics",
+    "claims",
+    "sources"
+  ],
+  "properties": {
+    "signals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "slug", "title"],
+        "properties": {
+          "id": { "type": "string" },
+          "slug": { "type": "string" },
+          "title": { "type": "string" }
+        }
+      }
+    },
+    "companies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "slug", "title"],
+        "properties": {
+          "id": { "type": "string" },
+          "slug": { "type": "string" },
+          "title": { "type": "string" }
+        }
+      }
+    },
+    "cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "slug", "title"],
+        "properties": {
+          "id": { "type": "string" },
+          "slug": { "type": "string" },
+          "title": { "type": "string" }
+        }
+      }
+    },
+    "metrics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "slug", "title"],
+        "properties": {
+          "id": { "type": "string" },
+          "slug": { "type": "string" },
+          "title": { "type": "string" }
+        }
+      }
+    },
+    "topics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "slug", "title"],
+        "properties": {
+          "id": { "type": "string" },
+          "slug": { "type": "string" },
+          "title": { "type": "string" }
+        }
+      }
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "type"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "type": "string" }
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" }
+        }
+      }
+    }
+  }
+}
