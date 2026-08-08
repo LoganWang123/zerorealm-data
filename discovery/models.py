@@ -59,6 +59,15 @@ class CandidateRecord:
     first_seen_at: str = ""
     last_seen_at: str = ""
     fetch_method: str = ""
+    # Source quality / freshness (ranking metadata — not evidence truth)
+    source_type: str = ""
+    source_tier: str = ""
+    publisher: str = ""
+    canonical_domain: str = ""
+    is_official: bool = False
+    published_at: str | None = None
+    freshness_score: float = 0.0
+    review_queue_id: str | None = None
     metadata: dict = field(default_factory=dict)
 
     @property
@@ -98,6 +107,14 @@ class CandidateRecord:
             "evidence_ids": list(self.evidence_ids),
             "claim_ids": list(self.claim_ids),
             "fetch_method": self.fetch_method,
+            "source_type": self.source_type,
+            "source_tier": self.source_tier,
+            "publisher": self.publisher,
+            "canonical_domain": self.canonical_domain,
+            "is_official": self.is_official,
+            "published_at": self.published_at,
+            "freshness_score": self.freshness_score,
+            "review_queue_id": self.review_queue_id,
             "lineage": self.lineage,
             "candidate": {
                 "provider": self.candidate.provider,
@@ -145,5 +162,13 @@ class CandidateRecord:
             first_seen_at=str(data.get("first_seen_at") or candidate.discovered_at or ""),
             last_seen_at=str(data.get("last_seen_at") or ""),
             fetch_method=str(data.get("fetch_method") or ""),
+            source_type=str(data.get("source_type") or ""),
+            source_tier=str(data.get("source_tier") or ""),
+            publisher=str(data.get("publisher") or ""),
+            canonical_domain=str(data.get("canonical_domain") or ""),
+            is_official=bool(data.get("is_official") or False),
+            published_at=data.get("published_at"),
+            freshness_score=float(data.get("freshness_score") or 0.0),
+            review_queue_id=data.get("review_queue_id"),
             metadata=dict(data.get("metadata") or {}),
         )

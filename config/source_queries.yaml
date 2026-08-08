@@ -1,21 +1,74 @@
-# Query registry for Source Discovery v1.
+# Query registry for Source Discovery.
 # Queries are config-driven — do not hardcode topic/company templates in Python.
+# intent is Discovery intent only (daily/insight/research) — not auto-publish.
 
 max_queries_per_run: 4
+
+defaults:
+  intent: research
+  freshness_window: null
+  priority: 0
+  max_results: 5
 
 topics:
   smart-cabinet:
     label: 智能柜
+    intent: research
+    freshness_window: null
+    priority: 10
+    max_results: 5
     queries:
       - 智能柜
       - 智能货柜
       - 无人零售
       - 自动售货机
 
+  unmanned-retail:
+    label: 无人零售
+    intent: research
+    freshness_window: 90d
+    priority: 8
+    max_results: 5
+    queries:
+      - 无人零售
+      - 无人货柜
+      - 自动售货
+
+  instant-retail:
+    label: 即时零售
+    intent: insight
+    freshness_window: 30d
+    priority: 7
+    max_results: 5
+    queries:
+      - 即时零售
+      - 即时电商
+      - 到家零售
+
+  retail-ai:
+    label: 零售 AI
+    intent: research
+    freshness_window: null
+    priority: 6
+    max_results: 5
+    queries:
+      - 零售 AI
+      - 智能零售
+      - 视觉识别 货柜
+
 companies:
-  - 友宝
-  - 丰e
-  - 元气森林
+  - name: 友宝
+    intent: research
+    freshness_window: 180d
+    priority: 9
+  - name: 丰e
+    intent: research
+    freshness_window: 180d
+    priority: 8
+  - name: 元气森林
+    intent: insight
+    freshness_window: 90d
+    priority: 7
 
 # Templates use {company}. Keep short to avoid query explosion.
 company_query_templates:
