@@ -121,6 +121,7 @@ def test_workflow_places_media_steps_between_validation_and_rendering():
 
     assert [step.name for step in workflow.build_steps()] == [
         "validate",
+        "editorial_gate",
         "generate_media",
         "validate_media",
         "render",

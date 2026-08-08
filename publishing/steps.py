@@ -41,6 +41,59 @@ class ValidateStep(PipelineStep):
         )
 
 
+class EditorialGateStep(PipelineStep):
+    """Production Editorial Hard Gate — runs BEFORE rendering/publishing.
+
+    Only applies to Daily-sourced articles that carry the original raw
+    frontmatter (``Article.raw``, populated by :class:`publishing.parser.ArticleParser`).
+    Programmatically-built Article instances (``raw`` defaults to ``{}``) and
+    non-daily sources (research/case/etc.) are left untouched.
+
+    A failed hard gate blocks the shared pipeline for BOTH the website and
+    WeChat channels (they run the same step sequence), unless a signed-off
+    ``editorial_exception`` is present and none of the failing codes are in
+    ``editorial_gate.NON_BYPASSABLE_ERROR_CODES``. A bare ``manual_reviewed``
+    flag never bypasses a hard failure on its own.
+    """
+
+    name = "editorial_gate"
+
+    def execute(self, ctx: PipelineContext) -> StepResult:
+        from publishing.editorial_gate import is_bypass_allowed, run_daily_editorial_gate
+
+        article = ctx.article
+        source = getattr(getattr(article, "metadata", None), "source", "") or ""
+        raw = getattr(article, "raw", None) or {}
+        if source != "daily" or not raw:
+            return StepResult(
+                status=StepStatus.SUCCESS,
+                message="Editorial gate skipped: not a daily source payload",
+            )
+
+        result = run_daily_editorial_gate(raw)
+        ctx.set(PipelineState.EDITORIAL_GATE_RESULT, result)
+
+        if result.passed:
+            return StepResult(
+                status=StepStatus.SUCCESS,
+                message="Editorial gate passed",
+                warnings=[str(w) for w in result.warnings],
+            )
+
+        codes = ", ".join(sorted(set(result.error_codes)))
+        if is_bypass_allowed(raw, result):
+            return StepResult(
+                status=StepStatus.SUCCESS,
+                message=f"Editorial gate failed ({codes}) but bypassed via editorial_exception",
+                warnings=[str(e) for e in result.errors],
+            )
+
+        return StepResult(
+            status=StepStatus.FAILED,
+            message=f"Editorial gate failed: {codes}",
+        )
+
+
 class RenderStep(PipelineStep):
     """渲染 Article → RenderResult."""
 

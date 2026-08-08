@@ -207,4 +207,5 @@ class ArticleParser:
             first_principle=data.get("first_principle", {}),
             # v5.0 fields
             overseas_signal=data.get("overseas_signal", {}),
+            raw=data,
         )
