@@ -47,6 +47,10 @@ def news_to_research_atoms(item: dict) -> ResearchAtoms:
         source_name=source_name,
         published_at=str(published_at) if published_at else None,
         raw_excerpt=excerpt,
+        discovery_provider=str(item.get("discovery_provider") or "").strip(),
+        discovery_query=str(item.get("discovery_query") or "").strip(),
+        discovery_candidate_id=str(item.get("discovery_candidate_id") or "").strip(),
+        discovery_original_url=str(item.get("discovery_original_url") or url).strip(),
     )
 
     fact_text = excerpt or title

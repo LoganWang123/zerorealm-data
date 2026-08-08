@@ -1,0 +1,25 @@
+# Query registry for Source Discovery v1.
+# Queries are config-driven — do not hardcode topic/company templates in Python.
+
+max_queries_per_run: 4
+
+topics:
+  smart-cabinet:
+    label: 智能柜
+    queries:
+      - 智能柜
+      - 智能货柜
+      - 无人零售
+      - 自动售货机
+
+companies:
+  - 友宝
+  - 丰e
+  - 元气森林
+
+# Templates use {company}. Keep short to avoid query explosion.
+company_query_templates:
+  - "{company} 智能柜"
+  - "{company} 无人零售"
+  - "{company} 自动售货"
+  - "{company} AI"

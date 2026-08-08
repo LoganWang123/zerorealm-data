@@ -48,6 +48,7 @@ class EditorialGateErrorCode:
     FUTURE_PUBLICATION = "FUTURE_PUBLICATION"
     UNSUPPORTED_FACT = "UNSUPPORTED_FACT"
     RESEARCH_COUNT_INCONSISTENT = "RESEARCH_COUNT_INCONSISTENT"
+    SEARCH_SNIPPET_AS_EVIDENCE = "SEARCH_SNIPPET_AS_EVIDENCE"
 
 
 ALL_ERROR_CODES = frozenset(
@@ -64,6 +65,16 @@ NON_BYPASSABLE_ERROR_CODES = frozenset(
         EditorialGateErrorCode.SOURCE_LINEAGE_INCOMPLETE,
         EditorialGateErrorCode.FABRICATED_DATA,
         EditorialGateErrorCode.FUTURE_PUBLICATION,
+        EditorialGateErrorCode.SEARCH_SNIPPET_AS_EVIDENCE,
+    }
+)
+
+_SEARCH_SNIPPET_SOURCE_TYPES = frozenset(
+    {
+        "search_snippet",
+        "anysearch_snippet",
+        "provider_content",
+        "search_preview",
     }
 )
 
@@ -623,6 +634,47 @@ def _check_future_publication(data: dict, errors: list[GateIssue], *, now: date 
         )
 
 
+def _check_search_snippet_as_evidence(
+    data: dict, sections: list[dict], errors: list[GateIssue]
+) -> None:
+    """Hard-fail when a claim/section is backed only by search snippet provenance."""
+
+    def _is_snippet_type(value: object) -> bool:
+        return str(value or "").strip().lower() in _SEARCH_SNIPPET_SOURCE_TYPES
+
+    for idx, section in enumerate(sections):
+        if not isinstance(section, dict):
+            continue
+        if _is_snippet_type(section.get("source_type")) or _is_snippet_type(
+            section.get("evidence_source_type")
+        ):
+            errors.append(
+                GateIssue(
+                    EditorialGateErrorCode.SEARCH_SNIPPET_AS_EVIDENCE,
+                    "Search snippet / provider_content cannot serve as claim evidence.",
+                    location=f"sections[{idx}]",
+                )
+            )
+
+    for key in ("evidence", "claims", "sources"):
+        entries = data.get(key)
+        if not isinstance(entries, list):
+            continue
+        for idx, entry in enumerate(entries):
+            if not isinstance(entry, dict):
+                continue
+            if _is_snippet_type(entry.get("source_type")) or _is_snippet_type(
+                entry.get("evidence_source_type")
+            ):
+                errors.append(
+                    GateIssue(
+                        EditorialGateErrorCode.SEARCH_SNIPPET_AS_EVIDENCE,
+                        "Search snippet / provider_content cannot serve as claim evidence.",
+                        location=f"{key}[{idx}]",
+                    )
+                )
+
+
 def _check_unsupported_fact(data: dict, sections: list[dict], full_text: str, errors: list[GateIssue]) -> None:
     has_any_source = bool(str(data.get("source_url") or "").strip()) or any(
         str(sec.get("source_url") or "").strip() for sec in sections
@@ -734,6 +786,7 @@ def run_daily_editorial_gate(
     _check_metric_dimension_mismatch(data, full_text, errors)
     _check_experiment_params(data, sections, full_text, errors)
     _check_source_lineage(sections, errors)
+    _check_search_snippet_as_evidence(data, sections, errors)
     _check_headline(title, errors)
     _check_single_company_market_generalization(full_text, errors)
     _check_internal_copy_exposed(full_text, errors)

@@ -49,6 +49,11 @@ class SourceDocument:
     credibility: str = "medium"
     accessed_at: str = ""
     source_type: str = "web"
+    # Discovery lineage (optional). Never populated from search snippets alone.
+    discovery_provider: str = ""
+    discovery_query: str = ""
+    discovery_candidate_id: str = ""
+    discovery_original_url: str = ""
 
 
 @dataclass
