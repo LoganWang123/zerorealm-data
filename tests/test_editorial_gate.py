@@ -188,6 +188,54 @@ def test_single_signal_daily_with_sources_passes():
     assert result.errors == []
 
 
+def test_observational_lookback_in_sample_does_not_fail():
+    """Decision sample lookbacks like '近 7 天报表' are not unlabeled experiment scales."""
+    data = _single_signal_daily_with_sources()
+    data["decision"]["operators"]["sample"] = (
+        "选取主营智能柜点位对应的运营看板与近 7 天过程指标报表。"
+    )
+    result = run_daily_editorial_gate(data)
+    assert result.status == "passed"
+    assert Code.UNLABELED_EXPERIMENT_PARAMETER not in result.error_codes
+
+
+def test_suggested_experiment_label_passes_count_params():
+    """'建议试验起点' (website PASS_WITH_EDIT wording) must satisfy LABEL_MARKERS."""
+    data = {
+        "title": "一项覆盖59,000+台机器的实验提示：人工改补货单要设上限",
+        "date": "2026-07-29",
+        "sections": [
+            {
+                "level": "core",
+                "title": "有限下调更稳",
+                "excerpt": "研究团队在一家中国智能售货运营商开展46天随机实验。",
+                "insight": (
+                    "这项研究覆盖553名一线补货员、59,000多台机器。"
+                    "选20台同类型柜，观察7天（建议试验起点，非行业标准）。"
+                ),
+                "verdict": "先限制每台柜最多下调2个SKU，用7天对照数据判断。",
+                "source_url": "https://arxiv.org/abs/2607.00420",
+                "source_name": "arXiv",
+            }
+        ],
+        "decision": {
+            "operators": {
+                "evidence": "随机实验中有限下调使库存下降且未伤销售。",
+                "metric": "缺货率、剩余库存金额",
+                "action": "测试组每台柜每次最多向下调整2个SKU（建议试验起点，非行业标准）。",
+                "sample": "20台同类型柜观察7天（建议试验起点，非行业标准）。",
+                "kpi": "测试组库存下降且缺货率不升。",
+                "stop_condition": "缺货率上升时立即恢复原规则。",
+            }
+        },
+    }
+    result = run_daily_editorial_gate(data)
+    assert result.status == "passed"
+    assert Code.UNLABELED_EXPERIMENT_PARAMETER not in result.error_codes
+    # Mixed paper N vs sample N may warn, but must not hard-fail.
+    assert Code.RESEARCH_COUNT_INCONSISTENT not in result.error_codes
+
+
 def test_multi_signal_with_predictions_fails():
     result = run_daily_editorial_gate(_multi_signal_with_predictions_daily())
 

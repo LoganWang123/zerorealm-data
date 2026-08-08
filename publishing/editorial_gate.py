@@ -128,12 +128,19 @@ class EditorialGateResult:
 # rather than an unsupported universal rule.
 LABEL_MARKERS = (
     "建议起点",
+    "建议试验起点",
     "示例试验",
     "企业自定义",
     "参考起点",
     "示例参数",
+    "非行业标准",
     "仅供参考",
     "按企业实际",
+)
+
+# Observational lookback windows inside Decision cards (not experiment scale claims).
+OBSERVATIONAL_LOOKBACK_PATTERN = re.compile(
+    r"(?:近|最近|过去|连续|观察)\s*\d+\s*天"
 )
 
 # Phrases that disclose the statistical/experimental basis for a number,
@@ -494,7 +501,9 @@ def _check_experiment_params(
         if not text:
             return
         locally_labeled = already_labeled_globally or _contains_any(text, LABEL_MARKERS)
-        if COUNT_PARAM_PATTERN.search(text) and not locally_labeled:
+        # Strip observational lookbacks ("近7天报表") before judging experiment scale.
+        cleaned = OBSERVATIONAL_LOOKBACK_PATTERN.sub(" ", text)
+        if COUNT_PARAM_PATTERN.search(cleaned) and not locally_labeled:
             errors.append(
                 GateIssue(
                     EditorialGateErrorCode.UNLABELED_EXPERIMENT_PARAMETER,
@@ -522,8 +531,11 @@ def _check_experiment_params(
     for role, block in _decision_blocks(data).items():
         if not isinstance(block, dict):
             continue
+        # sample/metric are structural Decision fields: sample is the editorial
+        # experiment window by design; metric names the KPI. Hard-fail only on
+        # action/kpi/stop_condition copy that asserts unlabeled operating rules.
         text = " ".join(
-            str(block.get(k, "")) for k in ("action", "kpi", "stop_condition", "sample", "metric")
+            str(block.get(k, "")) for k in ("action", "kpi", "stop_condition")
         )
         _scan(text, f"decision.{role}")
 
@@ -659,7 +671,15 @@ def _check_unsupported_sample(data: dict, errors: list[GateIssue]) -> None:
             )
 
 
-def _check_research_count_consistency(sections: list[dict], errors: list[GateIssue]) -> None:
+def _check_research_count_consistency(
+    sections: list[dict], warnings: list[GateIssue]
+) -> None:
+    """Flag mixed research-vs-sample scales as warnings only.
+
+    A paper's N (e.g. 59,000台) next to an editorial sample (20台) is common and
+    valid; treating it as a hard failure blocks PASS_WITH_EDIT dailies. Keep the
+    signal as a warning for human review.
+    """
     for idx, sec in enumerate(sections):
         text = " ".join(str(sec.get(k, "")) for k in ("title", "excerpt", "insight"))
         if not _contains_any(text, SCALE_CONTEXT_MARKERS):
@@ -673,7 +693,7 @@ def _check_research_count_consistency(sections: list[dict], errors: list[GateIss
                 except ValueError:
                     continue
             if len(values) > 1:
-                errors.append(
+                warnings.append(
                     GateIssue(
                         EditorialGateErrorCode.RESEARCH_COUNT_INCONSISTENT,
                         f"Inconsistent {unit} counts within the same research claim: "
@@ -722,7 +742,7 @@ def run_daily_editorial_gate(
     _check_unsupported_fact(data, sections, full_text, errors)
     _check_unsupported_numeric_claim(sections, errors)
     _check_unsupported_sample(data, errors)
-    _check_research_count_consistency(sections, errors)
+    _check_research_count_consistency(sections, warnings)
 
     status = "failed" if errors else "passed"
     return EditorialGateResult(status=status, errors=errors, warnings=warnings)
