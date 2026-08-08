@@ -217,26 +217,30 @@ jobs:
           if not match:
               raise SystemExit("Report title is missing")
           title = match.group(1)
-          urls = [
-              f"https://zerorealm.tech/daily/{date}",
-              *[
-                  f"https://zerorealm.tech/media/daily/{date}/{name}.png"
-                  for name in ("cover", "body-1", "body-2", "body-3")
-              ],
+          # Website sync must not be blocked by optional media assets.
+          page_url = f"https://zerorealm.tech/daily/{date}"
+          media_urls = [
+              f"https://zerorealm.tech/media/daily/{date}/{name}.png"
+              for name in ("cover", "body-1", "body-2", "body-3")
           ]
           deadline = time.monotonic() + 600
           last_error = "deployment not checked"
           while time.monotonic() < deadline:
               try:
-                  responses = [requests.get(url, timeout=20) for url in urls]
-                  page = responses[0]
-                  if all(response.status_code == 200 for response in responses):
-                      if title in page.text and date in page.text:
-                          break
-                  last_error = ", ".join(
-                      f"{url}={response.status_code}"
-                      for url, response in zip(urls, responses)
-                  )
+                  page = requests.get(page_url, timeout=20)
+                  if page.status_code == 200 and title in page.text and date in page.text:
+                      missing_media = []
+                      for url in media_urls:
+                          response = requests.get(url, timeout=20)
+                          if response.status_code != 200:
+                              missing_media.append(f"{url}={response.status_code}")
+                      if missing_media:
+                          print(
+                              "::warning::Daily page live but media incomplete: "
+                              + ", ".join(missing_media)
+                          )
+                      break
+                  last_error = f"{page_url}={page.status_code}"
               except requests.RequestException as exc:
                   last_error = str(exc)
               time.sleep(15)
