@@ -242,6 +242,53 @@ def test_draft_claim_and_unapproved_entities_are_not_exported(tmp_path):
     assert [path.name for path in companies] == ["feng-e.json"]
 
 
+def test_verified_signal_with_future_published_at_fails_export(tmp_path):
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+
+    catalog = _catalog(
+        signals={
+            "sig-1": _signal(published_at="2026-09-02"),
+        }
+    )
+    with pytest.raises(PublicBundleError, match="FUTURE_PUBLICATION"):
+        export_public_bundle(
+            catalog,
+            tmp_path / "public-v1",
+            generated_at="2026-08-08T12:00:00+08:00",
+            now=datetime(2026, 8, 8, 12, 0, tzinfo=ZoneInfo("Asia/Shanghai")),
+        )
+
+
+def test_draft_signal_with_future_published_at_is_excluded_not_fatal(tmp_path):
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+
+    catalog = _catalog(
+        signals={
+            "sig-1": _signal(),
+            "sig-future": _signal(
+                id="sig-future",
+                slug="future-signal",
+                verification_status="draft",
+                published_at="2026-09-03",
+                claim_ids=[],
+                source_ids=[],
+                company_ids=[],
+            ),
+        }
+    )
+    result = export_public_bundle(
+        catalog,
+        tmp_path / "public-v1",
+        generated_at="2026-08-08T12:00:00+08:00",
+        now=datetime(2026, 8, 8, 12, 0, tzinfo=ZoneInfo("Asia/Shanghai")),
+    )
+    signals = json.loads((tmp_path / "public-v1" / "signals.json").read_text(encoding="utf-8"))
+    assert [item["id"] for item in signals] == ["sig-1"]
+    assert result["counts"]["signals"] == 1
+
+
 def test_export_rejects_fact_without_source_and_broken_refs():
     with pytest.raises(PublicBundleError, match="FACT_MISSING_SOURCE"):
         export_public_bundle(

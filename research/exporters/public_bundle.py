@@ -7,8 +7,10 @@ import json
 import re
 import shutil
 from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
 from urllib.parse import urlparse, urlunparse
+from zoneinfo import ZoneInfo
 
 from research.models import (
     CaseStudy,
@@ -38,10 +40,56 @@ EXPORTABLE_SIGNAL_STATUSES = frozenset({"verified", "approved", "published"})
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CONTRACTS_DIR = REPOSITORY_ROOT / "contracts" / "public-v1"
 SAFE_STEM = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
+SHANGHAI_TZ = ZoneInfo("Asia/Shanghai")
 
 
 class PublicBundleError(ValueError):
     """Raised when a catalog cannot be exported safely."""
+
+
+def shanghai_today(now: datetime | None = None) -> str:
+    """Return YYYY-MM-DD for Asia/Shanghai."""
+    current = now or datetime.now(tz=SHANGHAI_TZ)
+    if current.tzinfo is None:
+        current = current.replace(tzinfo=SHANGHAI_TZ)
+    return current.astimezone(SHANGHAI_TZ).date().isoformat()
+
+
+def publication_day(value: str | None) -> str | None:
+    if not value or not str(value).strip():
+        return None
+    day = str(value).strip()[:10]
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
+        return day
+    return None
+
+
+def is_future_publication(value: str | None, *, now: datetime | None = None) -> bool:
+    day = publication_day(value)
+    if not day:
+        return False
+    return day > shanghai_today(now)
+
+
+def assert_no_future_exportable_publications(
+    catalog: ResearchCatalog,
+    *,
+    now: datetime | None = None,
+) -> None:
+    """Fail-fast when exportable/published-like rows have published_at in the future.
+
+    Draft / non-exportable rows may keep future published_at (scheduled) and are ignored.
+    """
+    today = shanghai_today(now)
+    for signal in catalog.signals.values():
+        if signal.verification_status not in EXPORTABLE_SIGNAL_STATUSES:
+            continue
+        day = publication_day(signal.published_at)
+        if day and day > today:
+            raise PublicBundleError(
+                "FUTURE_PUBLICATION: "
+                f"signal '{signal.id}' has published_at '{signal.published_at}' after {today}"
+            )
 
 
 @dataclass
@@ -106,7 +154,11 @@ def normalize_url(url: str) -> str:
     )
 
 
-def _select_exportable(catalog: ResearchCatalog) -> _SelectedBundle:
+def _select_exportable(
+    catalog: ResearchCatalog,
+    *,
+    now: datetime | None = None,
+) -> _SelectedBundle:
     claims = {
         claim_id: claim
         for claim_id, claim in catalog.claims.items()
@@ -116,6 +168,7 @@ def _select_exportable(catalog: ResearchCatalog) -> _SelectedBundle:
         signal_id: signal
         for signal_id, signal in catalog.signals.items()
         if signal.verification_status in EXPORTABLE_SIGNAL_STATUSES
+        and not is_future_publication(signal.published_at, now=now)
     }
     companies = {
         company_id: company
@@ -180,8 +233,20 @@ def _assert_unique(kind: str, values: list[str]) -> None:
         seen.add(value)
 
 
-def validate_selected_bundle(selected: _SelectedBundle) -> None:
+def validate_selected_bundle(
+    selected: _SelectedBundle,
+    *,
+    now: datetime | None = None,
+) -> None:
     """Enforce publish gates, uniqueness, and referential integrity."""
+    today = shanghai_today(now)
+    for signal in selected.signals.values():
+        day = publication_day(signal.published_at)
+        if day and day > today:
+            raise PublicBundleError(
+                "FUTURE_PUBLICATION: "
+                f"signal '{signal.id}' has published_at '{signal.published_at}' after {today}"
+            )
     _assert_unique("id", [c.id for c in selected.claims.values()])
     _assert_unique("id", [s.id for s in selected.signals.values()])
     _assert_unique("id", [c.id for c in selected.companies.values()])
@@ -436,11 +501,13 @@ def build_bundle_payloads(
     *,
     contracts_dir: str | Path | None = None,
     pretty: bool = True,
+    now: datetime | None = None,
 ) -> tuple[_SelectedBundle, dict[str, str], dict]:
     """Validate and build file texts + provisional metadata without writing."""
     contracts_path = Path(contracts_dir) if contracts_dir else DEFAULT_CONTRACTS_DIR
-    selected = _select_exportable(catalog)
-    validate_selected_bundle(selected)
+    assert_no_future_exportable_publications(catalog, now=now)
+    selected = _select_exportable(catalog, now=now)
+    validate_selected_bundle(selected, now=now)
     payloads = _build_payloads(selected)
     _assert_no_sensitive_keys(payloads)
     _validate_against_schemas(payloads, contracts_path)
@@ -485,12 +552,13 @@ def export_public_bundle(
     contracts_dir: str | Path | None = None,
     pretty: bool = True,
     validate_only: bool = False,
+    now: datetime | None = None,
 ) -> dict:
     """Validate, serialize, and atomically write a Public Bundle v1 directory."""
     import jsonschema
 
     selected, file_texts, meta = build_bundle_payloads(
-        catalog, contracts_dir=contracts_dir, pretty=pretty
+        catalog, contracts_dir=contracts_dir, pretty=pretty, now=now
     )
     contracts_path = meta["contracts_path"]
     manifest = {
