@@ -152,6 +152,7 @@ def test_verified_enters_review_queue_once(tmp_path: Path):
     body = "公司宣布扩大智能柜投放，正文足够用于研究验证。"
     pool_path = tmp_path / "pool.json"
     queue_path = tmp_path / "queue.json"
+    atoms_path = tmp_path / "atoms.json"
 
     def fetch(u: str) -> RawItem:
         return _raw(url=u, title=cand.title, content_text=body)
@@ -165,6 +166,7 @@ def test_verified_enters_review_queue_once(tmp_path: Path):
             persist=True,
             pool_path=str(pool_path),
             queue_path=str(queue_path),
+            atoms_path=str(atoms_path),
         ),
     )
     first = pipe.run("智能柜", limit=1)[0]
@@ -185,6 +187,7 @@ def test_verified_enters_review_queue_once(tmp_path: Path):
             persist=True,
             pool_path=str(pool_path),
             queue_path=str(queue_path),
+            atoms_path=str(atoms_path),
         ),
     )
     second = pipe2.run("智能柜", limit=1)[0]
@@ -219,6 +222,7 @@ def test_rejected_does_not_enter_review_queue(tmp_path: Path):
 
 def test_review_approve_reject_defer(tmp_path: Path):
     queue_path = tmp_path / "queue.json"
+    atoms_path = tmp_path / "atoms.json"
     url = "https://www.caixin.com/2026/a.html"
     cand = _candidate(url=url, title="主流媒体智能柜报道")
     body = "主流财经媒体报道智能柜行业动态，正文足够验证。"
@@ -231,6 +235,7 @@ def test_review_approve_reject_defer(tmp_path: Path):
             persist=True,
             pool_path=str(tmp_path / "pool.json"),
             queue_path=str(queue_path),
+            atoms_path=str(atoms_path),
         ),
     )
     record = pipe.run("智能柜", limit=1)[0]
