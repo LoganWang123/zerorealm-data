@@ -16,6 +16,13 @@ from content.store import load_content_config
 from research.claim_review import ClaimReviewError, resolve_reviewer
 from utils.helpers import now_iso
 
+
+def _artifact_hash(artifact: dict | None) -> str:
+    raw = json.dumps(
+        artifact or {}, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    )
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
 DEFAULT_RC_PATH = Path("data/state/release_candidates.json")
 DEFAULT_CHANNEL_REVIEW_LOG = Path("data/state/channel_review_log.jsonl")
 
@@ -366,9 +373,7 @@ def set_channel_review(
 
     now = now_iso()
     artifact = rc.website_artifact if channel == "website" else rc.wechat_artifact
-    artifact_hash = hashlib.sha256(
-        json.dumps(artifact or {}, ensure_ascii=False, sort_keys=True).encode("utf-8")
-    ).hexdigest()
+    artifact_hash = _artifact_hash(artifact)
     entry = {
         "status": status.value,
         "reviewer": reviewer_name,
