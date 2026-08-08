@@ -61,6 +61,7 @@ class PipelineState(str, Enum):
     WARNINGS = "warnings"
     STEP_RESULTS = "step_results"  # {step_name: StepResult}
     MEDIA_BUNDLE = "media_bundle"
+    EDITORIAL_GATE_RESULT = "editorial_gate_result"  # EditorialGateResult (daily hard gate)
 
 
 # ---------------------------------------------------------------------------

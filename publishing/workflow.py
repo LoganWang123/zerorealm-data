@@ -21,7 +21,13 @@ from publishing.media_generation.service import MediaGenerationService
 from publishing.media_generation.steps import GenerateMediaStep, ValidateMediaStep
 from publishing.media_generation.validation import MediaValidator
 from publishing.pipeline import PipelineContext, PipelineState, PublishPipeline
-from publishing.steps import PublishStep, RecordStep, RenderStep, ValidateStep
+from publishing.steps import (
+    EditorialGateStep,
+    PublishStep,
+    RecordStep,
+    RenderStep,
+    ValidateStep,
+)
 
 if TYPE_CHECKING:
     from publishing.config import PublishConfig
@@ -64,6 +70,7 @@ class PublishWorkflow:
         """Build the ordered, channel-agnostic publication steps."""
         return [
             ValidateStep(),
+            EditorialGateStep(),
             GenerateMediaStep(self._media_service_factory),
             ValidateMediaStep(self._media_validator),
             RenderStep(),

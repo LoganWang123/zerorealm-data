@@ -156,6 +156,12 @@ class Article:
     first_principle: dict = field(default_factory=dict)  # ZeroRealm Principle
     # v5.0 fields
     overseas_signal: dict = field(default_factory=dict)  # 海外信号
+    # Full-fidelity source frontmatter dict, kept alongside the lossy typed
+    # fields above so downstream checks (e.g. the editorial hard gate) can
+    # see raw structures (per-item prediction/spread_line/verdict, decision
+    # role confidence_pct, editorial_exception, ...) that ArticleItem does
+    # not model. Empty for Article instances built by hand (most tests).
+    raw: dict = field(default_factory=dict)
 
 
 def generate_uuid(source: str, date: str, issue: int) -> str:
