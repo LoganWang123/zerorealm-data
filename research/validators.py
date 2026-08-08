@@ -156,5 +156,23 @@ def validate_claims(
     return issues
 
 
+#: Codes that block *publishing* but must not block Discovery intake.
+#: Candidate VERIFIED means the source is research-eligible evidence material;
+#: it does **not** mean a human finished ClaimStatus.VERIFIED review.
+DISCOVERY_NON_BLOCKING_CODES = frozenset({"FACT_NOT_VERIFIED"})
+
+
+def validate_discovery_atoms(
+    claims: list[Claim],
+    sources: dict[str, SourceDocument],
+) -> list[ValidationIssue]:
+    """Research validators for Discovery eligibility (excludes publish-only codes)."""
+    return [
+        issue
+        for issue in validate_claims(claims, sources)
+        if issue.code not in DISCOVERY_NON_BLOCKING_CODES
+    ]
+
+
 def has_blocking_issues(issues: list[ValidationIssue]) -> bool:
     return any(issue.severity == "error" for issue in issues)
