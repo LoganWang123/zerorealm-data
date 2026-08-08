@@ -26,6 +26,7 @@ from openai import OpenAI
 
 from ai_runtime.cost_tracker import CostTracker
 from ai_runtime.evaluator import EvaluationHook
+from content.llm_models import assert_supported_model, resolve_llm_api_key
 from utils.logger import get_logger
 
 # Shared singletons (per process)
@@ -94,12 +95,20 @@ class LLMClient:
         max_retries: int = 2,
         timeout: int = 60,
     ) -> None:
-        self.api_key = api_key or os.environ.get("LLM_API_KEY", "")
+        self.api_key = api_key or resolve_llm_api_key()
         self.base_url = base_url or os.environ.get(
             "LLM_BASE_URL", "https://api.openai.com/v1"
         )
-        self.model = model or os.environ.get("LLM_MODEL", "gpt-4o-mini")
+        raw_model = model or os.environ.get("LLM_MODEL", "gpt-4o-mini")
+        self.model = assert_supported_model(raw_model) if "deepseek" in raw_model.lower() else raw_model
+        if "api.deepseek.com" in (self.base_url or ""):
+            from content.llm_models import normalize_deepseek_base_url
+
+            self.base_url = normalize_deepseek_base_url(self.base_url)
         self.fallback_models = fallback_models or []
+        for fb in self.fallback_models:
+            if "deepseek" in fb.lower():
+                assert_supported_model(fb)
         self.max_retries = max_retries
         self.timeout = timeout
         self.tracker = _global_tracker
@@ -122,9 +131,13 @@ class LLMClient:
         max_tokens: int | None = None,
         prompt_name: str | None = None,
         prompt_version: int | None = None,
+        response_format: dict | None = None,
     ) -> LLMResponse:
         """Send a chat completion request with retry + fallback."""
-        models_to_try = [model or self.model] + self.fallback_models
+        primary = model or self.model
+        if "deepseek" in primary.lower():
+            primary = assert_supported_model(primary)
+        models_to_try = [primary] + self.fallback_models
         last_error: Exception | None = None
 
         for current_model in models_to_try:
@@ -139,6 +152,7 @@ class LLMClient:
                         max_tokens=max_tokens,
                         prompt_name=prompt_name,
                         prompt_version=prompt_version,
+                        response_format=response_format,
                     )
                 except Exception as e:
                     last_error = e
@@ -174,6 +188,7 @@ class LLMClient:
         max_tokens: int | None,
         prompt_name: str | None,
         prompt_version: int | None,
+        response_format: dict | None = None,
     ) -> LLMResponse:
         start = time.time()
 
@@ -187,6 +202,8 @@ class LLMClient:
         }
         if max_tokens:
             kwargs["max_tokens"] = max_tokens
+        if response_format:
+            kwargs["response_format"] = response_format
 
         response = self._client.chat.completions.create(**kwargs)
         latency_ms = int((time.time() - start) * 1000)

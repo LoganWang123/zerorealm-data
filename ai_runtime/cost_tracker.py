@@ -13,10 +13,30 @@ from datetime import datetime
 
 from utils.helpers import CST
 
+# USD list prices (cache-miss) from DeepSeek docs as of 2026-08-08.
+# Converted to approximate CNY via LLM_USD_CNY_RATE (default 7.2).
+# estimated=true — do not treat as exact invoices; cache-hit not modeled.
+_USD_CNY = float(os.environ.get("LLM_USD_CNY_RATE") or "7.2")
+
+MODEL_PRICING_USD: dict[str, dict[str, float]] = {
+    "deepseek-v4-flash": {"input": 0.14, "output": 0.28},
+    "deepseek-v4-pro": {"input": 0.435, "output": 0.87},
+}
+
 # Pricing table (CNY per million tokens, approximate)
 MODEL_PRICING: dict[str, dict[str, float]] = {
     "gpt-4o": {"input": 17.5, "output": 70.0},
     "gpt-4o-mini": {"input": 1.05, "output": 4.2},
+    # V4 (cache-miss estimate). pricing_source=deepseek-official pricing_as_of=2026-08-08
+    "deepseek-v4-flash": {
+        "input": round(0.14 * _USD_CNY, 4),
+        "output": round(0.28 * _USD_CNY, 4),
+    },
+    "deepseek-v4-pro": {
+        "input": round(0.435 * _USD_CNY, 4),
+        "output": round(0.87 * _USD_CNY, 4),
+    },
+    # Retired aliases kept only for historical log replay — do not configure as live models.
     "deepseek-chat": {"input": 1.0, "output": 2.0},
     "deepseek-reasoner": {"input": 4.0, "output": 16.0},
     "qwen-plus": {"input": 0.8, "output": 2.0},
@@ -24,6 +44,14 @@ MODEL_PRICING: dict[str, dict[str, float]] = {
     "qwen-turbo": {"input": 0.3, "output": 0.6},
     "glm-4": {"input": 15.0, "output": 15.0},
     "glm-4-flash": {"input": 0.0, "output": 0.0},
+}
+
+PRICING_META = {
+    "pricing_source": "deepseek-official+usd_cny_estimate",
+    "pricing_as_of": "2026-08-08",
+    "cache_miss_estimate": True,
+    "usd_cny_rate": _USD_CNY,
+    "estimated": True,
 }
 
 
@@ -40,6 +68,7 @@ class LLMCallRecord:
     prompt_name: str | None = None
     prompt_version: int | None = None
     timestamp: str = ""
+    estimated: bool = True
 
     def __post_init__(self):
         if not self.timestamp:
@@ -67,7 +96,7 @@ class CostTracker:
 
     @staticmethod
     def estimate_cost(model: str, prompt_tokens: int, completion_tokens: int) -> float:
-        """Estimate cost in CNY based on pricing table."""
+        """Estimate cost in CNY based on pricing table (approximate / cache-miss)."""
         pricing = MODEL_PRICING.get(model)
         if not pricing:
             return 0.0
@@ -100,6 +129,7 @@ class CostTracker:
             latency_ms=latency_ms,
             prompt_name=prompt_name,
             prompt_version=prompt_version,
+            estimated=True,
         )
         self.records.append(rec)
         self._total_cost += cost
@@ -138,6 +168,7 @@ class CostTracker:
             "by_task": by_task,
             "by_model": by_model,
             "date": datetime.now(CST).strftime("%Y-%m-%d"),
+            "pricing_meta": dict(PRICING_META),
         }
 
     # ------------------------------------------------------------------
@@ -162,6 +193,7 @@ class CostTracker:
                     "latency_ms": r.latency_ms,
                     "prompt_name": r.prompt_name,
                     "timestamp": r.timestamp,
+                    "estimated": r.estimated,
                 }
                 for r in self.records
             ],
