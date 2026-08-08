@@ -49,6 +49,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Export ClaimStatus.VERIFIED claims only",
     )
+    parser.add_argument(
+        "--export-knowledge",
+        action="store_true",
+        help="Sync VERIFIED claims into Knowledge store",
+    )
     parser.add_argument("--export-path", default=str(DEFAULT_EXPORT_PATH))
     parser.add_argument(
         "--persist",
@@ -80,6 +85,25 @@ def main(argv: list[str] | None = None) -> int:
                 output_path=args.export_path,
             )
             _emit({"ok": True, "mode": "export-verified", "export_path": args.export_path, **payload})
+            return 0
+
+        if args.export_knowledge:
+            from research.knowledge import KnowledgeStore, sync_knowledge_from_atoms
+
+            knowledge = KnowledgeStore.load_or_create("data/state/knowledge_store.json")
+            rows = sync_knowledge_from_atoms(
+                atom_store=store,
+                knowledge_store=knowledge,
+                persist=args.persist,
+            )
+            _emit(
+                {
+                    "ok": True,
+                    "mode": "export-knowledge",
+                    "count": len(rows),
+                    "active": sum(1 for r in rows if r.status.value == "active"),
+                }
+            )
             return 0
 
         if args.claim:
