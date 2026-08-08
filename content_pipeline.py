@@ -33,6 +33,7 @@ from content.release_candidate import (
     build_release_candidate,
     set_channel_review,
 )
+from content.publisher_preflight import publisher_invoke_guard
 from content.repair import repair_until_pass_or_limit
 from content.store import ContentCandidateStore, load_content_config
 from research.atom_store import ResearchAtomStore
@@ -78,11 +79,15 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--release-candidate", metavar="ID")
     parser.add_argument("--show-release-candidate", metavar="ID")
     parser.add_argument("--channel-review", metavar="ID", help="release_candidate_id")
+    parser.add_argument("--approve-channel", metavar="ID", help="Approve one channel review")
+    parser.add_argument("--release-preflight", metavar="ID", help="Dry-run publish preflight")
+    parser.add_argument("--publish-plan", metavar="ID", help="Alias of release-preflight dry-run")
     parser.add_argument(
         "--channel-review-status",
         choices=("APPROVED", "REJECTED", "NEEDS_EDIT", "PENDING"),
         default=None,
     )
+    parser.add_argument("--dry-run", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--corrupt", default=None, help="Mock generator corruption mode (tests)")
     parser.add_argument("--reviewer", default=None)
     parser.add_argument("--reason", default="")
@@ -223,23 +228,31 @@ def main(argv: list[str] | None = None) -> int:
             _emit({"ok": True, "mode": "show-release-candidate", "item": rc.to_dict()})
             return 0
 
-        if args.channel_review:
-            rc = rc_store.get(args.channel_review) or rc_store.get_by_content_id(args.channel_review)
+        if args.channel_review or args.approve_channel:
+            target = args.channel_review or args.approve_channel
+            rc = rc_store.get(target) or rc_store.get_by_content_id(target)
             if rc is None:
-                _emit({"ok": False, "error": f"Unknown release candidate: {args.channel_review}"})
+                _emit({"ok": False, "error": f"Unknown release candidate: {target}"})
                 return 2
-            if not args.channel_review_status or args.channel == "all":
-                _emit(
-                    {
-                        "ok": False,
-                        "error": "Require --channel website|wechat and --channel-review-status",
-                    }
-                )
+            if args.channel == "all":
+                _emit({"ok": False, "error": "Require --channel website|wechat"})
                 return 2
+            if args.approve_channel:
+                status = ChannelReviewStatus.APPROVED
+            else:
+                if not args.channel_review_status:
+                    _emit(
+                        {
+                            "ok": False,
+                            "error": "Require --channel-review-status",
+                        }
+                    )
+                    return 2
+                status = ChannelReviewStatus(args.channel_review_status)
             set_channel_review(
                 rc,
                 args.channel,
-                ChannelReviewStatus(args.channel_review_status),
+                status,
                 reviewer=args.reviewer,
                 reason=args.reason,
                 log_path=paths["channel_review_log"],
@@ -247,7 +260,6 @@ def main(argv: list[str] | None = None) -> int:
             rc_store.upsert(rc)
             if args.persist:
                 rc_store.save()
-            # Publisher protection check remains reject while not READY_FOR_PUBLISH
             publish_blocked = True
             try:
                 assert_ready_for_publish(rc)
@@ -262,6 +274,34 @@ def main(argv: list[str] | None = None) -> int:
                     "website_review": rc.website_review,
                     "wechat_review": rc.wechat_review,
                     "publisher_blocked": publish_blocked,
+                }
+            )
+            return 0
+
+        if args.release_preflight or args.publish_plan:
+            target = args.release_preflight or args.publish_plan
+            rc = rc_store.get(target) or rc_store.get_by_content_id(target)
+            if rc is None:
+                _emit({"ok": False, "error": f"Unknown release candidate: {target}"})
+                return 2
+            if not args.dry_run:
+                _emit(
+                    {
+                        "ok": False,
+                        "error_code": "PUBLISH_DISABLED",
+                        "error": "Real publish disabled; use --dry-run",
+                    }
+                )
+                return 2
+            plan = publisher_invoke_guard(rc, dry_run=True)
+            _emit(
+                {
+                    "ok": True,
+                    "mode": "release-preflight",
+                    "dry_run": True,
+                    "plan": plan,
+                    "wechat_api_called": False,
+                    "website_production_written": False,
                 }
             )
             return 0

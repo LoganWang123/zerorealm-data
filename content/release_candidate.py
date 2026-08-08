@@ -231,13 +231,45 @@ def build_release_candidate(
 
 
 def assert_ready_for_publish(rc: ReleaseCandidate | dict) -> None:
-    """Future publisher precondition — this round must reject CHANNEL_REVIEW_REQUIRED."""
+    """Publisher precondition — reject unless READY_FOR_PUBLISH and both channels approved."""
     data = rc.to_dict() if isinstance(rc, ReleaseCandidate) else rc
     status = data.get("status")
-    if status != ReleaseCandidateStatus.READY_FOR_PUBLISH.value:
+    gate = data.get("gate_result") or {}
+    if gate and gate.get("passed") is False:
+        raise ReleaseCandidateError("GATE_NOT_PASSED", "Hard Gate must PASS")
+    if status == ReleaseCandidateStatus.READY_FOR_CHANNEL_REVIEW.value:
         raise ReleaseCandidateError(
             "CHANNEL_REVIEW_REQUIRED",
             f"Publisher requires READY_FOR_PUBLISH; current status={status}",
+        )
+    if status != ReleaseCandidateStatus.READY_FOR_PUBLISH.value:
+        # Distinguish editorial vs channel when possible.
+        if status in {
+            ReleaseCandidateStatus.DRAFT.value,
+            ReleaseCandidateStatus.GATE_PASSED.value,
+            ReleaseCandidateStatus.EDITORIAL_APPROVED.value,
+            ReleaseCandidateStatus.RENDERED.value,
+            ReleaseCandidateStatus.CHANNEL_CHECK_PASSED.value,
+        }:
+            raise ReleaseCandidateError(
+                "EDITORIAL_REVIEW_REQUIRED"
+                if status
+                in {
+                    ReleaseCandidateStatus.DRAFT.value,
+                    ReleaseCandidateStatus.GATE_PASSED.value,
+                }
+                else "CHANNEL_REVIEW_REQUIRED",
+                f"Publisher requires READY_FOR_PUBLISH; current status={status}",
+            )
+        raise ReleaseCandidateError(
+            "CHANNEL_REVIEW_REQUIRED",
+            f"Publisher requires READY_FOR_PUBLISH; current status={status}",
+        )
+    consistency = data.get("channel_consistency_result") or {}
+    if consistency and consistency.get("passed") is False:
+        raise ReleaseCandidateError(
+            "CHANNEL_CONSISTENCY_FAILED",
+            "Channel consistency must PASS before publish",
         )
     website_ok = (data.get("website_review") or {}).get("status") == ChannelReviewStatus.APPROVED.value
     wechat_ok = (data.get("wechat_review") or {}).get("status") == ChannelReviewStatus.APPROVED.value
@@ -248,6 +280,64 @@ def assert_ready_for_publish(rc: ReleaseCandidate | dict) -> None:
         )
 
 
+def check_channel_review_preconditions(
+    rc: ReleaseCandidate,
+    channel: str,
+) -> list[str]:
+    """Return precondition failure codes (empty = ok)."""
+    codes: list[str] = []
+    if channel == "website":
+        artifact = rc.website_artifact or {}
+        if not artifact:
+            codes.append("WEBSITE_ARTIFACT_MISSING")
+        if artifact.get("published") is True:
+            codes.append("ARTIFACT_ALREADY_PUBLISHED")
+        if not artifact.get("content_fingerprint") and not rc.content_fingerprint:
+            codes.append("FINGERPRINT_MISSING")
+        if rc.content_type == "insight":
+            route = artifact.get("route") or ""
+            if route.startswith("/daily/"):
+                codes.append("CONTENT_TYPE_MISMATCH")
+            if rc.slug and route and route != f"/insight/{rc.slug}":
+                codes.append("SLUG_ROUTE_MISMATCH")
+        media = artifact.get("media") or []
+        for item in media:
+            if isinstance(item, dict) and str(item.get("status") or "").lower() not in {
+                "",
+                "approved",
+            }:
+                codes.append("MEDIA_NOT_APPROVED")
+                break
+    elif channel == "wechat":
+        artifact = rc.wechat_artifact or {}
+        if not artifact:
+            codes.append("WECHAT_ARTIFACT_MISSING")
+        if not artifact.get("content_fingerprint") and not rc.content_fingerprint:
+            codes.append("FINGERPRINT_MISSING")
+        media = artifact.get("media") or []
+        for item in media:
+            if isinstance(item, dict) and str(item.get("status") or "").lower() not in {
+                "",
+                "approved",
+            }:
+                codes.append("MEDIA_NOT_APPROVED")
+                break
+    else:
+        codes.append("UNKNOWN_CHANNEL")
+
+    consistency = rc.channel_consistency_result or {}
+    if consistency and consistency.get("passed") is False:
+        codes.append("CHANNEL_CONSISTENCY_FAILED")
+    if not (rc.content_fingerprint or "").strip():
+        if "FINGERPRINT_MISSING" not in codes:
+            codes.append("FINGERPRINT_MISSING")
+    if not (rc.slug or "").strip():
+        codes.append("SLUG_MISSING")
+    if not (rc.content_type or "").strip():
+        codes.append("CONTENT_TYPE_MISSING")
+    return codes
+
+
 def set_channel_review(
     rc: ReleaseCandidate,
     channel: str,
@@ -256,14 +346,36 @@ def set_channel_review(
     reviewer: str | None = None,
     reason: str = "",
     log_path: str | Path | None = None,
+    skip_preconditions: bool = False,
 ) -> ReleaseCandidate:
     reviewer_name = resolve_reviewer(reviewer)
+    old_status = (
+        (rc.website_review or {}).get("status")
+        if channel == "website"
+        else (rc.wechat_review or {}).get("status")
+        if channel == "wechat"
+        else ""
+    )
+    if status is ChannelReviewStatus.APPROVED and not skip_preconditions:
+        failures = check_channel_review_preconditions(rc, channel)
+        if failures:
+            raise ReleaseCandidateError(
+                "CHANNEL_REVIEW_PRECONDITION_FAILED",
+                f"Cannot APPROVE {channel}: {', '.join(failures)}",
+            )
+
     now = now_iso()
+    artifact = rc.website_artifact if channel == "website" else rc.wechat_artifact
+    artifact_hash = hashlib.sha256(
+        json.dumps(artifact or {}, ensure_ascii=False, sort_keys=True).encode("utf-8")
+    ).hexdigest()
     entry = {
         "status": status.value,
         "reviewer": reviewer_name,
         "reviewed_at": now,
         "reason": reason,
+        "artifact_hash": artifact_hash,
+        "content_fingerprint": rc.content_fingerprint,
     }
     if channel == "website":
         rc.website_review = entry
@@ -274,29 +386,45 @@ def set_channel_review(
     else:
         raise ReleaseCandidateError("UNKNOWN_CHANNEL", f"Unknown channel: {channel}")
 
-    # Advance to READY_FOR_PUBLISH only when both approved — allowed for fixture tests,
-    # but production smoke should stop at READY_FOR_CHANNEL_REVIEW.
     website_ok = rc.website_review.get("status") == ChannelReviewStatus.APPROVED.value
     wechat_ok = rc.wechat_review.get("status") == ChannelReviewStatus.APPROVED.value
     if website_ok and wechat_ok:
+        # Require prior gate/consistency still true.
+        if (rc.channel_consistency_result or {}).get("passed") is False:
+            raise ReleaseCandidateError(
+                "CHANNEL_CONSISTENCY_FAILED",
+                "Cannot reach READY_FOR_PUBLISH with failed consistency",
+            )
+        if (rc.gate_result or {}).get("passed") is False:
+            raise ReleaseCandidateError("GATE_NOT_PASSED", "Cannot READY_FOR_PUBLISH with gate fail")
         rc.status = ReleaseCandidateStatus.READY_FOR_PUBLISH
     elif status is ChannelReviewStatus.REJECTED:
         rc.status = ReleaseCandidateStatus.REJECTED
+    elif rc.status is ReleaseCandidateStatus.READY_FOR_PUBLISH:
+        # Losing an approval should drop back.
+        rc.status = ReleaseCandidateStatus.READY_FOR_CHANNEL_REVIEW
     rc.updated_at = now
 
+    review_id = hashlib.sha256(
+        f"{rc.release_candidate_id}|{channel}|{now}|{status.value}".encode()
+    ).hexdigest()[:16]
     target = Path(log_path) if log_path else DEFAULT_CHANNEL_REVIEW_LOG
     target.parent.mkdir(parents=True, exist_ok=True)
     with target.open("a", encoding="utf-8") as handle:
         handle.write(
             json.dumps(
                 {
+                    "review_id": review_id,
                     "release_candidate_id": rc.release_candidate_id,
                     "content_id": rc.content_id,
                     "channel": channel,
-                    "status": status.value,
+                    "old_status": old_status or ChannelReviewStatus.PENDING.value,
+                    "new_status": status.value,
                     "reviewer": reviewer_name,
                     "reviewed_at": now,
                     "reason": reason,
+                    "artifact_hash": artifact_hash,
+                    "content_fingerprint": rc.content_fingerprint,
                 },
                 ensure_ascii=False,
             )
