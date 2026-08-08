@@ -70,10 +70,19 @@ class LoggingConfig:
 
 
 @dataclass
+class WebsiteConfig:
+    """官网 Daily 同步配置（Content Publishing，非 Research Bundle）."""
+
+    content_dir: str = ""
+    package_dir: str = "dist/content-package"
+
+
+@dataclass
 class PublishConfig:
     """发布平台总配置."""
 
     wechat: WechatConfig = field(default_factory=WechatConfig)
+    website: WebsiteConfig = field(default_factory=WebsiteConfig)
     cover: CoverConfig = field(default_factory=CoverConfig)
     media: MediaConfig = field(default_factory=MediaConfig)
     pipeline: PipelineConfig = field(default_factory=PipelineConfig)
@@ -114,6 +123,7 @@ class PublishConfig:
     @classmethod
     def _from_dict(cls, data: dict) -> PublishConfig:
         wechat_data = data.get("wechat", {})
+        website_data = data.get("website", {})
         cover_data = data.get("cover", {})
         media_data = data.get("media", {})
         pipeline_data = data.get("pipeline", {})
@@ -121,6 +131,7 @@ class PublishConfig:
 
         return cls(
             wechat=WechatConfig(**wechat_data),
+            website=WebsiteConfig(**website_data),
             cover=CoverConfig(**cover_data),
             media=MediaConfig(**media_data),
             pipeline=PipelineConfig(**pipeline_data),

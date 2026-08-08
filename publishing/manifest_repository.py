@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 import json
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass, fields
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -30,6 +30,15 @@ class ManifestEntry:
     last_step: str = ""
     created_at: str = ""
     updated_at: str = ""
+    # Cross-channel / website extensions (optional, backward compatible)
+    generated: bool | None = None
+    synced: bool | None = None
+    deployed: bool | None = None
+    artifact_path: str | None = None
+    website_path: str | None = None
+    date: str | None = None
+    title: str | None = None
+    slug: str | None = None
 
 
 class ManifestRepository:
@@ -70,6 +79,20 @@ class ManifestRepository:
             "created_at": existing.get("created_at", now),
             "updated_at": now,
         }
+        # Minimal cross-channel status extension from publisher raw_response.
+        raw = dict(result.raw_response or {})
+        for field_name in (
+            "generated",
+            "synced",
+            "deployed",
+            "artifact_path",
+            "website_path",
+            "date",
+            "title",
+            "slug",
+        ):
+            if field_name in raw:
+                entry[field_name] = raw[field_name]
         self._data[key] = entry
         self._save()
 
@@ -79,7 +102,9 @@ class ManifestRepository:
         data = self._data.get(key)
         if data is None:
             return None
-        return ManifestEntry(**data)
+        known = {f.name for f in fields(ManifestEntry)}
+        payload = {k: v for k, v in data.items() if k in known}
+        return ManifestEntry(**payload)
 
     def delete(self, article_uuid: str, channel: str) -> bool:
         """删除记录（强制重新发布）."""
