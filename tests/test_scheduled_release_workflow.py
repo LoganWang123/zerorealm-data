@@ -44,6 +44,9 @@ def test_workflow_keeps_legacy_mdx_and_bundle_feature_flags():
     assert "print(os.environ" not in text
     assert "secrets.AGNES_API_KEY" not in text
     assert "AGNES_API_KEY:" not in text
+    assert "python publish.py --channel website" in text
+    assert "scripts/check_cross_channel_daily.py" in text
+    assert "CROSS_CHANNEL_MISSING" not in text  # code lives in Python module
 
 
 def test_scheduled_wechat_command_can_only_create_a_draft():

@@ -25,6 +25,7 @@ load_dotenv(Path(__file__).parent / ".env")
 
 # 注册渠道（import 即注册）
 import publishing.wechat.builder  # noqa: F401
+import publishing.website.builder  # noqa: F401
 from publishing.asset_manager import AssetManager
 from publishing.config import PublishConfig
 from publishing.factory import BuilderContext, PublisherFactory
@@ -73,7 +74,7 @@ def cmd_list():
     print("Registered channels:")
     descriptions = {
         "wechat": "微信公众号（草稿/发布）",
-        "website": "官网（git push）[coming soon]",
+        "website": "官网 Daily（content/daily MDX + content-package）",
     }
     for ch in channels:
         desc = descriptions.get(ch, "")

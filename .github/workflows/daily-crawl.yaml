@@ -154,7 +154,8 @@ jobs:
           if [ "${SYNC_LEGACY_DAILY_MDX}" = "true" ] && [ "${{ steps.generate.outputs.generated }}" = "true" ]; then
             REPORT="output_daily/${DATE}.mdx"
             test -f "$REPORT"
-            install -D -m 0644 "$REPORT" "website/content/daily/${DATE}.mdx"
+            export ZEROREALM_WEBSITE_DAILY_DIR="$PWD/website/content/daily"
+            python publish.py --channel website --date "${DATE}"
             MEDIA_DIR="assets/generated/${DATE}"
             # Media may be pending_local_generation; sync only when local files exist.
             if [ -f "${MEDIA_DIR}/cover.png" ] && [ -f "${MEDIA_DIR}/body-1.png" ] && [ -f "${MEDIA_DIR}/body-2.png" ] && [ -f "${MEDIA_DIR}/body-3.png" ]; then
@@ -194,6 +195,10 @@ jobs:
             git -C website commit -m "feat(content): sync ${DATE} bundle ${BUNDLE_HASH}"
             git -C website push
           fi
+
+          python scripts/check_cross_channel_daily.py \
+            --website-daily-dir website/content/daily \
+            --now "$(TZ=Asia/Shanghai date -Iseconds)"
 
       - name: Verify production report and images
         if: env.WEBSITE_REPO_TOKEN != '' && steps.generate.outputs.generated == 'true'
