@@ -62,6 +62,7 @@ class AllowedFactsContext:
     content_requirements: dict = field(default_factory=dict)
     allowed_entities: list[str] = field(default_factory=list)
     allowed_numbers: list[str] = field(default_factory=list)
+    live_verified_store: bool = False
 
     def to_dict(self) -> dict:
         return {
@@ -80,6 +81,7 @@ class AllowedFactsContext:
             "content_requirements": dict(self.content_requirements),
             "allowed_entities": list(self.allowed_entities),
             "allowed_numbers": list(self.allowed_numbers),
+            "live_verified_store": bool(self.live_verified_store),
         }
 
 
@@ -96,12 +98,25 @@ def _extract_numbers(text: str) -> list[str]:
     return [m.group(0).strip() for m in pattern.finditer(text or "")]
 
 
+class AllowedFactsError(Exception):
+    def __init__(self, code: str, message: str = ""):
+        self.code = code
+        self.message = message or code
+        super().__init__(f"{self.code}: {self.message}")
+
+
 def build_allowed_facts(
     candidate: ContentCandidate,
     *,
     atom_store: ResearchAtomStore | None = None,
+    require_verified_store: bool = False,
 ) -> AllowedFactsContext:
     """Build generator context strictly from VERIFIED claims on the candidate."""
+    if require_verified_store and atom_store is None:
+        raise AllowedFactsError(
+            "LIVE_GENERATOR_REQUIRES_VERIFIED_ATOM_STORE",
+            "Live generation requires ResearchAtomStore with VERIFIED claims",
+        )
     if not candidate.brief:
         build_editorial_brief(candidate)
 
@@ -119,6 +134,14 @@ def build_allowed_facts(
                 claim = atom_store.get_claim(cid)
                 if claim is None or claim.status is not ClaimStatus.VERIFIED:
                     continue
+                if require_verified_store:
+                    if not claim.evidence_ids:
+                        continue
+                    # Evidence + SourceDocument must exist for live mode.
+                    if not any(eid in atom_store.evidence for eid in claim.evidence_ids):
+                        continue
+                    if not any(sid in atom_store.sources for sid in claim.source_ids):
+                        continue
                 text = claim.text
                 evidence_ids = list(claim.evidence_ids)
                 source_ids = list(claim.source_ids)
@@ -200,6 +223,12 @@ def build_allowed_facts(
             if token in claim.text:
                 allowed_entities.add(token)
 
+    if require_verified_store and not allowed_claims:
+        raise AllowedFactsError(
+            "LIVE_GENERATOR_REQUIRES_VERIFIED_ATOM_STORE",
+            "No VERIFIED claims with complete evidence/source lineage",
+        )
+
     return AllowedFactsContext(
         content_candidate_id=candidate.content_candidate_id,
         content_type=candidate.content_type.value,
@@ -225,4 +254,5 @@ def build_allowed_facts(
         },
         allowed_entities=sorted(allowed_entities),
         allowed_numbers=sorted(allowed_numbers),
+        live_verified_store=bool(require_verified_store and atom_store is not None),
     )

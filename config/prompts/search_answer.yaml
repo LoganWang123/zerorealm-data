@@ -1,7 +1,7 @@
 name: search_answer
 version: 1
 description: "Synthesize a concise answer from search results"
-model: deepseek-chat
+model: deepseek-v4-flash
 temperature: 0.3
 max_tokens: 800
 

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -66,6 +67,18 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--brief", metavar="ID")
     parser.add_argument("--draft", metavar="ID", help="Legacy internal draft builder")
     parser.add_argument("--generate", metavar="ID", help="Controlled generator from Allowed Facts")
+    parser.add_argument(
+        "--provider",
+        default=None,
+        help="Content generator provider: mock|deepseek (default CONTENT_GENERATOR_PROVIDER)",
+    )
+    parser.add_argument("--model", default=None, help="Override CONTENT_GENERATOR_MODEL / LLM_MODEL")
+    parser.add_argument(
+        "--live",
+        action="store_true",
+        default=False,
+        help="Request live generation (still requires CONTENT_GENERATOR_ALLOW_LIVE=1)",
+    )
     parser.add_argument("--audit-draft", metavar="ID", help="Post-generation claim audit")
     parser.add_argument("--repair", metavar="ID", help="Bounded repair + re-audit")
     parser.add_argument("--gate", metavar="ID")
@@ -347,11 +360,27 @@ def main(argv: list[str] | None = None) -> int:
                 _emit({"ok": True, "mode": "draft", "path": str(path), "draft": draft})
                 return 0
             if args.generate:
+                if args.live and os.getenv("CONTENT_GENERATOR_ALLOW_LIVE") != "1":
+                    _emit(
+                        {
+                            "ok": False,
+                            "error_code": "LIVE_GENERATOR_DISABLED",
+                            "error": "--live requires CONTENT_GENERATOR_ALLOW_LIVE=1",
+                        }
+                    )
+                    return 2
+                provider = args.provider or os.getenv("CONTENT_GENERATOR_PROVIDER") or "mock"
                 structured = generate_controlled_draft(
                     cand,
                     atom_store=atoms,
-                    generator=get_generator(corrupt=args.corrupt),
+                    generator=get_generator(
+                        provider=provider,
+                        corrupt=args.corrupt,
+                        model=args.model,
+                    ),
                     corrupt=args.corrupt,
+                    provider=provider,
+                    model=args.model,
                 )
                 store.upsert(cand)
                 if args.persist:
@@ -360,6 +389,7 @@ def main(argv: list[str] | None = None) -> int:
                     {
                         "ok": True,
                         "mode": "generate",
+                        "provider": structured.generator_provider,
                         "draft_id": structured.draft_id,
                         "draft": structured.to_dict(),
                         "allowed_facts": cand.metadata.get("allowed_facts"),

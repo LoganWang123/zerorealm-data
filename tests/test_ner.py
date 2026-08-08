@@ -119,10 +119,10 @@ class TestNERResult:
             entities=[EntityMention("友宝", "company", 95)],
             events=[EventMention("financing", "友宝", "融资")],
             topics=["融资"],
-            model="deepseek-chat",
+            model="deepseek-v4-flash",
             prompt_version=1,
         )
         d = result.to_dict()
         assert d["entities"][0]["text"] == "友宝"
         assert d["events"][0]["type"] == "financing"
-        assert d["ner_model"] == "deepseek-chat"
+        assert d["ner_model"] == "deepseek-v4-flash"

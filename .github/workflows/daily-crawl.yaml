@@ -87,7 +87,7 @@ jobs:
         env:
           LLM_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           LLM_BASE_URL: https://api.deepseek.com/v1
-          LLM_MODEL: deepseek-chat
+          LLM_MODEL: deepseek-v4-flash
 
       - name: Generate daily report
         id: generate
@@ -113,7 +113,7 @@ jobs:
         env:
           LLM_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           LLM_BASE_URL: https://api.deepseek.com/v1
-          LLM_MODEL: deepseek-chat
+          LLM_MODEL: deepseek-v4-flash
 
       - name: Website sync configuration warning
         if: env.WEBSITE_REPO_TOKEN == ''

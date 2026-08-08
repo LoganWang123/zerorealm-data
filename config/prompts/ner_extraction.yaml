@@ -1,7 +1,7 @@
 name: ner_extraction
 version: 1
 description: "Extract named entities and events from industry news"
-model: deepseek-chat
+model: deepseek-v4-flash
 temperature: 0.1
 max_tokens: 800
 

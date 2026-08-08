@@ -21,9 +21,15 @@ class TestEstimateCost:
         assert CostTracker.estimate_cost("gpt-4o", 0, 0) == 0.0
 
     def test_proportional(self):
-        small = CostTracker.estimate_cost("deepseek-chat", 1000, 1000)
-        large = CostTracker.estimate_cost("deepseek-chat", 2000, 2000)
+        small = CostTracker.estimate_cost("deepseek-v4-flash", 1000, 1000)
+        large = CostTracker.estimate_cost("deepseek-v4-flash", 2000, 2000)
         assert abs(large - small * 2) < 1e-6
+
+    def test_v4_models_priced(self):
+        assert CostTracker.estimate_cost("deepseek-v4-flash", 1_000_000, 0) > 0
+        assert CostTracker.estimate_cost("deepseek-v4-pro", 1_000_000, 0) > CostTracker.estimate_cost(
+            "deepseek-v4-flash", 1_000_000, 0
+        )
 
 
 class TestCostTracker:

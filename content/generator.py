@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
@@ -297,18 +298,13 @@ class MockContentGenerator(ContentGenerator):
 
 
 class ConfigurableContentGenerator(ContentGenerator):
-    """Production-ready adapter. Without credentials, falls back to mock.
-
-    Set CONTENT_GENERATOR_PROVIDER=mock|openai|gemini (etc).
-    Real vendor SDKs are intentionally not imported here for CI safety.
-    """
+    """Deprecated shim — prefer get_generator(). Kept for import compatibility."""
 
     name = "configurable"
 
     def __init__(self, *, provider: str | None = None, corrupt: str | None = None) -> None:
-        self.provider = (provider or os.getenv("CONTENT_GENERATOR_PROVIDER") or "mock").lower()
-        self._mock = MockContentGenerator(corrupt=corrupt)
-        self.name = self.provider if self.provider != "configurable" else "mock"
+        self._inner = get_generator(provider=provider, corrupt=corrupt)
+        self.name = self._inner.name
 
     def generate(
         self,
@@ -316,19 +312,33 @@ class ConfigurableContentGenerator(ContentGenerator):
         *,
         candidate: ContentCandidate | None = None,
     ) -> StructuredDraft:
-        # Real LLM hooks would go here behind env flags; CI must stay deterministic.
-        if self.provider not in {"mock", "", "none"} and os.getenv("CONTENT_GENERATOR_ALLOW_LIVE") == "1":
-            raise RuntimeError(
-                f"Live generator provider '{self.provider}' is not wired in this build; "
-                "use mock or implement a provider adapter."
-            )
-        draft = self._mock.generate(context, candidate=candidate)
-        draft.generator_provider = self.name
-        return draft
+        return self._inner.generate(context, candidate=candidate)
 
 
-def get_generator(*, provider: str | None = None, corrupt: str | None = None) -> ContentGenerator:
-    return ConfigurableContentGenerator(provider=provider, corrupt=corrupt)
+def get_generator(
+    *,
+    provider: str | None = None,
+    corrupt: str | None = None,
+    model: str | None = None,
+    client=None,
+    env: dict[str, str] | None = None,
+) -> ContentGenerator:
+    from content.llm_generator import GenerationError, LLMContentGenerator
+
+    selected = (provider or os.getenv("CONTENT_GENERATOR_PROVIDER") or "mock").strip().lower()
+    if selected in {"mock", "", "none"}:
+        return MockContentGenerator(corrupt=corrupt)
+    if selected in {"deepseek", "llm"}:
+        return LLMContentGenerator(
+            provider="deepseek",
+            model=model,
+            client=client,
+            env=env,
+        )
+    raise GenerationError(
+        "UNKNOWN_CONTENT_GENERATOR_PROVIDER",
+        f"Unknown CONTENT_GENERATOR_PROVIDER={selected!r}; use mock|deepseek",
+    )
 
 
 def generate_controlled_draft(
@@ -337,19 +347,97 @@ def generate_controlled_draft(
     atom_store: ResearchAtomStore | None = None,
     generator: ContentGenerator | None = None,
     corrupt: str | None = None,
+    provider: str | None = None,
+    model: str | None = None,
+    require_verified_store: bool | None = None,
 ) -> StructuredDraft:
-    context = build_allowed_facts(candidate, atom_store=atom_store)
+    gen = generator or get_generator(provider=provider, corrupt=corrupt, model=model)
+    live = gen.name not in {"mock"} and (
+        require_verified_store
+        if require_verified_store is not None
+        else os.getenv("CONTENT_GENERATOR_ALLOW_LIVE") == "1"
+    )
+    context = build_allowed_facts(
+        candidate,
+        atom_store=atom_store,
+        require_verified_store=bool(live),
+    )
     candidate.metadata["allowed_facts"] = context.to_dict()
-    gen = generator or get_generator(corrupt=corrupt)
+    candidate.metadata["allowed_facts_verified_store"] = bool(context.live_verified_store)
     draft = gen.generate(context, candidate=candidate)
-    # Persist structured draft onto candidate for downstream audit/render.
-    candidate.draft = _structured_to_candidate_draft(draft, candidate)
+    candidate.draft = _structured_to_candidate_draft(draft, candidate, atom_store=atom_store)
+    if "fixture.local" in json.dumps(candidate.draft, ensure_ascii=False) and live:
+        raise RuntimeError("LIVE_DRAFT_FIXTURE_PROVENANCE: fixture.local forbidden in live drafts")
     candidate.metadata["structured_draft"] = draft.to_dict()
     candidate.metadata["draft_id"] = draft.draft_id
     return draft
 
 
-def _structured_to_candidate_draft(draft: StructuredDraft, candidate: ContentCandidate) -> dict[str, Any]:
+def _structured_to_candidate_draft(
+    draft: StructuredDraft,
+    candidate: ContentCandidate,
+    *,
+    atom_store: ResearchAtomStore | None = None,
+) -> dict[str, Any]:
+    allowed = (candidate.metadata or {}).get("allowed_facts") or {}
+    sources = list(allowed.get("allowed_sources") or [])
+    default_url = ""
+    default_name = ""
+    default_sid = ""
+    if sources:
+        default_url = str(sources[0].get("url") or "")
+        default_name = str(sources[0].get("title") or "")
+        default_sid = str(sources[0].get("source_document_id") or "")
+    if atom_store is not None and candidate.source_document_ids:
+        sid = candidate.source_document_ids[0]
+        src = atom_store.sources.get(sid)
+        if src is not None:
+            default_url = src.url or default_url
+            default_name = src.title or default_name
+            default_sid = sid
+
+    # Mock/tests may lack sources; never invent fixture.local for live-verified drafts.
+    if not default_url and not ((candidate.metadata or {}).get("allowed_facts_verified_store")):
+        default_url = ""
+        default_name = default_name or "unspecified-source"
+
+    sections_out = []
+    for sec in draft.sections:
+        sid = default_sid
+        url = default_url
+        name = default_name
+        # Prefer first claim's source when available.
+        for cid in sec.claim_ids:
+            for claim in allowed.get("allowed_claims") or []:
+                if claim.get("claim_id") != cid:
+                    continue
+                sids = list(claim.get("source_document_ids") or [])
+                if not sids:
+                    break
+                sid = sids[0]
+                for src in sources:
+                    if src.get("source_document_id") == sid:
+                        url = str(src.get("url") or url)
+                        name = str(src.get("title") or name)
+                        break
+                if atom_store is not None and sid in atom_store.sources:
+                    doc = atom_store.sources[sid]
+                    url = doc.url or url
+                    name = doc.title or name
+                break
+        sections_out.append(
+            {
+                "level": "core",
+                "title": sec.title,
+                "excerpt": sec.body,
+                "claim_ids": list(sec.claim_ids),
+                "source_url": url,
+                "source_name": name or sid or "verified-source",
+                "source_document_id": sid,
+                "source_type": "web",
+            }
+        )
+
     return {
         "draft_id": draft.draft_id,
         "content_id": draft.content_id,
@@ -358,18 +446,7 @@ def _structured_to_candidate_draft(draft: StructuredDraft, candidate: ContentCan
         "title": draft.title,
         "summary": draft.summary,
         "body": "\n\n".join(f"[{s.statement_type}] {s.text}" for s in draft.statements),
-        "sections": [
-            {
-                "level": "core",
-                "title": sec.title,
-                "excerpt": sec.body,
-                "claim_ids": list(sec.claim_ids),
-                "source_url": "https://fixture.local/source",
-                "source_name": "verified-source",
-                "source_type": "web",
-            }
-            for sec in draft.sections
-        ],
+        "sections": sections_out,
         "statements": [s.to_dict() for s in draft.statements],
         "primary_signal": candidate.primary_signal,
         "primary_signal_count": candidate.primary_signal_count,

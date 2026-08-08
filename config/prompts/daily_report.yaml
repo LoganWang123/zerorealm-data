@@ -13,7 +13,7 @@
 name: daily_report
 version: 5
 description: "ZeroRealm Industry Intelligence V4 (Decision Interpreter)"
-model: deepseek-chat
+model: deepseek-v4-flash
 temperature: 0.4
 max_tokens: 16000
 
