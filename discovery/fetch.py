@@ -1,4 +1,4 @@
-"""Fetch original candidate URLs with HTML → Playwright fallback."""
+"""Fetch original candidate URLs with HTML → Playwright fallback + diagnostics."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from bs4 import BeautifulSoup
 
 from crawlers.base import RawItem
-from crawlers.html_crawler import HTMLCrawler
+from crawlers.html_crawler import HTMLCrawler, _provenance_html_slice
 from utils.helpers import generate_run_id
 
 DEFAULT_MIN_CONTENT_CHARS = 80
@@ -22,11 +22,33 @@ class FetchResult:
     method: str = ""  # html | playwright | ""
     reason_codes: list[str] = field(default_factory=list)
     ok: bool = False
+    http_status: int | None = None
+    diagnostics: dict = field(default_factory=dict)
 
 
 def content_is_sufficient(text: str, *, min_chars: int = DEFAULT_MIN_CONTENT_CHARS) -> bool:
     body = (text or "").strip()
     return len(body) >= min_chars
+
+
+def classify_fetch_exception(exc: BaseException) -> list[str]:
+    """Map transport/parser failures to detailed reason codes (no bypass)."""
+    text = f"{type(exc).__name__}: {exc}".lower()
+    codes: list[str] = []
+    if "timeout" in text or "timed out" in text:
+        codes.append("PLAYWRIGHT_TIMEOUT" if "playwright" in text else "HTTP_ERROR")
+    if any(token in text for token in ("401", "403", "451", "blocked", "captcha", "access denied")):
+        codes.append("BLOCKED")
+    if any(token in text for token in ("robots", "forbidden", "unauthorized", "login required")):
+        codes.append("ROBOTS_OR_ACCESS_RESTRICTED")
+    if "404" in text or "410" in text:
+        codes.append("HTTP_ERROR")
+    if "http" in text or "connection" in text or "ssl" in text or "status" in text:
+        if "HTTP_ERROR" not in codes:
+            codes.append("HTTP_ERROR")
+    if not codes:
+        codes.append("HTTP_ERROR")
+    return codes
 
 
 def _source_config(url: str, source_id: str, timeout: int, js_render: bool = False) -> dict:
@@ -85,10 +107,13 @@ def fetch_playwright_article(
     items = crawler._parse_article_page(soup)
     if not items:
         raise ConnectionError(f"Playwright extract returned no items for {url}")
-    return _annotate(items[0], source_id=source_id, method="playwright")
+    item = _annotate(items[0], source_id=source_id, method="playwright")
+    item.content_html = _provenance_html_slice(soup)
+    return item
 
 
 async def _playwright_get_html(url: str, *, timeout: int) -> str:
+    from playwright.async_api import TimeoutError as PlaywrightTimeoutError
     from playwright.async_api import async_playwright
 
     async with async_playwright() as p:
@@ -102,7 +127,15 @@ async def _playwright_get_html(url: str, *, timeout: int) -> str:
                 locale="zh-CN",
             )
             page = await context.new_page()
-            await page.goto(url, timeout=timeout * 1000, wait_until="domcontentloaded")
+            try:
+                response = await page.goto(
+                    url, timeout=timeout * 1000, wait_until="domcontentloaded"
+                )
+            except PlaywrightTimeoutError as exc:
+                raise TimeoutError(f"playwright timeout: {exc}") from exc
+            status = response.status if response is not None else None
+            if status in {401, 403, 451}:
+                raise PermissionError(f"blocked http {status}")
             await page.wait_for_timeout(1500)
             return await page.content()
         finally:
@@ -150,10 +183,11 @@ def fetch_with_fallback(
 ) -> FetchResult:
     """HTML first; on empty/insufficient content, fallback to Playwright.
 
-    Reason codes:
-    - HTML_EMPTY / HTML_INSUFFICIENT → attempt Playwright
-    - PLAYWRIGHT_FAILED → Playwright path failed
-    - FETCH_FAILED → both paths failed
+    Reason codes (examples):
+    - HTML_EMPTY / HTML_TOO_SHORT / JS_REQUIRED
+    - PLAYWRIGHT_TIMEOUT / PLAYWRIGHT_EMPTY / PLAYWRIGHT_FAILED
+    - HTTP_ERROR / BLOCKED / ROBOTS_OR_ACCESS_RESTRICTED
+    - FETCH_FAILED (terminal)
     """
     rid = run_id or generate_run_id()
     html_fn = html_fetcher or (
@@ -163,40 +197,80 @@ def fetch_with_fallback(
         lambda u: fetch_playwright_article(u, source_id=source_id, run_id=rid, timeout=timeout)
     )
     reasons: list[str] = []
+    diagnostics: dict = {"url": url}
+
+    def _body_code(item: RawItem | None) -> str:
+        if item is None or not (item.content_text or "").strip():
+            return "HTML_EMPTY"
+        if not content_is_sufficient(item.content_text, min_chars=min_chars):
+            return "HTML_TOO_SHORT"
+        return ""
 
     if prefer_playwright:
         try:
             item = pw_fn(url)
             if content_is_sufficient(item.content_text, min_chars=min_chars):
                 return FetchResult(item=item, method="playwright", reason_codes=[], ok=True)
-            reasons.append("HTML_INSUFFICIENT" if (item.content_text or "").strip() else "HTML_EMPTY")
-        except Exception:
+            reasons.append("PLAYWRIGHT_EMPTY")
+        except Exception as exc:
+            reasons.extend(classify_fetch_exception(exc))
+            if "PLAYWRIGHT_TIMEOUT" not in reasons and "timeout" in str(exc).lower():
+                reasons.append("PLAYWRIGHT_TIMEOUT")
             reasons.append("PLAYWRIGHT_FAILED")
-            return FetchResult(item=None, method="", reason_codes=reasons + ["FETCH_FAILED"], ok=False)
+            return FetchResult(
+                item=None,
+                method="",
+                reason_codes=list(dict.fromkeys(reasons + ["FETCH_FAILED"])),
+                ok=False,
+                diagnostics=diagnostics,
+            )
 
     # HTML attempt
-    html_item: RawItem | None = None
     try:
         html_item = html_fn(url)
-        if content_is_sufficient(html_item.content_text, min_chars=min_chars):
-            return FetchResult(item=html_item, method="html", reason_codes=[], ok=True)
-        reasons.append(
-            "HTML_INSUFFICIENT"
-            if (html_item.content_text or "").strip()
-            else "HTML_EMPTY"
-        )
-    except Exception:
+        code = _body_code(html_item)
+        if not code:
+            return FetchResult(
+                item=html_item,
+                method="html",
+                reason_codes=[],
+                ok=True,
+                http_status=html_item.http_status,
+                diagnostics=diagnostics,
+            )
+        reasons.append(code)
+        if code in {"HTML_EMPTY", "HTML_TOO_SHORT"}:
+            reasons.append("JS_REQUIRED")
+    except Exception as exc:
+        reasons.extend(classify_fetch_exception(exc))
         reasons.append("HTML_EMPTY")
 
     # Playwright fallback
     try:
         pw_item = pw_fn(url)
         if content_is_sufficient(pw_item.content_text, min_chars=min_chars):
-            return FetchResult(item=pw_item, method="playwright", reason_codes=list(reasons), ok=True)
+            return FetchResult(
+                item=pw_item,
+                method="playwright",
+                reason_codes=list(dict.fromkeys(reasons)),
+                ok=True,
+                http_status=pw_item.http_status,
+                diagnostics=diagnostics,
+            )
+        reasons.append("PLAYWRIGHT_EMPTY")
         reasons.append("PLAYWRIGHT_FAILED")
-    except Exception:
+    except Exception as exc:
+        reasons.extend(classify_fetch_exception(exc))
+        if "timeout" in str(exc).lower() and "PLAYWRIGHT_TIMEOUT" not in reasons:
+            reasons.append("PLAYWRIGHT_TIMEOUT")
         reasons.append("PLAYWRIGHT_FAILED")
 
     if "FETCH_FAILED" not in reasons:
         reasons.append("FETCH_FAILED")
-    return FetchResult(item=None, method="", reason_codes=reasons, ok=False)
+    return FetchResult(
+        item=None,
+        method="",
+        reason_codes=list(dict.fromkeys(reasons)),
+        ok=False,
+        diagnostics=diagnostics,
+    )

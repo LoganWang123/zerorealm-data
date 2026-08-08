@@ -66,7 +66,13 @@ class CandidateRecord:
     canonical_domain: str = ""
     is_official: bool = False
     published_at: str | None = None
+    published_at_source: str = "unknown"
+    published_at_confidence: str = "low"
+    modified_at: str | None = None
+    modified_at_source: str = "unknown"
     freshness_score: float = 0.0
+    source_cluster_id: str = ""
+    source_role: str = ""
     review_queue_id: str | None = None
     metadata: dict = field(default_factory=dict)
 
@@ -113,7 +119,13 @@ class CandidateRecord:
             "canonical_domain": self.canonical_domain,
             "is_official": self.is_official,
             "published_at": self.published_at,
+            "published_at_source": self.published_at_source,
+            "published_at_confidence": self.published_at_confidence,
+            "modified_at": self.modified_at,
+            "modified_at_source": self.modified_at_source,
             "freshness_score": self.freshness_score,
+            "source_cluster_id": self.source_cluster_id,
+            "source_role": self.source_role,
             "review_queue_id": self.review_queue_id,
             "lineage": self.lineage,
             "candidate": {
@@ -168,7 +180,13 @@ class CandidateRecord:
             canonical_domain=str(data.get("canonical_domain") or ""),
             is_official=bool(data.get("is_official") or False),
             published_at=data.get("published_at"),
+            published_at_source=str(data.get("published_at_source") or "unknown"),
+            published_at_confidence=str(data.get("published_at_confidence") or "low"),
+            modified_at=data.get("modified_at"),
+            modified_at_source=str(data.get("modified_at_source") or "unknown"),
             freshness_score=float(data.get("freshness_score") or 0.0),
+            source_cluster_id=str(data.get("source_cluster_id") or ""),
+            source_role=str(data.get("source_role") or ""),
             review_queue_id=data.get("review_queue_id"),
             metadata=dict(data.get("metadata") or {}),
         )

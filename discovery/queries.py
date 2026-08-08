@@ -164,3 +164,66 @@ def resolve_queries(
         company_terms=[company_name],
         topic_terms=[],
     )
+
+
+def resolve_batch_topics(
+    *,
+    topic_keys: list[str] | None = None,
+    run_all: bool = False,
+    registry: dict[str, Any] | None = None,
+    registry_path: str | Path | None = None,
+    max_queries: int | None = None,
+) -> QueryPlan:
+    """Resolve one or more topics into a bounded batch query plan."""
+    data = registry if registry is not None else load_query_registry(registry_path)
+    topics = data.get("topics") or {}
+    if not isinstance(topics, dict) or not topics:
+        raise ValueError("No topics configured in query registry")
+    base = _defaults(data)
+    budget = int(
+        max_queries
+        if max_queries is not None
+        else data.get("max_queries_per_run")
+        or 4
+    )
+    budget = max(1, budget)
+
+    if run_all:
+        selected = list(topics.keys())
+    else:
+        selected = [t.strip() for t in (topic_keys or []) if str(t).strip()]
+    if not selected:
+        raise ValueError("Provide --topics or --run-registry")
+
+    queries: list[str] = []
+    labels: list[str] = []
+    topic_terms: list[str] = []
+    intent = str(base["intent"])
+    window = base["freshness_window"]
+    max_results = base["max_results"]
+    for key in selected:
+        if key not in topics:
+            raise KeyError(f"Unknown topic '{key}'. Known: {', '.join(sorted(topics))}")
+        entry = topics[key] or {}
+        labels.append(str(entry.get("label") or key))
+        intent = str(entry.get("intent") or intent)
+        window = entry.get("freshness_window", window)
+        max_results = entry.get("max_results", max_results)
+        for item in entry.get("queries") or []:
+            text = str(item).strip()
+            if text and text not in queries:
+                queries.append(text)
+                topic_terms.append(text)
+        topic_terms.append(str(entry.get("label") or key))
+
+    return QueryPlan(
+        mode="batch",
+        label=",".join(labels) if labels else "registry",
+        queries=queries[:budget],
+        max_queries_per_run=budget,
+        intent=intent,
+        freshness_window=str(window) if window else None,
+        priority=int(base["priority"]),
+        max_results=int(max_results) if max_results else None,
+        topic_terms=list(dict.fromkeys(topic_terms)),
+    )

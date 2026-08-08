@@ -50,6 +50,7 @@ def score_candidate(
     topic_terms: list[str] | None = None,
     company_terms: list[str] | None = None,
     duplicate: bool = False,
+    syndication_penalty: float = 0.0,
 ) -> float:
     """Backward-compatible score float (higher = more worth prioritizing)."""
     return score_candidate_breakdown(
@@ -61,6 +62,7 @@ def score_candidate(
         topic_terms=topic_terms,
         company_terms=company_terms,
         duplicate=duplicate,
+        syndication_penalty=syndication_penalty,
     ).discovery_score
 
 
@@ -74,8 +76,9 @@ def score_candidate_breakdown(
     topic_terms: list[str] | None = None,
     company_terms: list[str] | None = None,
     duplicate: bool = False,
+    syndication_penalty: float = 0.0,
 ) -> DiscoveryScoreBreakdown:
-    """Compose relevance + source_tier + freshness + matches − duplicate."""
+    """Compose relevance + source_tier + freshness + matches − duplicate/syndication."""
     clf = classification or classify_source(
         candidate.url,
         title=candidate.title,
@@ -117,7 +120,7 @@ def score_candidate_breakdown(
         intent=intent,
         freshness_window=freshness_window,
     )
-    dup_penalty = 15.0 if duplicate else 0.0
+    dup_penalty = (15.0 if duplicate else 0.0) + float(syndication_penalty or 0.0)
 
     total = (
         relevance

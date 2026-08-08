@@ -1,0 +1,110 @@
+# Explicit source identity / quality registry for Discovery ranking.
+# Unknown domains fall back to source_type=unknown, tier=C.
+# Do not auto-upgrade unknown domains.
+
+domains:
+  gov.cn:
+    publisher: 中国政府网
+    source_type: government
+    source_tier: S
+    official: true
+  cninfo.com.cn:
+    publisher: 巨潮资讯
+    source_type: exchange
+    source_tier: S
+    official: true
+  sse.com.cn:
+    publisher: 上海证券交易所
+    source_type: exchange
+    source_tier: S
+    official: true
+  szse.cn:
+    publisher: 深圳证券交易所
+    source_type: exchange
+    source_tier: S
+    official: true
+  xinhuanet.com:
+    publisher: 新华网
+    source_type: major_media
+    source_tier: A
+    official: false
+  people.com.cn:
+    publisher: 人民网
+    source_type: major_media
+    source_tier: A
+    official: false
+  caixin.com:
+    publisher: 财新
+    source_type: major_media
+    source_tier: A
+    official: false
+  yicai.com:
+    publisher: 第一财经
+    source_type: major_media
+    source_tier: A
+    official: false
+  36kr.com:
+    publisher: 36氪
+    source_type: industry_media
+    source_tier: B
+    official: false
+  huaon.com:
+    publisher: 华经情报网
+    source_type: industry_media
+    source_tier: B
+    official: false
+  wikipedia.org:
+    publisher: Wikipedia
+    source_type: encyclopedia
+    source_tier: C
+    official: false
+  baike.baidu.com:
+    publisher: 百度百科
+    source_type: encyclopedia
+    source_tier: C
+    official: false
+  sohu.com:
+    publisher: 搜狐
+    source_type: aggregator
+    source_tier: C
+    official: false
+  163.com:
+    publisher: 网易
+    source_type: aggregator
+    source_tier: C
+    official: false
+  foxconn.com:
+    publisher: 富士康 / Foxconn
+    source_type: company
+    source_tier: B
+    official: true
+  iot.foxconn.com:
+    publisher: 富士康物联网 CMCID
+    source_type: company
+    source_tier: B
+    official: true
+  alipay.com:
+    publisher: 支付宝
+    source_type: company
+    source_tier: B
+    official: true
+  opendocs.alipay.com:
+    publisher: 支付宝开放文档
+    source_type: company
+    source_tier: B
+    official: true
+  hikvision.com:
+    publisher: 海康威视
+    source_type: vendor
+    source_tier: C
+    official: false
+  fcbox.com:
+    publisher: 丰巢
+    source_type: vendor
+    source_tier: C
+    official: false
+  arxiv.org:
+    publisher: arXiv
+    source_type: academic
+    source_tier: S
+    official: false

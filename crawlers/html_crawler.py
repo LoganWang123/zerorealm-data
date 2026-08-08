@@ -30,6 +30,26 @@ BROWSER_HEADERS = {
 }
 
 
+def _provenance_html_slice(soup: BeautifulSoup, *, limit: int = 50000) -> str:
+    """Prefer head + JSON-LD blocks for date/publisher extraction, then page prefix."""
+    parts: list[str] = []
+    head = soup.find("head")
+    if head is not None:
+        parts.append(str(head))
+    for script in soup.find_all("script", attrs={"type": lambda v: bool(v and "ld+json" in v.lower())}):
+        parts.append(str(script))
+    for meta in soup.find_all("meta"):
+        key = (meta.get("property") or meta.get("name") or "").lower()
+        if any(token in key for token in ("published", "modified", "pubdate", "og:site_name")):
+            parts.append(str(meta))
+    for time_tag in soup.find_all("time"):
+        parts.append(str(time_tag))
+    blob = "\n".join(parts)
+    if len(blob) < 1000:
+        blob = str(soup)[:limit]
+    return blob[:limit]
+
+
 class HTMLCrawler(BaseCrawler):
     """Crawler for HTML web pages (list pages with article links)."""
 
@@ -174,7 +194,7 @@ class HTMLCrawler(BaseCrawler):
         item = self._make_item(
             title=title,
             url=self.url,
-            content_html=content_html[:5000],
+            content_html=_provenance_html_slice(soup),
             content_text=content_text[:5000],
             summary=content_text[:200] if content_text else "",
             published_at=published_at,

@@ -16,8 +16,9 @@ if str(_ROOT) not in sys.path:
 from discovery.pipeline import DiscoveryPipeline, DiscoveryPipelineConfig
 from discovery.pool import DEFAULT_POOL_PATH, CandidatePool
 from discovery.providers.anysearch import AnySearchProvider
-from discovery.queries import resolve_queries
+from discovery.queries import resolve_batch_topics, resolve_queries
 from discovery.review_queue import DEFAULT_QUEUE_PATH, ResearchReviewQueue, ReviewStatus
+from research.atom_store import DEFAULT_ATOMS_PATH, ResearchAtomStore
 
 try:
     from dotenv import load_dotenv
@@ -39,6 +40,15 @@ def build_parser() -> argparse.ArgumentParser:
     source.add_argument("--query", help="Direct search query, e.g. 智能柜")
     source.add_argument("--topic", help="Topic key from config/source_queries.yaml")
     source.add_argument("--company", help="Company name expanded via registry templates")
+    source.add_argument(
+        "--topics",
+        help="Comma-separated topic keys for batch discovery",
+    )
+    source.add_argument(
+        "--run-registry",
+        action="store_true",
+        help="Run all topics from query registry (budget-limited)",
+    )
     source.add_argument(
         "--review-queue",
         action="store_true",
@@ -66,6 +76,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Override registry max_queries_per_run",
     )
     parser.add_argument(
+        "--max-candidates",
+        type=int,
+        default=None,
+        help="Max candidates processed per run (request budget)",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Discover only: no fetch/verify; still can report candidates",
@@ -91,6 +107,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--queue-path",
         default=str(DEFAULT_QUEUE_PATH),
         help="Durable research review queue path",
+    )
+    parser.add_argument(
+        "--atoms-path",
+        default=str(DEFAULT_ATOMS_PATH),
+        help="Durable research atoms path",
     )
     parser.add_argument(
         "--registry",
@@ -145,6 +166,10 @@ def _handle_review_commands(args) -> int:
                 "count": len(pending),
                 "queue_path": args.queue_path,
                 "items": [_review_summary(i) for i in pending],
+                "note": (
+                    "Queue APPROVED ≠ ClaimStatus.VERIFIED. "
+                    "Use python research_review.py --verify-claim <id> --reviewer <name>."
+                ),
             }
         )
         return 0
@@ -188,7 +213,9 @@ def main(argv: list[str] | None = None) -> int:
     review_mode = any(
         [args.review_queue, args.review, args.approve, args.reject, args.defer]
     )
-    discover_mode = any([args.query, args.topic, args.company])
+    discover_mode = any(
+        [args.query, args.topic, args.company, args.topics, args.run_registry]
+    )
     if review_mode and discover_mode:
         _emit({"ok": False, "error": "Do not mix discovery flags with review flags"})
         return 2
@@ -196,7 +223,7 @@ def main(argv: list[str] | None = None) -> int:
         _emit(
             {
                 "ok": False,
-                "error": "Provide --query/--topic/--company or a review command",
+                "error": "Provide --query/--topic/--company/--topics/--run-registry or a review command",
             }
         )
         return 2
@@ -213,13 +240,22 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     try:
-        plan = resolve_queries(
-            query=args.query,
-            topic=args.topic,
-            company=args.company,
-            registry_path=args.registry,
-            max_queries=args.max_queries,
-        )
+        if args.run_registry or args.topics:
+            keys = [p.strip() for p in str(args.topics or "").split(",") if p.strip()]
+            plan = resolve_batch_topics(
+                topic_keys=keys or None,
+                run_all=bool(args.run_registry),
+                registry_path=args.registry,
+                max_queries=args.max_queries,
+            )
+        else:
+            plan = resolve_queries(
+                query=args.query,
+                topic=args.topic,
+                company=args.company,
+                registry_path=args.registry,
+                max_queries=args.max_queries,
+            )
     except (ValueError, KeyError, FileNotFoundError) as exc:
         _emit({"ok": False, "error": str(exc)})
         return 2
@@ -230,6 +266,11 @@ def main(argv: list[str] | None = None) -> int:
     limit = max(1, min(args.limit, 10))
     if plan.max_results:
         limit = max(1, min(limit, int(plan.max_results)))
+    max_candidates = args.max_candidates
+    if max_candidates is None:
+        env_budget = os.getenv("ANYSEARCH_MAX_CANDIDATES_PER_RUN", "").strip()
+        if env_budget.isdigit():
+            max_candidates = int(env_budget)
 
     config = DiscoveryPipelineConfig(
         fetch=stage in {"fetch", "verify"},
@@ -237,7 +278,9 @@ def main(argv: list[str] | None = None) -> int:
         persist=persist,
         pool_path=args.pool_path,
         queue_path=args.queue_path,
+        atoms_path=args.atoms_path,
         results_per_query=limit,
+        max_candidates_per_run=max_candidates,
         intent=plan.intent,
         freshness_window=plan.freshness_window,
         topic_terms=list(plan.topic_terms),
@@ -246,14 +289,17 @@ def main(argv: list[str] | None = None) -> int:
     if persist or not dry_run:
         pool = CandidatePool.load_or_create(args.pool_path)
         queue = ResearchReviewQueue.load_or_create(args.queue_path)
+        atoms = ResearchAtomStore.load_or_create(args.atoms_path)
     else:
         pool = CandidatePool(args.pool_path)
         queue = ResearchReviewQueue(args.queue_path)
+        atoms = ResearchAtomStore(args.atoms_path)
 
     pipeline = DiscoveryPipeline(
         provider=AnySearchProvider(),
         pool=pool,
         review_queue=queue,
+        atom_store=atoms,
         config=config,
     )
     summary = pipeline.run_queries(plan.queries, results_per_query=config.results_per_query)
@@ -265,6 +311,7 @@ def main(argv: list[str] | None = None) -> int:
         "intent": plan.intent,
         "freshness_window": plan.freshness_window,
         "max_queries_per_run": plan.max_queries_per_run,
+        "max_candidates_per_run": max_candidates,
         "dry_run": dry_run,
         "stage": stage,
         "api_key_configured": bool(os.getenv("ANYSEARCH_API_KEY", "").strip()),
@@ -274,6 +321,7 @@ def main(argv: list[str] | None = None) -> int:
         "queue_enqueued": summary.queue_enqueued,
         "pool_path": args.pool_path if persist else None,
         "queue_path": args.queue_path if persist else None,
+        "atoms_path": args.atoms_path if persist else None,
         "results": [r.to_dict() for r in summary.records],
     }
     _emit(payload)
