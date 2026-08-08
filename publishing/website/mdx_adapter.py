@@ -62,6 +62,9 @@ def build_website_daily_mdx(
     title: str,
     status: str = "published",
     visibility: str = "public",
+    gate_status: str | None = None,
+    gate_version: str | None = None,
+    reviewed_at: str | None = None,
 ) -> str:
     """Build website Daily MDX from the canonical Daily source text."""
     data, body = extract_frontmatter(source_text)
@@ -75,6 +78,12 @@ def build_website_daily_mdx(
     data["visibility"] = data.get("visibility") or visibility
     if "slug" not in data or not data.get("slug"):
         data["slug"] = f"daily-{data['date']}"
+    if gate_status:
+        data["gate_status"] = gate_status
+    if gate_version:
+        data["gate_version"] = gate_version
+    if reviewed_at:
+        data["reviewed_at"] = reviewed_at
 
     dumped = yaml.safe_dump(
         data,

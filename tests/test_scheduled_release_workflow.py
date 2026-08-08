@@ -49,6 +49,22 @@ def test_workflow_keeps_legacy_mdx_and_bundle_feature_flags():
     assert "CROSS_CHANNEL_MISSING" not in text  # code lives in Python module
 
 
+def test_workflow_website_sync_does_not_require_media_assets():
+    text = WORKFLOW.read_text(encoding="utf-8")
+    assert "continue-on-error: true" in text
+    assert "Daily page live but media incomplete" in text
+    assert "python publish.py --channel website" in text
+    # WeChat draft may still depend on media, but website sync must not.
+    assert (
+        'steps.generate.outputs.generated == \'true\' || env.SYNC_PUBLIC_BUNDLE == \'true\''
+        in text
+        or 'steps.generate.outputs.generated == "true" || env.SYNC_PUBLIC_BUNDLE == "true"'
+        in text
+        or "(steps.generate.outputs.generated == 'true' || env.SYNC_PUBLIC_BUNDLE == 'true')"
+        in text
+    )
+
+
 def test_scheduled_wechat_command_can_only_create_a_draft():
     text = WORKFLOW.read_text(encoding="utf-8")
 
