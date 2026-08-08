@@ -11,5 +11,6 @@ Website Insight body/media already matched `article.md`, but homepage featured D
 - Content package metadata marked website-aligned
 
 ## Follow-up
-- Daily 2026-08-08《东鹏饮料…》已按用户要求撤回：`visibility: private` + `gate_status: rejected`
+- Daily 2026-08-08 东鹏稿已撤回，并替换为与公众号 Insight 同题的正式 8 月 8 日日报入口
+- 完整正文仍在 `/insight/smart-cabinet-five-process-metrics`
 - No WeChat re-publish
