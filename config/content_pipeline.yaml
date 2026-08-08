@@ -1,0 +1,22 @@
+# Content pipeline config (Knowledge → Content Candidate → Publish-Ready).
+# Does not enable channel publish.
+
+timezone: Asia/Shanghai
+
+freshness:
+  daily_primary_window: 48h
+  insight_window: 30d
+
+daily:
+  max_primary_signals: 1
+  require_verified_primary_claim: true
+
+insight:
+  require_theme_consistency: true
+
+paths:
+  knowledge: data/state/knowledge_store.json
+  candidates: data/state/content_candidates.json
+  editorial_log: data/state/editorial_review_log.jsonl
+  packages: data/state/publish_ready_packages.json
+  review_drafts: dist/review/content
