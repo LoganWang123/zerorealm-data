@@ -1,0 +1,11 @@
+{
+  "expected_gate": "PASS",
+  "expected_statement_types": [
+    "FACT",
+    "INFERENCE"
+  ],
+  "forbidden_patterns": [],
+  "required_patterns": [],
+  "max_new_entities": 0,
+  "max_unsupported_numbers": 0
+}

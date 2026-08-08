@@ -102,6 +102,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--dry-run", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--corrupt", default=None, help="Mock generator corruption mode (tests)")
+    parser.add_argument("--quality", metavar="ID", help="Evaluate draft quality for candidate/draft id")
+    parser.add_argument("--shadow-generate", metavar="ID", help="Live shadow generate (requires ALLOW_LIVE=1)")
+    parser.add_argument("--editorial-package", metavar="PATH", help="Build editorial package from shadow dir")
+    parser.add_argument("--benchmark-models", metavar="FIXTURE", help="Flash/Pro benchmark fixture name")
+    parser.add_argument("--prompt-version", type=int, default=2)
+    parser.add_argument("--out-dir", default=None)
     parser.add_argument("--reviewer", default=None)
     parser.add_argument("--reason", default="")
     parser.add_argument("--atoms-path", default=None)
@@ -158,6 +164,62 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     paths = _paths(args)
     try:
+        if args.editorial_package:
+            from content.shadow import build_editorial_package
+
+            pkg = build_editorial_package(shadow_dir=args.editorial_package, package_dir=args.out_dir)
+            _emit({"ok": True, "mode": "editorial-package", **pkg})
+            return 0
+
+        if args.quality:
+            atoms = ResearchAtomStore.load_or_create(paths["atoms"])
+            store = ContentCandidateStore.load_or_create(paths["candidates"])
+            cand = _resolve_candidate(store, args.quality)
+            if cand is None:
+                _emit({"ok": False, "error": f"Unknown candidate: {args.quality}"})
+                return 2
+            from content.quality import ContentQualityEvaluator
+
+            draft = _structured_from_candidate(cand)
+            report = ContentQualityEvaluator().evaluate(draft, candidate=cand)
+            _emit({"ok": True, "mode": "quality", "report": report.to_dict()})
+            return 0
+
+        if args.shadow_generate:
+            import os
+
+            if os.getenv("CONTENT_GENERATOR_ALLOW_LIVE") != "1":
+                _emit(
+                    {
+                        "ok": False,
+                        "error_code": "LIVE_GENERATOR_DISABLED",
+                        "error": "shadow-generate requires CONTENT_GENERATOR_ALLOW_LIVE=1",
+                    }
+                )
+                return 2
+            _emit(
+                {
+                    "ok": True,
+                    "mode": "shadow-generate-preflight",
+                    "LIVE_LLM_ENABLED": True,
+                    "provider": args.provider or os.getenv("CONTENT_GENERATOR_PROVIDER") or "deepseek",
+                    "model": args.model or os.getenv("CONTENT_GENERATOR_MODEL") or "deepseek-v4-flash",
+                    "note": "Use scripts/run_shadow_quality_v1.py for full verified-research shadow flow",
+                }
+            )
+            return 0
+
+        if args.benchmark_models:
+            _emit(
+                {
+                    "ok": True,
+                    "mode": "benchmark-models",
+                    "fixture": args.benchmark_models,
+                    "note": "Use scripts/run_shadow_quality_v1.py --benchmark for bounded Flash/Pro runs",
+                }
+            )
+            return 0
+
         if args.export_knowledge:
             atoms = ResearchAtomStore.load_or_create(paths["atoms"])
             knowledge = KnowledgeStore.load_or_create(paths["knowledge"])

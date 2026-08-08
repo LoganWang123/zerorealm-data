@@ -1,0 +1,12 @@
+{
+  "expected_gate": "PASS",
+  "expected_statement_types": [
+    "FACT"
+  ],
+  "forbidden_patterns": [
+    "值得注意的是"
+  ],
+  "required_patterns": [],
+  "max_new_entities": 0,
+  "max_unsupported_numbers": 0
+}
