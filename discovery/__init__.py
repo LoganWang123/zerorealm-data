@@ -1,8 +1,9 @@
-"""Source Discovery layer (AnySearch → Candidate → Fetch → Research Verify)."""
+"""Source Discovery layer (AnySearch → Candidate → Fetch → Research Verify → Review Queue)."""
 
 from discovery.models import CandidateRecord, CandidateStatus, SearchCandidate
 from discovery.pipeline import DiscoveryPipeline, DiscoveryPipelineConfig, DiscoveryRunSummary
 from discovery.pool import CandidatePool
+from discovery.review_queue import ResearchReviewQueue, ReviewStatus
 
 __all__ = [
     "CandidatePool",
@@ -11,5 +12,7 @@ __all__ = [
     "DiscoveryPipeline",
     "DiscoveryPipelineConfig",
     "DiscoveryRunSummary",
+    "ResearchReviewQueue",
+    "ReviewStatus",
     "SearchCandidate",
 ]
