@@ -7,15 +7,18 @@ from typing import Callable
 from urllib.parse import urlsplit
 
 from crawlers.base import RawItem
+from discovery.clustering import assign_clusters, content_fingerprint
 from discovery.dedupe import dedupe_candidates, normalize_url
 from discovery.fetch import FetchResult, fetch_with_fallback
-from discovery.freshness import freshness_score, resolve_discovery_published_at
+from discovery.freshness import freshness_score
 from discovery.models import CandidateRecord, CandidateStatus, SearchCandidate, make_candidate_id
 from discovery.pool import DEFAULT_POOL_PATH, CandidatePool
 from discovery.providers.base import SearchProvider
+from discovery.publication_date import extract_publication_dates
 from discovery.review_queue import DEFAULT_QUEUE_PATH, ResearchReviewQueue
 from discovery.scoring import score_candidate, score_candidate_breakdown
 from discovery.source_quality import classify_source
+from research.atom_store import DEFAULT_ATOMS_PATH, ResearchAtomStore
 from research.intake import news_to_research_atoms
 from research.validators import has_blocking_issues, validate_discovery_atoms
 from utils.helpers import now_iso
@@ -30,8 +33,10 @@ class DiscoveryPipelineConfig:
     persist: bool = True
     pool_path: str = str(DEFAULT_POOL_PATH)
     queue_path: str = str(DEFAULT_QUEUE_PATH)
+    atoms_path: str = str(DEFAULT_ATOMS_PATH)
     source_id_prefix: str = "discovery"
     results_per_query: int = 5
+    max_candidates_per_run: int | None = None
     intent: str = "research"
     freshness_window: str | None = None
     topic_terms: list[str] = field(default_factory=list)
@@ -56,6 +61,7 @@ class DiscoveryPipeline:
         provider: SearchProvider,
         pool: CandidatePool | None = None,
         review_queue: ResearchReviewQueue | None = None,
+        atom_store: ResearchAtomStore | None = None,
         fetcher: Fetcher | None = None,
         config: DiscoveryPipelineConfig | None = None,
     ) -> None:
@@ -65,6 +71,7 @@ class DiscoveryPipeline:
         self.review_queue = review_queue or ResearchReviewQueue.load_or_create(
             self.config.queue_path
         )
+        self.atom_store = atom_store or ResearchAtomStore.load_or_create(self.config.atoms_path)
         self.fetcher = fetcher
 
     def run(self, query: str, *, limit: int = 10) -> list[CandidateRecord]:
@@ -86,6 +93,7 @@ class DiscoveryPipeline:
             all_hits.extend(self.provider.search(q, limit=per_query))
 
         unique = dedupe_candidates(all_hits)
+        clusters = assign_clusters(unique)
         unique.sort(
             key=lambda c: score_candidate(
                 c,
@@ -93,9 +101,13 @@ class DiscoveryPipeline:
                 freshness_window=self.config.freshness_window,
                 topic_terms=self.config.topic_terms,
                 company_terms=self.config.company_terms,
+                syndication_penalty=(clusters.get(c.url).syndication_penalty if clusters.get(c.url) else 0.0),
             ),
             reverse=True,
         )
+        if self.config.max_candidates_per_run:
+            unique = unique[: max(1, int(self.config.max_candidates_per_run))]
+
         summary = DiscoveryRunSummary(
             queries=list(queries),
             search_results=len(all_hits),
@@ -109,12 +121,14 @@ class DiscoveryPipeline:
             candidate_id = make_candidate_id(cand.provider, canonical)
             now = now_iso()
             existing = self.pool.get_by_url(canonical) or self.pool.get(candidate_id)
+            cluster = clusters.get(cand.url)
             prelim = score_candidate_breakdown(
                 cand,
                 intent=self.config.intent,
                 freshness_window=self.config.freshness_window,
                 topic_terms=self.config.topic_terms,
                 company_terms=self.config.company_terms,
+                syndication_penalty=cluster.syndication_penalty if cluster else 0.0,
             )
 
             if existing is not None:
@@ -130,7 +144,13 @@ class DiscoveryPipeline:
                     CandidateStatus.FETCH_FAILED,
                 }:
                     if existing.status is CandidateStatus.VERIFIED:
-                        self._apply_quality_metadata(existing, published_at=existing.published_at)
+                        self._apply_quality_metadata(
+                            existing,
+                            published_at=existing.published_at,
+                            html="",
+                            syndication_penalty=cluster.syndication_penalty if cluster else 0.0,
+                            cluster=cluster,
+                        )
                         item = self.review_queue.enqueue_verified(existing)
                         if item is not None:
                             existing.review_queue_id = item.queue_item_id
@@ -180,6 +200,8 @@ class DiscoveryPipeline:
                     canonical_domain=clf.canonical_domain,
                     is_official=clf.is_official,
                     freshness_score=prelim.freshness,
+                    source_cluster_id=cluster.source_cluster_id if cluster else "",
+                    source_role=cluster.source_role.value if cluster else "",
                     metadata={"score_breakdown": prelim.to_dict()},
                 )
 
@@ -191,9 +213,13 @@ class DiscoveryPipeline:
 
             try:
                 fetch_result = self._fetch(cand.url or canonical)
-            except Exception:
+            except Exception as exc:
+                from discovery.fetch import classify_fetch_exception
+
                 record.status = CandidateStatus.FETCH_FAILED
-                record.reason_codes = ["FETCH_FAILED"]
+                record.reason_codes = list(
+                    dict.fromkeys([*classify_fetch_exception(exc), "FETCH_FAILED"])
+                )
                 record.metadata["queue_skip_reason"] = "FETCH_FAILED"
                 self.pool.upsert(record)
                 records.append(record)
@@ -206,6 +232,7 @@ class DiscoveryPipeline:
                     codes.append("FETCH_FAILED")
                 record.reason_codes = codes
                 record.metadata["queue_skip_reason"] = "FETCH_FAILED"
+                record.metadata["fetch_diagnostics"] = fetch_result.diagnostics
                 self.pool.upsert(record)
                 records.append(record)
                 continue
@@ -214,14 +241,29 @@ class DiscoveryPipeline:
             record.status = CandidateStatus.FETCHED
             record.fetch_method = fetch_result.method
             record.raw_item_id = raw.id
-            record.reason_codes = [c for c in fetch_result.reason_codes if c.startswith("HTML_")]
-            # Prefer real page published_at; never invent from discovered_at / crawl time.
-            page_published = resolve_discovery_published_at(
-                raw.published_at,
-                crawled_at=raw.crawled_at,
-                discovered_at=record.candidate.discovered_at,
+            # Keep detailed fetch reasons that are useful (not only HTML_*).
+            record.reason_codes = [
+                c
+                for c in fetch_result.reason_codes
+                if c.startswith("HTML_") or c in {"JS_REQUIRED"}
+            ]
+
+            date_info = extract_publication_dates(
+                html=raw.content_html or "",
+                text=raw.content_text or "",
             )
+            page_published = date_info.published_at
             record.published_at = page_published
+            record.published_at_source = date_info.published_at_source
+            record.published_at_confidence = date_info.published_at_confidence
+            record.modified_at = date_info.modified_at
+            record.modified_at_source = date_info.modified_at_source
+            if date_info.date_conflict:
+                record.reason_codes = list(
+                    dict.fromkeys([*record.reason_codes, "PUBLICATION_DATE_CONFLICT"])
+                )
+            record.metadata["publication_date"] = date_info.to_dict()
+            record.metadata["content_fingerprint"] = content_fingerprint(raw.content_text or "")
             record.metadata["raw_item"] = {
                 "id": raw.id,
                 "url": raw.url,
@@ -241,14 +283,26 @@ class DiscoveryPipeline:
                 continue
 
             if not self.config.verify:
-                self._apply_quality_metadata(record, published_at=page_published)
+                self._apply_quality_metadata(
+                    record,
+                    published_at=page_published,
+                    html=raw.content_html or "",
+                    syndication_penalty=cluster.syndication_penalty if cluster else 0.0,
+                    cluster=cluster,
+                )
                 self.pool.upsert(record)
                 records.append(record)
                 continue
 
-            self._verify(record, raw)
+            self._verify(record, raw, published_at=page_published)
             if record.status is CandidateStatus.VERIFIED:
-                self._apply_quality_metadata(record, published_at=page_published)
+                self._apply_quality_metadata(
+                    record,
+                    published_at=page_published,
+                    html=raw.content_html or "",
+                    syndication_penalty=cluster.syndication_penalty if cluster else 0.0,
+                    cluster=cluster,
+                )
                 item = self.review_queue.enqueue_verified(record)
                 if item is not None:
                     record.review_queue_id = item.queue_item_id
@@ -265,6 +319,7 @@ class DiscoveryPipeline:
         if self.config.persist:
             self.pool.save(self.config.pool_path)
             self.review_queue.save(self.config.queue_path)
+            self.atom_store.save(self.config.atoms_path)
         return summary
 
     def _apply_quality_metadata(
@@ -272,9 +327,12 @@ class DiscoveryPipeline:
         record: CandidateRecord,
         *,
         published_at: str | None,
+        html: str = "",
+        syndication_penalty: float = 0.0,
+        cluster=None,
     ) -> None:
         host = urlsplit(record.canonical_url or record.candidate.url).netloc or ""
-        publisher = str(
+        publisher_hint = str(
             (record.metadata.get("raw_item") or {}).get("source_name")
             or record.publisher
             or host
@@ -282,20 +340,23 @@ class DiscoveryPipeline:
         clf = classify_source(
             record.canonical_url or record.candidate.url,
             title=record.candidate.title,
-            publisher=publisher,
+            publisher=publisher_hint,
+            html=html,
         )
         record.source_type = clf.source_type.value
         record.source_tier = clf.source_tier.value
         record.publisher = clf.publisher
         record.canonical_domain = clf.canonical_domain
         record.is_official = clf.is_official
-        # Keep explicit null/unknown — never copy discovered_at into published_at.
         record.published_at = published_at
         record.freshness_score = freshness_score(
             published_at,
             intent=self.config.intent,
             freshness_window=self.config.freshness_window,
         )
+        if cluster is not None:
+            record.source_cluster_id = cluster.source_cluster_id
+            record.source_role = cluster.source_role.value
         breakdown = score_candidate_breakdown(
             record.candidate,
             classification=clf,
@@ -304,6 +365,7 @@ class DiscoveryPipeline:
             freshness_window=self.config.freshness_window,
             topic_terms=self.config.topic_terms,
             company_terms=self.config.company_terms,
+            syndication_penalty=syndication_penalty,
         )
         record.discovery_score = breakdown.discovery_score
         record.metadata["score_breakdown"] = breakdown.to_dict()
@@ -317,7 +379,6 @@ class DiscoveryPipeline:
         result = self.fetcher(url)
         if isinstance(result, FetchResult):
             return result
-        # Legacy RawItem-returning mocks
         body = (result.content_text or "").strip()
         if not body:
             return FetchResult(
@@ -328,18 +389,24 @@ class DiscoveryPipeline:
             )
         return FetchResult(item=result, method="html", reason_codes=[], ok=True)
 
-    def _verify(self, record: CandidateRecord, raw: RawItem) -> None:
+    def _verify(
+        self,
+        record: CandidateRecord,
+        raw: RawItem,
+        *,
+        published_at: str | None,
+    ) -> None:
         host = urlsplit(raw.url).netloc or "unknown"
+        clf = classify_source(
+            raw.url or record.canonical_url,
+            title=raw.title or record.candidate.title,
+            html=raw.content_html or "",
+        )
         item = {
             "title": raw.title or record.candidate.title,
             "url": raw.url or record.canonical_url,
-            "source_name": str(raw.metadata.get("source_name") or host),
-            "published_at": resolve_discovery_published_at(
-                raw.published_at,
-                crawled_at=raw.crawled_at,
-                discovered_at=record.candidate.discovered_at,
-            ),
-            # excerpt comes from fetched body only — never snippet/provider_content
+            "source_name": clf.publisher or str(raw.metadata.get("source_name") or host),
+            "published_at": published_at,
             "excerpt": (raw.content_text or "").strip()[:2000],
             "discovery_provider": record.candidate.provider,
             "discovery_query": record.candidate.query,
@@ -352,9 +419,33 @@ class DiscoveryPipeline:
             return
 
         atoms = news_to_research_atoms(item)
+        # Enrich source type from classification (not search snippet).
+        atoms.source.source_type = clf.source_type.value
         record.source_document_id = atoms.source.id
         record.evidence_ids = [e.id for e in atoms.evidence]
         record.claim_ids = [c.id for c in atoms.claims]
+        lineage = {
+            "candidate_id": record.candidate_id,
+            "discovery_provider": record.candidate.provider,
+            "discovery_query": record.candidate.query,
+            "intake": "discovery",
+            "source_tier": clf.source_tier.value,
+            "publisher": clf.publisher,
+            "published_at": published_at,
+            "published_at_source": record.published_at_source,
+        }
+        self.atom_store.upsert_atoms(
+            source=atoms.source,
+            evidence=atoms.evidence,
+            claims=atoms.claims,
+            lineage=lineage,
+        )
+        # Reflect protected statuses back onto candidate metadata.
+        statuses = []
+        for cid in record.claim_ids:
+            stored = self.atom_store.get_claim(cid)
+            statuses.append((stored.status.value if stored else "draft"))
+        record.metadata["claims_status"] = statuses
         record.metadata["discovery"] = {
             "provider": record.candidate.provider,
             "query": record.candidate.query,
@@ -368,7 +459,6 @@ class DiscoveryPipeline:
             "discovery_candidate_id": atoms.source.discovery_candidate_id,
             "discovery_original_url": atoms.source.discovery_original_url,
         }
-        record.metadata["claims_status"] = [c.status.value for c in atoms.claims]
 
         issues = validate_discovery_atoms(atoms.claims, {atoms.source.id: atoms.source})
         blocking = [i for i in issues if i.severity == "error"]
@@ -379,5 +469,9 @@ class DiscoveryPipeline:
             return
 
         record.status = CandidateStatus.VERIFIED
-        record.reason_codes = [c for c in record.reason_codes if c.startswith("HTML_")]
+        record.reason_codes = [
+            c
+            for c in record.reason_codes
+            if c.startswith("HTML_") or c in {"JS_REQUIRED", "PUBLICATION_DATE_CONFLICT"}
+        ]
         record.verified_at = now_iso()

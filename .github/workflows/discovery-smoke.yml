@@ -1,0 +1,75 @@
+# Manual Discovery smoke only — does NOT write durable state to git,
+# does NOT call Daily/Publish, and does NOT modify daily-crawl.
+#
+# Scheduled Discovery is blocked on GitHub-hosted runners because
+# data/state (Candidate Pool / Review Queue / atoms) is ephemeral.
+# Use local durable workspace or attach durable storage before enabling schedule.
+
+name: Discovery Smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      query:
+        description: Discovery query
+        required: true
+        default: 智能柜
+      limit:
+        description: Max results per query
+        required: true
+        default: "3"
+      dry_run:
+        description: Discover only (no fetch/verify)
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  discovery-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Check AnySearch credential
+        id: creds
+        env:
+          ANYSEARCH_API_KEY: ${{ secrets.ANYSEARCH_API_KEY }}
+        run: |
+          if [ -z "${ANYSEARCH_API_KEY}" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "ANYSEARCH_API_KEY missing — skipping live Discovery smoke."
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run Discovery smoke
+        if: steps.creds.outputs.configured == 'true'
+        env:
+          ANYSEARCH_API_KEY: ${{ secrets.ANYSEARCH_API_KEY }}
+          ANYSEARCH_ENABLED: "true"
+        run: |
+          ARGS=(--query "${{ inputs.query }}" --limit "${{ inputs.limit }}" --no-persist)
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            ARGS+=(--dry-run)
+          else
+            ARGS+=(--stage verify)
+          fi
+          python discover.py "${ARGS[@]}"
+
+      - name: Skip notice
+        if: steps.creds.outputs.configured != 'true'
+        run: |
+          echo "Scheduled/live Discovery requires ANYSEARCH_API_KEY secret."
+          echo "Durable runner state is still required before enabling cron."
