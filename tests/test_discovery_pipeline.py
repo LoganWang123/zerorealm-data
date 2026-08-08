@@ -195,6 +195,8 @@ def test_duplicate_candidates_do_not_duplicate_evidence(tmp_path):
 
 def test_durable_pool_reuses_canonical_url(tmp_path):
     pool_path = tmp_path / "candidate_pool.json"
+    queue_path = tmp_path / "queue.json"
+    atoms_path = tmp_path / "atoms.json"
     url = "https://www.example.com/story"
     cand = _candidate(url=url, query="智能柜")
     body = "足够长的正文用于验证候选持久化与再次发现。"
@@ -203,7 +205,12 @@ def test_durable_pool_reuses_canonical_url(tmp_path):
         provider=FakeSearchProvider([cand]),
         pool=CandidatePool(pool_path),
         fetcher=lambda u: _raw_item(url=u, title="t", content_text=body),
-        config=DiscoveryPipelineConfig(persist=True, pool_path=str(pool_path)),
+        config=DiscoveryPipelineConfig(
+            persist=True,
+            pool_path=str(pool_path),
+            queue_path=str(queue_path),
+            atoms_path=str(atoms_path),
+        ),
     )
     first = pipe1.run("智能柜", limit=1)[0]
     assert first.status == CandidateStatus.VERIFIED
@@ -213,7 +220,12 @@ def test_durable_pool_reuses_canonical_url(tmp_path):
         provider=FakeSearchProvider([_candidate(url=url, query="无人零售", title="再次发现")]),
         pool=CandidatePool.load_or_create(pool_path),
         fetcher=lambda _u: (_ for _ in ()).throw(AssertionError("must not refetch")),
-        config=DiscoveryPipelineConfig(persist=True, pool_path=str(pool_path)),
+        config=DiscoveryPipelineConfig(
+            persist=True,
+            pool_path=str(pool_path),
+            queue_path=str(queue_path),
+            atoms_path=str(atoms_path),
+        ),
     )
     second = pipe2.run("无人零售", limit=1)[0]
     assert second.candidate_id == first.candidate_id
