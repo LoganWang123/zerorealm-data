@@ -292,7 +292,7 @@ def test_editorial_cannot_approve_gate_fail_and_package_flow(tmp_path: Path):
         log_path=tmp_path / "editorial.jsonl",
     )
     package = build_publish_ready_package(cand)
-    assert package["status"] == "READY_FOR_PUBLISH"
+    assert package["status"] == "READY_FOR_CHANNEL_RENDER"
     assert package["wechat_published"] is False
     assert package["website_published"] is False
 

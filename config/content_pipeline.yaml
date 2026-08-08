@@ -1,4 +1,4 @@
-# Content pipeline config (Knowledge → Content Candidate → Publish-Ready).
+# Content pipeline config (Knowledge → Controlled Draft → Channel Release Candidate).
 # Does not enable channel publish.
 
 timezone: Asia/Shanghai
@@ -14,9 +14,18 @@ daily:
 insight:
   require_theme_consistency: true
 
+generator:
+  provider: mock
+  max_repair_attempts: 2
+  allow_live: false
+
 paths:
   knowledge: data/state/knowledge_store.json
   candidates: data/state/content_candidates.json
   editorial_log: data/state/editorial_review_log.jsonl
   packages: data/state/publish_ready_packages.json
+  release_candidates: data/state/release_candidates.json
+  channel_review_log: data/state/channel_review_log.jsonl
   review_drafts: dist/review/content
+  channel_website: dist/review/channel/website
+  channel_wechat: dist/review/channel/wechat

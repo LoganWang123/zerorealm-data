@@ -54,6 +54,8 @@ def set_editorial_status(
     candidate.editorial_status = new_status
     if new_status is EditorialStatus.REJECTED:
         candidate.status = ContentCandidateStatus.REJECTED
+    elif new_status is EditorialStatus.APPROVED:
+        candidate.status = ContentCandidateStatus.READY_FOR_CHANNEL_RENDER
     reviewed_at = now_iso()
     candidate.metadata["editorial_reviewer"] = reviewer_name
     candidate.metadata["editorial_reviewed_at"] = reviewed_at
