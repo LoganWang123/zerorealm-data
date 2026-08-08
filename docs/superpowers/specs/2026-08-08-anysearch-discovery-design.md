@@ -2,68 +2,73 @@
 
 **Date:** 2026-08-08  
 **Branch:** `feature/anysearch-discovery-provider`  
-**Status:** Implemented (adapter + mock tests; live smoke pending API key in env)
+**Status:** Complete for Discovery → Verify (no Daily/Publish)
 
 ## Goal
 
-Add an independent Discovery layer:
-
 ```text
-AnySearch → SearchCandidate → Candidate Pool
-  → HTML/Playwright Fetch → RawItem
-  → research (SourceDocument / Evidence / Claim)
-  → validators → Candidate VERIFIED / REJECTED
+Query / Topic / Company
+→ AnySearch
+→ SearchCandidate
+→ Durable Candidate Pool
+→ Dedupe / Score
+→ HTML → Playwright fallback
+→ RawItem
+→ SourceDocument / Evidence / Claim
+→ research validators
+→ VERIFIED / REJECTED
 ```
 
 Stops before Daily / Insight / Publish. Does not change `main.py` or `daily-crawl`.
+
+## Dual intake
+
+```text
+Registry (sources.yaml) ──┐
+                          ├→ RawItem → research/
+Discovery (AnySearch) ────┘
+```
 
 ## Module layout
 
 ```text
 discovery/
   models.py
+  queries.py              # config/source_queries.yaml
   providers/base.py
   providers/anysearch.py
-  pool.py
+  pool.py                 # durable data/state/candidate_pool.json
   dedupe.py
   scoring.py
-  fetch.py
+  fetch.py                # HTML → Playwright fallback
   pipeline.py
   cli.py
-discover.py                 # thin CLI entry
-config/source_queries.yaml  # query registry scaffold
+discover.py
+config/source_queries.yaml
 ```
-
-## Hard rules
-
-1. `snippet` / `provider_content` are discovery-only — never `SourceDocument` / Evidence body.
-2. Only successfully fetched original URL content may enter `RawItem` → research.
-3. Candidate `VERIFIED` ≠ `ClaimStatus.VERIFIED` (claims stay `draft`).
-4. Publishing gate adds non-bypassable `SEARCH_SNIPPET_AS_EVIDENCE`.
-5. `ANYSEARCH_API_KEY` from env only — never logged or committed.
 
 ## CLI
 
 ```bash
 python discover.py --query "智能柜" --dry-run
-python discover.py --query "智能柜" --stage verify --limit 5
-python -m discovery.cli --query "智能柜" --persist
+python discover.py --topic smart-cabinet --dry-run
+python discover.py --company "友宝" --dry-run
+python discover.py --query "智能柜" --stage verify --limit 3
 ```
 
-## Lineage
+## Hard rules
 
-```text
-candidate_id → raw_item_id → source_document_id → evidence_ids[] / claim_ids[]
-```
+1. `snippet` / `provider_content` are discovery-only.
+2. Candidate `VERIFIED` ≠ `ClaimStatus.VERIFIED` (claims stay draft).
+3. Publishing gate: non-bypassable `SEARCH_SNIPPET_AS_EVIDENCE`.
+4. `ANYSEARCH_API_KEY` from env / `.env` only.
 
-## Tests
+## Durable pool
 
-- `tests/test_discovery_pipeline.py` (mock provider / no live AnySearch)
-- Editorial gate coverage for `SEARCH_SNIPPET_AS_EVIDENCE`
+Path: `data/state/candidate_pool.json` (gitignored under `data/`, durable across runs, not `.cache`).
 
-## Leftovers
+## Leftovers (out of v1)
 
-- Live smoke with real `ANYSEARCH_API_KEY`
-- Wire `config/source_queries.yaml` into CLI (`--topic` / `--company`)
-- Optional Playwright auto-fallback when HTML extract is empty
-- Persist discovery metadata onto durable research store (beyond candidate pool JSON)
+- Auto topic/company scheduling in CI
+- Richer source-tier scoring
+- Wire verified candidates into research review queue UI (manual)
