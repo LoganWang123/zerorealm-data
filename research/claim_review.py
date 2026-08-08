@@ -15,7 +15,9 @@ from research.validators import has_blocking_issues, validate_discovery_atoms
 from utils.helpers import now_iso
 
 DEFAULT_REVIEW_LOG_PATH = Path("data/state/research_review_log.jsonl")
-FORBIDDEN_REVIEWERS = frozenset({"", "ai", "system", "bot", "auto", "automated"})
+FORBIDDEN_REVIEWERS = frozenset(
+    {"", "ai", "system", "bot", "auto", "automated", "cursor"}
+)
 
 
 class ClaimReviewError(Exception):

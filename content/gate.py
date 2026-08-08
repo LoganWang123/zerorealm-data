@@ -31,6 +31,10 @@ if not hasattr(EditorialGateErrorCode, "CONTENT_TYPE_MISMATCH"):
     EditorialGateErrorCode.CONTENT_TYPE_MISMATCH = "CONTENT_TYPE_MISMATCH"
 if not hasattr(EditorialGateErrorCode, "CLAIM_NOT_VERIFIED"):
     EditorialGateErrorCode.CLAIM_NOT_VERIFIED = "CLAIM_NOT_VERIFIED"
+if not hasattr(EditorialGateErrorCode, "ORPHAN_FACT"):
+    EditorialGateErrorCode.ORPHAN_FACT = "ORPHAN_FACT"
+if not hasattr(EditorialGateErrorCode, "UNSUPPORTED_ENTITY"):
+    EditorialGateErrorCode.UNSUPPORTED_ENTITY = "UNSUPPORTED_ENTITY"
 
 NON_BYPASSABLE = frozenset(
     {
@@ -40,6 +44,8 @@ NON_BYPASSABLE = frozenset(
         EditorialGateErrorCode.FUTURE_PUBLICATION,
         EditorialGateErrorCode.SEARCH_SNIPPET_AS_EVIDENCE,
         EditorialGateErrorCode.CLAIM_NOT_VERIFIED,
+        EditorialGateErrorCode.ORPHAN_FACT,
+        EditorialGateErrorCode.UNSUPPORTED_ENTITY,
     }
 )
 

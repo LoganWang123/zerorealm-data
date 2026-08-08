@@ -65,11 +65,11 @@ def build_publish_ready_package(candidate: ContentCandidate) -> dict:
             "title": candidate.draft.get("title"),
             "content_type": candidate.content_type.value,
         },
-        "status": "READY_FOR_PUBLISH",
+        "status": "READY_FOR_CHANNEL_RENDER",
         "wechat_published": False,
         "website_published": False,
         "generated_at": now_iso(),
-        "note": "STOP BEFORE PUBLISH — no channel publisher invoked",
+        "note": "STOP BEFORE PUBLISH — package is intake for channel render / RC only",
     }
     candidate.package = package
     return package
