@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from content.brief import build_editorial_brief, build_internal_draft
-from content.candidates import build_candidate_from_knowledge
+from content.candidates import build_candidate_from_knowledge, freshness_window_hours
 from content.editorial_review import set_editorial_status
 from content.gate import run_content_hard_gate
 from content.models import (
@@ -24,6 +25,15 @@ from research.claim_review import ClaimReviewError, set_claim_status
 from research.intake import news_to_research_atoms
 from research.knowledge import KnowledgeStatus, KnowledgeStore, sync_knowledge_from_atoms
 from research.models import ClaimStatus
+from utils.helpers import CST
+
+# Keep fixture age well inside daily_primary_window (48h); wall-clock relative so it cannot stale.
+_FIXTURE_PUBLISHED_HOURS_AGO = 1.0
+
+
+def _recent_published_at(*, hours_ago: float = _FIXTURE_PUBLISHED_HOURS_AGO) -> str:
+    """Timezone-aware published_at that stays inside the Daily freshness window."""
+    return (datetime.now(CST) - timedelta(hours=hours_ago)).isoformat(timespec="seconds")
 
 
 def _verified_atoms(tmp_path: Path, *, url: str, excerpt: str, title: str = "t"):
@@ -32,7 +42,7 @@ def _verified_atoms(tmp_path: Path, *, url: str, excerpt: str, title: str = "t")
             "title": title,
             "url": url,
             "source_name": "Fixture",
-            "published_at": "2026-08-07T10:00:00+08:00",
+            "published_at": _recent_published_at(),
             "excerpt": excerpt,
             "discovery_provider": "fake",
             "discovery_query": "智能柜",
@@ -64,6 +74,20 @@ def _verified_atoms(tmp_path: Path, *, url: str, excerpt: str, title: str = "t")
         persist=True,
     )
     return store, atoms.claims[0].id
+
+
+def test_verified_atoms_fixture_stays_within_daily_freshness_window(tmp_path: Path):
+    """Regression: hardcoded published_at must not drift past daily_primary_window (48h)."""
+    store, _ = _verified_atoms(tmp_path, url="https://ex.com/fresh", excerpt="新鲜度夹具正文足够长。")
+    knowledge = KnowledgeStore(tmp_path / "knowledge.json")
+    sync_knowledge_from_atoms(atom_store=store, knowledge_store=knowledge, persist=True)
+    rec = knowledge.list_active()[0]
+    cand = build_candidate_from_knowledge([rec], content_type=ContentType.DAILY)
+    window = freshness_window_hours(ContentType.DAILY)
+    assert window == 48.0
+    assert cand.freshness_hours is not None
+    assert cand.freshness_hours < window
+    assert cand.freshness_hours <= _FIXTURE_PUBLISHED_HOURS_AGO + 0.5
 
 
 def test_only_verified_claim_enters_knowledge(tmp_path: Path):
