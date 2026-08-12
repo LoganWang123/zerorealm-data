@@ -1,0 +1,5 @@
+# Today’s WeChat draft uses the user-supplied Gemini cover only.
+media:
+  enabled: true
+  body_image_count: 2
+  video_enabled: false
