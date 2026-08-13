@@ -1,0 +1,228 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zerorealm.local/schemas/founder-experiment-ledger.json",
+  "title": "FounderExperimentLedger",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "period",
+    "privacy",
+    "funnel_manual",
+    "channel_observed",
+    "experiment_targets",
+    "alerts",
+    "notes"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "period": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "start",
+        "end",
+        "label"
+      ],
+      "properties": {
+        "start": {
+          "type": "string",
+          "minLength": 10
+        },
+        "end": {
+          "type": "string",
+          "minLength": 10
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "raw_reports_copied",
+        "user_pii_recorded",
+        "contents"
+      ],
+      "properties": {
+        "raw_reports_copied": {
+          "type": "boolean",
+          "const": false
+        },
+        "user_pii_recorded": {
+          "type": "boolean",
+          "const": false
+        },
+        "contents": {
+          "type": "string",
+          "const": "aggregates_and_manual_counts_only"
+        }
+      }
+    },
+    "funnel_manual": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "impressions",
+        "views",
+        "tool_views",
+        "subscribe_click",
+        "subscribe_success",
+        "interview_click",
+        "replies",
+        "interview_completed",
+        "public_case_permissions"
+      ],
+      "properties": {
+        "impressions": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "views": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "tool_views": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "subscribe_click": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "subscribe_success": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "interview_click": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "replies": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "interview_completed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "public_case_permissions": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "description": "Current-period acquisition + website event counts. impressions/views default null until entered; tool_views counts website tool_view events."
+    },
+    "channel_observed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "wechat_unique_readers",
+        "wechat_overlapping_source_readers_sum",
+        "wechat_share_people",
+        "wechat_original_link_people",
+        "zhihu_reads",
+        "zhihu_engagement",
+        "zhihu_article_level_attribution_available"
+      ],
+      "properties": {
+        "wechat_unique_readers": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "wechat_overlapping_source_readers_sum": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "wechat_share_people": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "wechat_original_link_people": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "zhihu_reads": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "zhihu_engagement": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "zhihu_article_level_attribution_available": {
+          "type": "boolean"
+        }
+      },
+      "description": "Current experiment-period channel counts only. Default null; never seed from historical baseline."
+    },
+    "experiment_targets": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Internal experiment goals only; not industry benchmarks."
+    },
+    "alerts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "severity",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "info",
+              "warning",
+              "critical"
+            ]
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}

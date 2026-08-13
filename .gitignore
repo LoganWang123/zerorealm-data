@@ -13,6 +13,9 @@ data/*
 !data/research/review-queue-companies.json
 !data/research/metric-briefs.json
 !data/research/case-review-notes.json
+!data/growth/
+!data/growth/*.json
+data/growth/ops-out/
 
 # logs
 logs/

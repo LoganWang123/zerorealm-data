@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timedelta
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from content.brief import build_editorial_brief, build_internal_draft
 from content.candidates import build_candidate_from_knowledge
@@ -25,14 +27,30 @@ from research.intake import news_to_research_atoms
 from research.knowledge import KnowledgeStatus, KnowledgeStore, sync_knowledge_from_atoms
 from research.models import ClaimStatus
 
+# Keep fixture primary signals inside the Daily 48h freshness window without
+# freezing production clocks or hardcoding calendar dates that drift.
+_FIXTURE_TZ = ZoneInfo("Asia/Shanghai")
+_FRESH_WITHIN_WINDOW = timedelta(hours=1)
 
-def _verified_atoms(tmp_path: Path, *, url: str, excerpt: str, title: str = "t"):
+
+def _fresh_published_at(*, age: timedelta = _FRESH_WITHIN_WINDOW) -> str:
+    return (datetime.now(_FIXTURE_TZ) - age).isoformat(timespec="seconds")
+
+
+def _verified_atoms(
+    tmp_path: Path,
+    *,
+    url: str,
+    excerpt: str,
+    title: str = "t",
+    published_at: str | None = None,
+):
     atoms = news_to_research_atoms(
         {
             "title": title,
             "url": url,
             "source_name": "Fixture",
-            "published_at": "2026-08-07T10:00:00+08:00",
+            "published_at": published_at or _fresh_published_at(),
             "excerpt": excerpt,
             "discovery_provider": "fake",
             "discovery_query": "智能柜",
@@ -225,6 +243,24 @@ def test_snippet_evidence_fails(tmp_path: Path):
     build_internal_draft(cand)
     result = run_content_hard_gate(cand, atom_store=store)
     assert result.has_error(EditorialGateErrorCode.SEARCH_SNIPPET_AS_EVIDENCE)
+
+
+def test_stale_primary_signal_fails(tmp_path: Path):
+    """Daily gate must reject primary signals older than the 48h window."""
+    store, _ = _verified_atoms(
+        tmp_path,
+        url="https://ex.com/stale",
+        excerpt="过期主信号正文足够长。",
+        published_at=_fresh_published_at(age=timedelta(hours=72)),
+    )
+    knowledge = KnowledgeStore(tmp_path / "k.json")
+    sync_knowledge_from_atoms(atom_store=store, knowledge_store=knowledge, persist=True)
+    rec = knowledge.list_active()[0]
+    cand = build_candidate_from_knowledge([rec], content_type=ContentType.DAILY)
+    build_internal_draft(cand)
+    result = run_content_hard_gate(cand, atom_store=store)
+    assert not result.passed
+    assert result.has_error(EditorialGateErrorCode.STALE_PRIMARY_SIGNAL)
 
 
 def test_future_publication_fails(tmp_path: Path):
