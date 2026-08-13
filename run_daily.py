@@ -1,4 +1,11 @@
-"""ZeroRealm Daily Pipeline — 一条命令完成本地采集与生成.
+"""ZeroRealm Daily Pipeline — LEGACY manual content pipeline (not the scheduler).
+
+Dual-insurance timed collection (no LLM) lives elsewhere:
+  - Cloud: ``.github/workflows/daily-crawl.yaml`` cron ``0 15`` (Beijing 23:00)
+  - Local: ``scripts/run_local_collection.sh`` (+ optional macOS launchd boot supplement)
+
+This module is a **manual** escape hatch for crawl + generate + local website copy.
+It is NOT the daily schedule entry and must not be wired into launchd/Actions.
 
 Usage:
     python run_daily.py                # 采集 + 生成日报 + 本地复制到网站目录（默认不 push）
@@ -9,11 +16,13 @@ Usage:
 
 流程：
     1. 采集（main.py）
-    2. 生成日报（generate_daily.py）
+    2. 生成日报（generate_daily.py）— 可能使用 legacy 外部 LLM API
     3. 同步到本地官网目录（copy → zerorealm-website/content/daily/）
     4. 仅在 --push-website 时：Git commit + push 官网（触发 Vercel 部署）
 
-跨仓库自动同步以 GitHub Actions 为准；本地 push 仅为过渡期逃生舱。
+Prefer IDE delivery for new content work:
+    /Users/Logan/AICoding/ZeroRealmAI/scripts/ai-delivery.sh zerorealm-data
+    Cursor=auto, Antigravity=gemini-3.6-flash-medium (images via Antigravity only).
 """
 
 import argparse
@@ -49,7 +58,9 @@ def run_cmd(cmd: list[str], cwd: str | None = None) -> int:
 def build_parser() -> argparse.ArgumentParser:
     """Build CLI parser for the local daily pipeline."""
     parser = argparse.ArgumentParser(
-        description="ZeroRealm Daily Pipeline — 本地采集/生成（默认不 push 官网）",
+        description=(
+            "ZeroRealm LEGACY manual pipeline — 非调度入口；每日采集请用 cloud cron / run_local_collection.sh（默认不 push）"
+        ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("--date", type=str, help="指定日期 (YYYY-MM-DD)，默认今天")
@@ -160,10 +171,11 @@ def main():
     date = args.date or datetime.now(CST).strftime("%Y-%m-%d")
     push_website = should_push_website(args)
 
-    print(f"\n🚀 ZeroRealm Daily Pipeline — {date}")
+    print(f"\n🚀 ZeroRealm LEGACY Daily Pipeline — {date}")
     print(f"   数据目录: {DATA_DIR}")
     print(f"   官网目录: {WEBSITE_DIR}")
     print(f"   本地推送: {'开启 (--push-website)' if push_website else '关闭（默认）'}")
+    print("   提示: 每日定时采集请用 ./scripts/run_local_collection.sh（非本脚本）")
 
     # Step 1: Crawl
     if not args.skip_crawl:
@@ -195,7 +207,7 @@ def main():
     if push_website:
         print("   部署: Vercel 自动更新中...")
     else:
-        print("   部署: 未推送；自动同步请使用 GitHub Actions")
+        print("   部署: 未推送；云端每日采集保连续，本机 launchd 仅补充；内容生成用 ai-delivery.sh")
     print()
 
 

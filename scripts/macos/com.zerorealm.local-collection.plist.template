@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  launchd template: local supplement to cloud daily collection (UTC 15:00 / Beijing 23:00).
+  Placeholders __REPO_ROOT__ and __LABEL__ are rendered by
+  scripts/macos/install_local_collection_launchd.sh (absolute paths; do not hardcode HOME).
+
+  - RunAtLoad: true → 开机时补充跑一次（云端保连续，本机补漏）
+  - StartCalendarInterval 23:00 → 本机可选每日补跑（Mac 时区请用 Asia/Shanghai）
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>__LABEL__</string>
+  <key>WorkingDirectory</key>
+  <string>__REPO_ROOT__</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>__REPO_ROOT__/scripts/run_local_collection.sh</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>23</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>__REPO_ROOT__/logs/local_collection/launchd.stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>__REPO_ROOT__/logs/local_collection/launchd.stderr.log</string>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>TZ</key>
+    <string>Asia/Shanghai</string>
+  </dict>
+</dict>
+</plist>

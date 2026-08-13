@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "period": {
+    "start": "2026-08-13",
+    "end": "2026-08-26",
+    "label": "founder_14d_2026-08-13"
+  },
+  "privacy": {
+    "raw_reports_copied": false,
+    "user_pii_recorded": false,
+    "contents": "aggregates_and_manual_counts_only"
+  },
+  "funnel_manual": {
+    "impressions": null,
+    "views": null,
+    "tool_views": 0,
+    "subscribe_click": 0,
+    "subscribe_success": 0,
+    "interview_click": 0,
+    "replies": 0,
+    "interview_completed": 0,
+    "public_case_permissions": 0
+  },
+  "channel_observed": {
+    "wechat_unique_readers": null,
+    "wechat_overlapping_source_readers_sum": null,
+    "wechat_share_people": null,
+    "wechat_original_link_people": null,
+    "zhihu_reads": null,
+    "zhihu_engagement": null,
+    "zhihu_article_level_attribution_available": false
+  },
+  "experiment_targets": {
+    "wechat_unique_readers_14d": "相对基线周均提升 ≥20%（内部实验目标，非行业基准）",
+    "wechat_share_or_original_link": "14天内分享+阅读原文合计 ≥ 8",
+    "zhihu_nonzero_read_days": "14天内非零阅读日 ≥ 10",
+    "zhihu_reads_14d": "≥ 350（相对基线窗口温和抬升）",
+    "cta_events": "tool_view / subscribe_click / interview_click 等网站事件合计 ≥ 5（人工录入当期台账）"
+  },
+  "alerts": [],
+  "notes": ""
+}

@@ -1,3 +1,5 @@
+"""Cloud daily-collection workflow: cron kept; no LLM / publish / secrets."""
+
 from pathlib import Path
 
 import yaml
@@ -10,66 +12,49 @@ def load_workflow():
     return yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
 
 
-def test_schedule_runs_daily_at_2300_beijing():
+def test_workflow_has_schedule_cron_015_and_dispatch():
     workflow = load_workflow()
+    on = workflow[True]
+    assert "schedule" in on
+    assert "workflow_dispatch" in on
+    assert any(item.get("cron") == "0 15 * * *" for item in on["schedule"])
 
-    assert workflow[True]["schedule"] == [{"cron": "0 15 * * *"}]
 
-
-def test_release_generates_media_before_website_and_wechat_draft():
+def test_workflow_runs_local_only_crawl_and_artifacts():
     workflow = load_workflow()
-    names = [step.get("name", "") for step in workflow["jobs"]["pipeline"]["steps"]]
-
-    assert names.index("Export and validate Public Bundle v1") < names.index(
-        "Publish report, images, and Public Bundle to website"
-    )
-    assert names.index("Generate local publishing images (no Agnes)") < names.index(
-        "Publish report, images, and Public Bundle to website"
-    )
-    assert names.index("Verify production report and images") < names.index(
-        "Create or update verified WeChat draft"
-    )
-
-
-def test_workflow_keeps_legacy_mdx_and_bundle_feature_flags():
     text = WORKFLOW.read_text(encoding="utf-8")
-    assert "SYNC_PUBLIC_BUNDLE" in text
-    assert "SYNC_LEGACY_DAILY_MDX" in text
-    assert "scripts/export_public_bundle.py" in text
-    assert "website/data/public-v1" in text
-    assert "bundleHash" in text
-    assert "WEBSITE_REPO_TOKEN" in text
-    assert "secrets.WEBSITE_REPO_TOKEN" in text
-    assert "echo $WEBSITE_REPO_TOKEN" not in text
-    assert "print(os.environ" not in text
-    assert "secrets.AGNES_API_KEY" not in text
-    assert "AGNES_API_KEY:" not in text
-    assert "python publish.py --channel website" in text
-    assert "scripts/check_cross_channel_daily.py" in text
-    assert "CROSS_CHANNEL_MISSING" not in text  # code lives in Python module
+    job = workflow["jobs"]["collect"]
+    step_names = [step.get("name", "") for step in job["steps"]]
 
-
-def test_workflow_website_sync_does_not_require_media_assets():
-    text = WORKFLOW.read_text(encoding="utf-8")
-    assert "continue-on-error: true" in text
-    assert "Daily page live but media incomplete" in text
-    assert "python publish.py --channel website" in text
-    # WeChat draft may still depend on media, but website sync must not.
-    assert (
-        'steps.generate.outputs.generated == \'true\' || env.SYNC_PUBLIC_BUNDLE == \'true\''
-        in text
-        or 'steps.generate.outputs.generated == "true" || env.SYNC_PUBLIC_BUNDLE == "true"'
-        in text
-        or "(steps.generate.outputs.generated == 'true' || env.SYNC_PUBLIC_BUNDLE == 'true')"
-        in text
+    assert job.get("timeout-minutes") == 90
+    assert job.get("needs") in (None, [], "")
+    assert "Collection health gate and summary" in step_names
+    assert "Crawl local-only (no LLM / no remote store)" in step_names
+    assert "Upload crawl artifacts" in step_names
+    assert "python main.py --local-only --date" in text
+    assert "data/state" in text
+    assert "data/" in text and "logs/" in text
+    assert "playwright install" not in text.lower()
+    assert "install chromium" not in text.lower()
+    collect_runs = "\n".join(
+        step.get("run", "") for step in job["steps"] if isinstance(step.get("run"), str)
     )
+    assert "pytest" not in collect_runs
 
 
-def test_scheduled_wechat_command_can_only_create_a_draft():
+def test_workflow_has_no_generate_publish_or_sensitive_secrets():
     text = WORKFLOW.read_text(encoding="utf-8")
+    lowered = text.lower()
 
-    assert "python publish.py --channel wechat" in text
-    assert "--publish" not in text
-    assert "--notify-followers" not in text
-    assert "WECHAT_APPID" in text
-    assert "WECHAT_SECRET" in text
+    assert "generate_daily" not in text
+    assert "publish.py" not in text
+    assert "export_public_bundle" not in text
+    assert "check_cross_channel_daily" not in text
+    assert "${{ secrets." not in text
+    assert "wechat_appid" not in lowered
+    assert "wechat_secret" not in lowered
+    assert "website_repo_token" not in lowered
+    assert "deepseek" not in lowered
+    assert "llm_api_key" not in lowered
+    assert "supabase" not in lowered
+    assert "agnes_api" not in lowered
