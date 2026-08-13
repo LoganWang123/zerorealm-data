@@ -1,20 +1,31 @@
-"""Offline smoke: daily collection workflow isolation and fault-tolerance contract."""
+"""Offline smoke: daily collection workflow isolation and fault-tolerance contract.
+
+TODO: Once the GitHub PAT has `workflow` scope, push the slim Daily Collection
+YAML and delete the legacy dual-shape branches below. Do not weaken the
+runtime GHA guards in main.py / generate_daily.py until that YAML is live.
+"""
 
 from __future__ import annotations
 
 from pathlib import Path
 
-import yaml
+import pytest
 
-
-WORKFLOW = Path(".github/workflows/daily-crawl.yaml")
+from workflow_shapes import is_new_collection_workflow, load_daily_workflow
 
 
 def load_workflow():
-    text = WORKFLOW.read_text(encoding="utf-8")
-    loaded = yaml.safe_load(text)
-    assert isinstance(loaded, dict)
-    return loaded, text
+    return load_daily_workflow()
+
+
+def _require_new_workflow():
+    workflow, text = load_workflow()
+    if not is_new_collection_workflow(workflow, text):
+        pytest.skip(
+            "legacy Daily Pipeline still on remote; strict new-workflow "
+            "contract applies after workflow-scope PAT can push YAML"
+        )
+    return workflow, text
 
 
 def _job_runs(job: dict) -> str:
@@ -39,8 +50,31 @@ def test_yaml_parses_and_keeps_cron_and_dispatch():
     assert "date" in on["workflow_dispatch"]["inputs"]
 
 
+def test_runtime_gha_guards_exist_independent_of_workflow_shape():
+    main_src = Path("main.py").read_text(encoding="utf-8")
+    gen_src = Path("generate_daily.py").read_text(encoding="utf-8")
+    assert "configure_github_actions_safety" in main_src
+    assert "GITHUB_ACTIONS" in main_src
+    assert "is_github_actions" in gen_src
+    assert "return 2" in gen_src
+
+
+def test_legacy_workflow_keeps_cron_and_invokes_guarded_scripts():
+    workflow, text = load_workflow()
+    if is_new_collection_workflow(workflow, text):
+        pytest.skip("slim Daily Collection workflow present")
+    on = workflow[True]
+    assert any(item.get("cron") == "0 15 * * *" for item in on["schedule"])
+    assert "python main.py" in text
+    assert "generate_daily.py" in text
+    lowered = text.lower()
+    assert "env.website_repo_token != ''" in lowered
+    assert "steps.generate.outputs.generated" in lowered
+    assert "sync_public_bundle" in lowered
+
+
 def test_collect_does_not_depend_on_contract_check():
-    workflow, _text = load_workflow()
+    workflow, _text = _require_new_workflow()
     jobs = workflow["jobs"]
     assert "collect" in jobs
     assert "contract-check" in jobs
@@ -53,7 +87,7 @@ def test_collect_does_not_depend_on_contract_check():
 
 
 def test_collect_has_no_full_pytest_or_playwright_browser():
-    workflow, text = load_workflow()
+    workflow, text = _require_new_workflow()
     collect_runs = _job_runs(workflow["jobs"]["collect"])
     all_runs = "\n".join(
         _job_runs(job) for job in workflow["jobs"].values()
@@ -67,7 +101,7 @@ def test_collect_has_no_full_pytest_or_playwright_browser():
 
 
 def test_contract_check_is_tiny_offline_smoke_only():
-    workflow, _text = load_workflow()
+    workflow, _text = _require_new_workflow()
     job = workflow["jobs"]["contract-check"]
     runs = _job_runs(job)
     assert "tests/test_daily_collection_contract.py" in runs
@@ -80,7 +114,7 @@ def test_contract_check_is_tiny_offline_smoke_only():
 
 
 def test_crawler_failure_fails_collect_without_continue_on_error():
-    workflow, _text = load_workflow()
+    workflow, _text = _require_new_workflow()
     collect = workflow["jobs"]["collect"]
     crawl = _step_by_name(collect, "Crawl local-only")
     health = _step_by_name(collect, "Collection health gate")
@@ -91,7 +125,7 @@ def test_crawler_failure_fails_collect_without_continue_on_error():
 
 
 def test_summary_and_artifact_always_run_with_name_fallback():
-    workflow, text = load_workflow()
+    workflow, text = _require_new_workflow()
     collect = workflow["jobs"]["collect"]
     health = _step_by_name(collect, "Collection health gate")
     upload = _step_by_name(collect, "Upload crawl artifacts")
@@ -109,7 +143,7 @@ def test_summary_and_artifact_always_run_with_name_fallback():
 
 
 def test_network_steps_have_timeouts_and_pip_cache_with_retry():
-    workflow, _text = load_workflow()
+    workflow, _text = _require_new_workflow()
     collect = workflow["jobs"]["collect"]
     assert collect.get("timeout-minutes") == 90
 
@@ -135,7 +169,7 @@ def test_network_steps_have_timeouts_and_pip_cache_with_retry():
 
 
 def test_date_parsing_uses_env_and_never_empty_artifact_name():
-    _workflow, text = load_workflow()
+    _workflow, text = _require_new_workflow()
     assert "inputs.date || ''" not in text
     assert "github.event.inputs.date" in text
     assert "INPUT_DATE" in text
@@ -144,7 +178,7 @@ def test_date_parsing_uses_env_and_never_empty_artifact_name():
 
 
 def test_workflow_keeps_dual_insurance_and_forbids_llm_publish():
-    _workflow, text = load_workflow()
+    _workflow, text = _require_new_workflow()
     lowered = text.lower()
     assert "generate_daily" not in text
     assert "publish.py" not in text

@@ -22,6 +22,7 @@ from output.writer import write_raw_json, write_clean_markdown
 from output.digest import generate_digest
 from utils.logger import setup_logger, get_logger
 from utils.helpers import generate_run_id, today_path
+from utils.github_actions_safety import configure_github_actions_safety
 
 
 def write_run_metrics(metrics: dict, settings: dict) -> str:
@@ -247,11 +248,18 @@ def main(argv: list[str] | None = None) -> int:
     try:
         parser = build_parser()
         args = parser.parse_args(argv)
+        github_actions = configure_github_actions_safety()
 
         run_id = generate_run_id()
         sources, settings = load_config()
         log_level = "DEBUG" if args.debug else settings.get("logging", {}).get("level", "INFO")
         setup_logger(run_id, settings.get("logging", {}).get("dir", "logs"), log_level)
+        if github_actions:
+            get_logger().info(
+                "GITHUB_ACTIONS=true: equivalent to --local-only; "
+                "wrote downstream safety overrides to GITHUB_ENV "
+                "(original values not logged)"
+            )
 
         asyncio.run(
             crawl_all(
@@ -260,7 +268,7 @@ def main(argv: list[str] | None = None) -> int:
                 run_id,
                 args.source,
                 args.date,
-                local_only=args.local_only,
+                local_only=args.local_only or github_actions,
             )
         )
         return 0

@@ -10,6 +10,41 @@
 
 两边都只调用 `main.py --local-only`，绝不生成内容/图片、不发布推送。
 
+## 过渡热修（PAT 缺 workflow scope）
+
+已验收的瘦身 `Daily Collection` YAML **不能**用当前 GitHub PAT 推送（缺
+`workflow` scope），所以远端仍是旧 `Daily Pipeline`（`Run tests` → Playwright →
+`main.py --date` → `generate_daily.py` → 网站/Bundle 同步）。代码与契约测试已按
+新采集策略更新；若测试仍按新 YAML 结构硬断言，今晚旧 job 会在 **Run tests**
+红掉并跳过采集。
+
+在 **不改** `.github/workflows/daily-crawl.yaml` 的前提下，运行时保护：
+
+| 触发 | 行为 |
+|------|------|
+| `GITHUB_ACTIONS=true` 且执行 `main.py` | 无条件等效 `--local-only`（跳 Supabase）；向 `GITHUB_ENV` 写入 `SYNC_PUBLIC_BUNDLE=false`、`SYNC_LEGACY_DAILY_MDX=false`、清空 `WEBSITE_REPO_TOKEN` / `WECHAT_APPID` / `WECHAT_SECRET` / `ZEROREALM_LOCAL_IMAGE_CMD`。**不记录原值。** |
+| `GITHUB_ACTIONS=true` 且执行 `generate_daily.py` | 在任何 LLM key 检查/调用之前打印跳过原因并 **exit 2**（旧 YAML 把 2 映射为 `generated=false`） |
+| 本机 / 无 `GITHUB_ACTIONS` | 行为不变；手动 `generate_daily.py` / `run_daily.py` 仍走 legacy |
+
+旧 YAML 在 `GITHUB_ENV` 覆盖后的后续 `if:`（`main.py` **之后** 的步骤）：
+
+| 步骤 | 条件 | 覆盖后 |
+|------|------|--------|
+| Generate daily report | 无 `if` | 进程 exit 2 → `generated=false`，不调 LLM |
+| Website sync configuration warning | `WEBSITE_REPO_TOKEN == ''` | 会跑（仅 warning） |
+| Export Public Bundle | 无 `if` | **仍会本地导出** `dist/public-v1/`；**不** git push |
+| Generate local publishing images | token ≠ '' **且** `generated=true` | 跳过 |
+| Publish … to website | token ≠ '' **且** (`generated=true` **或** `SYNC_PUBLIC_BUNDLE=true`) | 跳过（双闸） |
+| Verify production | token ≠ '' **且** `generated=true` | 跳过 |
+
+残留（无法在不改 YAML 时消除）：
+
+- `Run tests` / Playwright install 仍在 crawler **之前**；测试必须绿，采集才会跑。
+- `Checkout website history` 的 `if:` 在 `main.py` **之前** 求值，job 级 token 仍可能把网站仓 checkout 下来；这不是 push。
+- 无条件的 Public Bundle **本地导出** 若 catalog 损坏会使 job 在采集成功后变红；它不会发布。
+
+TODO：获得带 `workflow` scope 的 PAT 后，推送瘦身 YAML，并删掉契约测试里的双形态分支。运行时 GHA guard 可在远端 YAML 确认不再 generate/publish 后再移除。
+
 ## 做什么 / 不做什么
 
 | 定时采集会做 | 定时采集绝不做 |

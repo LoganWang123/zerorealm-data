@@ -13,8 +13,15 @@ python scripts/export_public_bundle.py \
 
 ## CI
 
-`daily-crawl.yaml` 导出 Bundle，并在 `SYNC_PUBLIC_BUNDLE=true` 时同步到
-`website/data/public-v1`，同时可保留 `SYNC_LEGACY_DAILY_MDX=true`。
+目标形态：瘦身后的 `daily-crawl.yaml` **不再**导出或同步 Bundle（采集-only）。
+
+**过渡：** 远端若仍是旧 Daily Pipeline，`main.py` 在 `GITHUB_ACTIONS=true` 时会把
+`SYNC_PUBLIC_BUNDLE` / `SYNC_LEGACY_DAILY_MDX` 写入 `GITHUB_ENV` 为 `false`，并清空
+`WEBSITE_REPO_TOKEN`。无 `if` 的「Export and validate Public Bundle」步骤仍可能
+**本地**写出 `dist/public-v1/`，但后续「Publish … to website」因 token 为空而跳过，
+不会 git push。本机手动导出不受影响。
+
+TODO：获得 `workflow` scope 后推送瘦身 YAML，本节改回「定时 job 不导出 Bundle」。
 
 ## 回滚
 

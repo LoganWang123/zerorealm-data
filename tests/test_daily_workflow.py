@@ -1,15 +1,30 @@
-"""Dual-insurance cloud schedule: cron retained, no LLM / publish."""
+"""Dual-insurance cloud schedule: cron retained, no LLM / publish.
+
+TODO: Once the GitHub PAT has `workflow` scope, push the slim Daily Collection
+YAML and delete the legacy dual-shape branches. Runtime GHA guards stay until
+the remote YAML no longer generates or publishes.
+"""
 
 from pathlib import Path
 
-import yaml
+import pytest
 
-
-WORKFLOW = Path(".github/workflows/daily-crawl.yaml")
+from workflow_shapes import is_new_collection_workflow, load_daily_workflow
 
 
 def load_workflow():
-    return yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
+    workflow, _text = load_daily_workflow()
+    return workflow
+
+
+def _require_new_workflow():
+    workflow, text = load_daily_workflow()
+    if not is_new_collection_workflow(workflow, text):
+        pytest.skip(
+            "legacy Daily Pipeline still on remote; strict new-workflow "
+            "contract applies after workflow-scope PAT can push YAML"
+        )
+    return workflow, text
 
 
 def test_workflow_keeps_beijing_2300_cron_and_manual_dispatch():
@@ -21,9 +36,27 @@ def test_workflow_keeps_beijing_2300_cron_and_manual_dispatch():
     assert "0 15 * * *" in crons
 
 
+def test_runtime_gha_guards_exist_independent_of_workflow_shape():
+    main_src = Path("main.py").read_text(encoding="utf-8")
+    gen_src = Path("generate_daily.py").read_text(encoding="utf-8")
+    assert "configure_github_actions_safety" in main_src
+    assert "GITHUB_ACTIONS" in main_src
+    assert "is_github_actions" in gen_src
+    assert "return 2" in gen_src
+
+
+def test_legacy_workflow_keeps_cron_and_invokes_guarded_scripts():
+    workflow, text = load_daily_workflow()
+    if is_new_collection_workflow(workflow, text):
+        pytest.skip("slim Daily Collection workflow present")
+    on = workflow[True]
+    assert "0 15 * * *" in [item["cron"] for item in on["schedule"]]
+    assert "python main.py" in text
+    assert "generate_daily.py" in text
+
+
 def test_workflow_is_local_only_collection_without_llm_publish():
-    workflow = load_workflow()
-    text = WORKFLOW.read_text(encoding="utf-8")
+    workflow, text = _require_new_workflow()
     lowered = text.lower()
     jobs = workflow["jobs"]
     assert "collect" in jobs

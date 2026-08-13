@@ -73,7 +73,7 @@ macOS launchd (开机补充 + 可选 23:00) / run_local_collection.sh ─┐
 
 | 入口 | 作用 |
 |------|------|
-| `.github/workflows/daily-crawl.yaml` | 云端主采集：cron `0 15`（北京 23:00）+ 手动；`collect` 与契约 smoke 并行且互不阻塞；仅 `--local-only` + 健康门 + artifact + dedup cache；不装 Playwright 浏览器、不跑全量测试 |
+| `.github/workflows/daily-crawl.yaml` | 云端主采集：cron `0 15`（北京 23:00）+ 手动。目标形态：`collect` 与契约 smoke 并行、仅 `--local-only`。**过渡：** PAT 缺 `workflow` scope 时远端仍是旧 Pipeline；`GITHUB_ACTIONS=true` 时 `main.py` 强制 local-only 并写 `GITHUB_ENV` 关闭发布，`generate_daily.py` exit 2 跳过 LLM。本机不受影响。 |
 | `./scripts/run_local_collection.sh` | 本机采集入口（锁、禁密钥、`--local-only`） |
 | `scripts/macos/install_local_collection_launchd.sh` | 可选安装 launchd（开机补充 + 可选 23:00；幂等渲染绝对路径） |
 | `python run_daily.py` | **手动 legacy**，非调度入口 |
