@@ -30,6 +30,15 @@ def _step_by_name(job: dict, fragment: str) -> dict:
     raise AssertionError(f"step containing {fragment!r} not found")
 
 
+def test_runtime_gha_guards_exist_independent_of_workflow_shape():
+    main_src = Path("main.py").read_text(encoding="utf-8")
+    gen_src = Path("generate_daily.py").read_text(encoding="utf-8")
+    assert "configure_github_actions_safety" in main_src
+    assert "GITHUB_ACTIONS" in main_src
+    assert "is_github_actions" in gen_src
+    assert "return 2" in gen_src
+
+
 def test_yaml_parses_and_keeps_cron_and_dispatch():
     workflow, _text = load_workflow()
     on = workflow[True]

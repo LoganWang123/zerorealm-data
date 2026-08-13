@@ -10,6 +10,19 @@
 
 两边都只调用 `main.py --local-only`，绝不生成内容/图片、不发布推送。
 
+## 运行时保护（防御纵深）
+
+瘦身 `Daily Collection` YAML 已在远端生效（`collect` 与 `contract-check` 并行，无 generate/publish）。
+仍保留进程级闸门，避免旧 Pipeline 或误注入 secret 时走 LLM/发布：
+
+| 触发 | 行为 |
+|------|------|
+| `GITHUB_ACTIONS=true` 且执行 `main.py` | 无条件等效 `--local-only`；向 `GITHUB_ENV` 写入 `SYNC_PUBLIC_BUNDLE=false` 等关闭项并清空微信/网站 token。**不记录原值。** |
+| `GITHUB_ACTIONS=true` 且执行 `generate_daily.py` | 在任何 LLM key 检查/调用之前打印跳过原因并 **exit 2** |
+| 本机 / 无 `GITHUB_ACTIONS` | 行为不变；手动 `generate_daily.py` / `run_daily.py` 仍走 legacy |
+
+本机 launchd / `run_local_collection.sh` 不受影响。
+
 ## 做什么 / 不做什么
 
 | 定时采集会做 | 定时采集绝不做 |

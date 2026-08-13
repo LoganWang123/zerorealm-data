@@ -17,13 +17,20 @@ import sys
 
 from dotenv import load_dotenv
 
-load_dotenv()  # Load .env before any env var checks
-
 from utils.logger import setup_logger, get_logger
 from utils.helpers import generate_run_id
+from utils.github_actions_safety import GENERATION_SKIP_REASON, is_github_actions
 
 
 def main():
+    # Runtime kill switch for the transitional GitHub workflow. Keep this
+    # before dotenv loading and credential checks so Actions can never invoke
+    # a project-managed LLM, even when the legacy step injects an API key.
+    if is_github_actions():
+        print(GENERATION_SKIP_REASON)
+        return 2
+
+    load_dotenv()
     parser = argparse.ArgumentParser(description="ZeroRealm Daily Report Generator")
     parser.add_argument("--date", type=str, help="Report date (YYYY-MM-DD)")
     parser.add_argument("--issue", type=int, help="Issue number (auto if omitted)")
@@ -42,7 +49,7 @@ def main():
         print("  set LLM_API_KEY=your-api-key")
         print("  set LLM_BASE_URL=https://api.openai.com/v1  (optional)")
         print("  set LLM_MODEL=gpt-4o-mini  (optional)")
-        sys.exit(1)
+        return 1
 
     # Init logger
     run_id = generate_run_id()
@@ -64,14 +71,16 @@ def main():
         )
     except DuplicateDailyReportError as exc:
         logger.warning(f"=== Duplicate report skipped: {exc} ===")
-        sys.exit(2)
+        return 2
 
     if result:
         logger.info(f"=== Done: {result} ===")
     else:
         logger.warning("=== No report generated (no data or LLM error) ===")
-        sys.exit(1)
+        return 1
+
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

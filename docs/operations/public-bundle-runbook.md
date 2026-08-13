@@ -13,8 +13,11 @@ python scripts/export_public_bundle.py \
 
 ## CI
 
-`daily-crawl.yaml` 导出 Bundle，并在 `SYNC_PUBLIC_BUNDLE=true` 时同步到
-`website/data/public-v1`，同时可保留 `SYNC_LEGACY_DAILY_MDX=true`。
+瘦身后的 `daily-crawl.yaml` **不再**导出或同步 Bundle（采集-only）。
+
+运行时保护：`GITHUB_ACTIONS=true` 时 `main.py` 会把 `SYNC_PUBLIC_BUNDLE` /
+`SYNC_LEGACY_DAILY_MDX` 写入 `GITHUB_ENV` 为 `false`，并清空 `WEBSITE_REPO_TOKEN`。
+本机手动导出不受影响。
 
 ## 回滚
 
