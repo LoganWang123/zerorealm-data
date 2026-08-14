@@ -4,8 +4,15 @@
   "phase": 1,
   "piece_id": "w1-zhihu-five-metrics",
   "channel": "zhihu",
-  "action": "publish_ready_packet",
-  "status": "images_ready",
+  "action": "published",
+  "status": "zhihu_published",
+  "publication": {
+    "channel": "zhihu",
+    "url": "https://zhuanlan.zhihu.com/p/2071774951238121348",
+    "published_at": "2026-08-15T01:51:00+08:00",
+    "evidence_screenshot": "data/growth/evidence/2026-08-15/w1-zhihu-five-metrics/public_page.png",
+    "evidence_json": "data/growth/evidence/2026-08-15/w1-zhihu-five-metrics/verification.json"
+  },
   "title": "智能柜运营商每周该盯哪五个过程指标？",
   "excerpt": "智能柜运营商若只盯 GMV，往往错过更早暴露的经营质量信号。本文用问答方式拆解缺货率、补货及时率、设备在线率、SKU 动销率与库存准确率——ZeroRealm 参考口径，非行业统一标准。",
   "tags": [

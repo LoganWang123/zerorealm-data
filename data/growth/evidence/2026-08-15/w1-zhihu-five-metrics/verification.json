@@ -1,0 +1,40 @@
+{
+  "verified_at": "2026-08-14T17:52:02.379Z",
+  "article_url": "https://zhuanlan.zhihu.com/p/2071774951238121348",
+  "page_data": {
+    "url": "https://zhuanlan.zhihu.com/p/2071774951238121348",
+    "title": "智能柜运营商每周该盯哪五个过程指标？",
+    "author": "",
+    "timeText": "发布于 2026-08-15 01:51・广东",
+    "hasCover": true,
+    "coverSrc": "https://picx.zhimg.com/v2-5383797318ae18aa03bb2090d3589c3c_l.jpg?source=32738c0c&needBackground=1",
+    "contentLength": 4344,
+    "contentSnippet": "智能柜零售合规提示： 本文不构成投资建议或对任何企业经营结果的保证。案例与数字若未获授权，不得具名披露。\n\n> 口径说明：下文五个指标为 **ZeroRealm 参考口径 / 企业内部实验口径**，不是行业统一标准，也不构成投资或经营决策建议。\n\n> 归因说明：知乎多为账号级阅读统计，**无法做稳定的文章级归因**；请勿用单日阅读波动下因果结论。\n\n\n\n\n## 先把问题说清楚\n\n\n\n\n某个点位最近“感觉变差了”，第一反应常常是：点位不行、价格高了、商品不对。\n\n\n\n\n这些都可能成立。但现场往往更早出现另一组信号：畅销品反复空着、补货总迟到、设备名义在点位却难成交、货道里堆着不动的 SKU、系统库存和开柜对不上。\n\n\n\n\n如果只盯 GMV，你看到的多半是**结果已经变差**。过程指标回答的是另一类问题：结果变差之前，供给、履约、设备与数据底座是否已经出了缝。\n\n\n\n\n**OPINION（观点）：** GMV 用来判断经营结果；过程指标用来定位问题、采取行动。二者不是对立关系。\n\n\n\n\n---\n\n\n\n\n## Q1：为什么不能只盯 GMV？\n\n\n\n\n**INFERENCE（推断，基于公开运营",
+    "headings": [
+      "先把问题说清楚",
+      "Q1：为什么不能只盯 GMV？",
+      "Q2：每周该盯哪五个过程指标？",
+      "1）缺货率：有没有货可以卖",
+      "2）补货及时率：发现问题以后，多快恢复供给",
+      "3）设备在线率：设备在点位，不等于真的在营业",
+      "4）SKU 动销率：SKU 多，不等于结构好",
+      "5）库存准确率：系统账和柜内实货是不是一回事",
+      "Q3：五个指标怎么一起用，而不是各看各的？",
+      "Q4：这周最小可执行动作是什么？",
+      "唯一行动入口（单一 CTA）"
+    ],
+    "blockquotes": [
+      "适用范围：智能柜 / 无人零售运营商与运营负责人。\n口径说明：下文五个指标为 ZeroRealm 参考口径 / 企业内部实验口径，不是行业统一标准，也不构成投资或经营决策建议。\n归因说明：知乎多为账号级阅读统计，无法做稳定的文章级归因；请勿用单日阅读波动下因果结论。"
+    ],
+    "links": [
+      {
+        "text": "https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=zhihu&utm_medium=article&utm_campaign=founder14d_20260813&utm_content=five_metrics_qa",
+        "href": "https://link.zhihu.com/?target=https%3A//zerorealm.tech/tools/smart-cabinet-weekly-review%3Futm_source%3Dzhihu%26utm_medium%3Darticle%26utm_campaign%3Dfounder14d_20260813%26utm_content%3Dfive_metrics_qa"
+      },
+      {
+        "text": "https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=zhihu&utm_medium=article&utm_campaign=founder14d_20260813&utm_content=five_metrics_qa",
+        "href": "https://link.zhihu.com/?target=https%3A//zerorealm.tech/tools/smart-cabinet-weekly-review%3Futm_source%3Dzhihu%26utm_medium%3Darticle%26utm_campaign%3Dfounder14d_20260813%26utm_content%3Dfive_metrics_qa"
+      }
+    ]
+  }
+}

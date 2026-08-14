@@ -1,13 +1,17 @@
 # Content ops phase 1 packets · 2026-08-15
 
-- Status: `images_ready`
+- Status: `zhihu_published`
 - Owner: `LoganWang123`
 - Image status: `images_ready`
 - LLM API used: **false**
 
 ## Packets
 
-1. **Zhihu** `w1-zhihu-five-metrics` — 智能柜运营商每周该盯哪五个过程指标？
+1. **Zhihu** `w1-zhihu-five-metrics` — 智能柜运营商每周该盯哪五个过程指标？ (**PUBLISHED**)
+   - Status: `zhihu_published`
+   - Published at: `2026-08-15 01:51:00+08:00`
+   - Public URL: `https://zhuanlan.zhihu.com/p/2071774951238121348`
+   - Evidence: `data/growth/evidence/2026-08-15/w1-zhihu-five-metrics/`
    - CTA: `https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=zhihu&utm_medium=article&utm_campaign=founder14d_20260813&utm_content=five_metrics_qa`
    - Tags: 智能柜, 无人零售, 运营指标, 缺货率, 周复盘
    - Excerpt: 智能柜运营商若只盯 GMV，往往错过更早暴露的经营质量信号。本文用问答方式拆解缺货率、补货及时率、设备在线率、SKU 动销率与库存准确率——ZeroRealm 参考口径，非行业统一标准。

@@ -3,7 +3,7 @@
   "ops_date": "2026-08-15",
   "phase": 1,
   "owner_github": "LoganWang123",
-  "status": "images_ready",
+  "status": "zhihu_published",
   "safety": {
     "delete": false,
     "overwrite": false,
@@ -24,11 +24,18 @@
     {
       "piece_id": "w1-zhihu-five-metrics",
       "channel": "zhihu",
+      "status": "zhihu_published",
       "title": "智能柜运营商每周该盯哪五个过程指标？",
       "cta_url": "https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=zhihu&utm_medium=article&utm_campaign=founder14d_20260813&utm_content=five_metrics_qa",
+      "public_url": "https://zhuanlan.zhihu.com/p/2071774951238121348",
+      "published_at": "2026-08-15T01:51:00+08:00",
       "image_status": "images_ready",
       "assets": {
         "cover": "assets/generated/content-ops/2026-08-15/w1-zhihu-five-metrics/cover.png"
+      },
+      "evidence": {
+        "screenshot": "data/growth/evidence/2026-08-15/w1-zhihu-five-metrics/public_page.png",
+        "verification_json": "data/growth/evidence/2026-08-15/w1-zhihu-five-metrics/verification.json"
       },
       "packet_json": "data/growth/content-packet-w1-zhihu-five-metrics-2026-08-15.json",
       "article_source": "content/ops_packets/2026-08-15/w1-zhihu-five-metrics.md"
