@@ -7,7 +7,7 @@
   "action": "draft_ready_packet",
   "planned_draft_date": "2026-08-17",
   "planned_publish_date": "2026-08-18",
-  "status": "production_ready_awaiting_images",
+  "status": "images_ready",
   "title": "柜机缺货排查清单：先查这 7 步再补货",
   "excerpt": "柜机报警缺货，不等于立刻该补同一 SKU。先用 7 步区分信号与真实缺货，再决定补货、调货或复盘选品；含可打印勾选清单与停止规则。",
   "digest": "柜机报警缺货，不等于立刻该补同一 SKU。先用 7 步区分信号与真实缺货，再决定补货、调货或复盘选品；含可打印勾选清单与停止规则。",
@@ -58,10 +58,14 @@
       "content_id": "w1-wechat-stockout",
       "channel": "wechat",
       "purpose": "cover",
-      "status": "awaiting_antigravity_images",
+      "status": "images_ready",
+      "asset_path": "assets/generated/content-ops/2026-08-15/w1-wechat-stockout/cover.png",
       "aspect_ratio": "900:383",
       "width": 900,
       "height": 383,
+      "sha256": "bb0dee2f04a7844a36a079bb7f5bfe9149143109bdb979f7bd7d358b221ec6d0",
+      "model": "gemini-3.7-flash-high",
+      "review_result": "PASS",
       "subject": "ZeroRealm research visual for: 柜机缺货排查清单：先查这 7 步再补货",
       "must_include": [
         "smart retail cabinet / terminal context",
@@ -90,10 +94,14 @@
       "content_id": "w1-wechat-stockout",
       "channel": "wechat",
       "purpose": "illustration",
-      "status": "awaiting_antigravity_images",
+      "status": "images_ready",
+      "asset_path": "assets/generated/content-ops/2026-08-15/w1-wechat-stockout/illustration.png",
       "aspect_ratio": "16:9",
       "width": 1280,
       "height": 720,
+      "sha256": "af8add7468ada77d48c20165a9dbae0243a35a8e3c5bf68fc8ed72f7498ed250",
+      "model": "gemini-3.7-flash-high",
+      "review_result": "PASS",
       "subject": "ZeroRealm research visual for: 柜机缺货排查清单：先查这 7 步再补货",
       "must_include": [
         "smart retail cabinet / terminal context",
@@ -119,7 +127,7 @@
       "note": "Cursor prepares briefs only; Antigravity generates bitmaps."
     }
   ],
-  "image_status": "awaiting_antigravity_images",
+  "image_status": "images_ready",
   "sources": [
     {
       "type": "combat_pack",

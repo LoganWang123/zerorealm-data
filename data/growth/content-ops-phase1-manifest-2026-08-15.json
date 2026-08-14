@@ -3,7 +3,7 @@
   "ops_date": "2026-08-15",
   "phase": 1,
   "owner_github": "LoganWang123",
-  "status": "phase1_packets_ready",
+  "status": "images_ready",
   "safety": {
     "delete": false,
     "overwrite": false,
@@ -26,7 +26,10 @@
       "channel": "zhihu",
       "title": "智能柜运营商每周该盯哪五个过程指标？",
       "cta_url": "https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=zhihu&utm_medium=article&utm_campaign=founder14d_20260813&utm_content=five_metrics_qa",
-      "image_status": "awaiting_antigravity_images",
+      "image_status": "images_ready",
+      "assets": {
+        "cover": "assets/generated/content-ops/2026-08-15/w1-zhihu-five-metrics/cover.png"
+      },
       "packet_json": "data/growth/content-packet-w1-zhihu-five-metrics-2026-08-15.json",
       "article_source": "content/ops_packets/2026-08-15/w1-zhihu-five-metrics.md"
     },
@@ -35,11 +38,16 @@
       "channel": "wechat",
       "title": "柜机缺货排查清单：先查这 7 步再补货",
       "cta_url": "https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=wechat&utm_medium=article&utm_campaign=founder14d_20260813&utm_content=stockout_checklist",
-      "image_status": "awaiting_antigravity_images",
+      "image_status": "images_ready",
+      "assets": {
+        "cover": "assets/generated/content-ops/2026-08-15/w1-wechat-stockout/cover.png",
+        "illustration": "assets/generated/content-ops/2026-08-15/w1-wechat-stockout/illustration.png"
+      },
       "packet_json": "data/growth/content-packet-w1-wechat-stockout-2026-08-15.json",
       "article_source": "content/ops_packets/2026-08-15/w1-wechat-stockout.md"
     }
   ],
+  "image_provenance": "assets/generated/content-ops/2026-08-15/provenance.json",
   "single_cta_rule": {
     "tool_page": "https://zerorealm.tech/tools/smart-cabinet-weekly-review",
     "campaign": "founder14d_20260813",
@@ -48,5 +56,5 @@
   "exceptions": {
     "if_w1_wechat_five_metrics_unpublished": "On 2026-08-15 prioritize WeChat five-metrics publish; defer Zhihu rewrite to 2026-08-16 per CEO plan."
   },
-  "generated_at": "2026-08-14T17:07:31+00:00"
+  "generated_at": "2026-08-14T17:38:00+00:00"
 }

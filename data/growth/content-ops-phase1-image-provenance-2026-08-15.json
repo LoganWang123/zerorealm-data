@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "ops_date": "2026-08-15",
+  "phase": 1,
+  "model": "gemini-3.7-flash-high",
+  "generated_at": "2026-08-14T17:38:00Z",
+  "generator_agent": "antigravity",
+  "brand_style": "premium Chinese B2B operational intelligence, restrained dark navy/cyan, clean data-card compositions, no fake logos, minimal legible Chinese text",
+  "safety_policy": {
+    "no_stock_images": true,
+    "no_placeholders": true,
+    "no_project_llm_apis": true,
+    "no_cursor_generation": true,
+    "no_invented_metrics": true,
+    "no_cyberpunk_neon": true,
+    "no_robot_hands": true,
+    "no_watermark": true
+  },
+  "images": [
+    {
+      "content_id": "w1-zhihu-five-metrics",
+      "piece_id": "w1-zhihu-five-metrics",
+      "channel": "zhihu",
+      "purpose": "cover",
+      "asset_path": "assets/generated/content-ops/2026-08-15/w1-zhihu-five-metrics/cover.png",
+      "aspect_ratio": "16:9",
+      "dimensions": {
+        "width": 1200,
+        "height": 675
+      },
+      "file_size_bytes": 1159540,
+      "sha256": "439d019a1120851cf265395dba1897172184230b991d2f46a9ee53ae7d774a71",
+      "prompt": "A premium B2B editorial visual for smart retail operational research. A sleek black smart retail glass-front vending cabinet in a modern dark navy executive office lobby with floor-to-ceiling windows. On the deep navy wall next to the machine, an elegant, crisp data infographic card with thin cyan borders cleanly presents five process metrics in legible Chinese typography: 1. 缺货率, 2. 补货及时率, 3. 设备在线率, 4. SKU 动销率, 5. 库存准确率. Clean vertical hierarchy, restrained minimalist aesthetic, photorealistic architectural lighting, no fake logos, no invented percentages.",
+      "prompt_zh": "为「智能柜运营商每周该盯哪五个过程指标？」生成克制的商业研究配图。场景围绕智能柜、便利零售或办公点位履约。专业真实，无科幻机器人，无霓虹科技风；若需要文字仅按 brief 叠加，勿虚构百分比或排名。",
+      "visual_inspection": {
+        "result": "PASS",
+        "reviewed_at": "2026-08-14T17:38:48Z",
+        "reviewer": "antigravity",
+        "aspect_ratio_verified": "16:9 (1200x675)",
+        "composition_check": "Realistic modern corporate lobby with smart retail cabinet and clean dark navy 5-metric data card in legible Chinese typography. No fake metrics, no fake logos, restrained dark navy/cyan style."
+      }
+    },
+    {
+      "content_id": "w1-wechat-stockout",
+      "piece_id": "w1-wechat-stockout",
+      "channel": "wechat",
+      "purpose": "cover",
+      "asset_path": "assets/generated/content-ops/2026-08-15/w1-wechat-stockout/cover.png",
+      "aspect_ratio": "900:383",
+      "dimensions": {
+        "width": 900,
+        "height": 383
+      },
+      "file_size_bytes": 536984,
+      "sha256": "bb0dee2f04a7844a36a079bb7f5bfe9149143109bdb979f7bd7d358b221ec6d0",
+      "prompt": "A premium B2B editorial wide banner visual for smart retail operational research. Set in a contemporary commercial building corridor with restrained deep navy blue walls and subtle cool lighting. A technician or store manager reviews a sleek black smart retail vending cabinet. On the adjacent dark navy panel, an elegant data checklist card with cyan trim cleanly displays legible Chinese typography: 柜机缺货排查清单 with subtitle 先查这 7 步再补货. Minimalist corporate B2B aesthetic, realistic architectural environment, clean structured layout, no fake percentages, no glowing neon grids, no watermarks, no invented brand logos.",
+      "prompt_zh": "为「柜机缺货排查清单：先查这 7 步再补货」生成克制的商业研究配图。场景围绕智能柜、便利零售或办公点位履约。专业真实，无科幻机器人，无霓虹科技风；若需要文字仅按 brief 叠加，勿虚构百分比或排名。",
+      "visual_inspection": {
+        "result": "PASS",
+        "reviewed_at": "2026-08-14T17:38:54Z",
+        "reviewer": "antigravity",
+        "aspect_ratio_verified": "900:383 wide cover banner",
+        "composition_check": "Restrained wide banner composition with operations professional inspecting smart cabinet, legible checklist card '柜机缺货排查清单 / 先查这 7 步再补货', dark navy background with cyan trim."
+      }
+    },
+    {
+      "content_id": "w1-wechat-stockout",
+      "piece_id": "w1-wechat-stockout",
+      "channel": "wechat",
+      "purpose": "illustration",
+      "asset_path": "assets/generated/content-ops/2026-08-15/w1-wechat-stockout/illustration.png",
+      "aspect_ratio": "16:9",
+      "dimensions": {
+        "width": 1280,
+        "height": 720
+      },
+      "file_size_bytes": 1335513,
+      "sha256": "af8add7468ada77d48c20165a9dbae0243a35a8e3c5bf68fc8ed72f7498ed250",
+      "prompt": "A premium B2B editorial visual for smart retail operational analysis. High-end modern retail logistics and fulfillment setting with dark navy architectural backdrop and soft neutral lighting. On the left, a smart retail glass cabinet terminal. On the right, a sleek dark navy operational comparison card framed with subtle cyan borders cleanly displays legible Chinese typography: 缺货信号 ≠ 真实缺货 with four key audit dimensions listed below: 1. 库存口径, 2. 补货时效, 3. SKU 动销, 4. 点位匹配. Professional business intelligence infographic styling, documentary editorial photograph, clean data card composition, no fake numbers or percentages, no neon glow, no watermark.",
+      "prompt_zh": "为「柜机缺货排查清单：先查这 7 步再补货」生成克制的商业研究配图。场景围绕智能柜、便利零售或办公点位履约。专业真实，无科幻机器人，无霓虹科技风；若需要文字仅按 brief 叠加，勿虚构百分比或排名。",
+      "visual_inspection": {
+        "result": "PASS",
+        "reviewed_at": "2026-08-14T17:39:00Z",
+        "reviewer": "antigravity",
+        "aspect_ratio_verified": "16:9 (1280x720)",
+        "composition_check": "Smart retail fulfillment backdrop with clean dark navy data panel: '缺货信号 ≠ 真实缺货' and 4 audit dimensions (库存口径, 补货时效, SKU 动销, 点位匹配), restrained cyan borders, no fake stats."
+      }
+    }
+  ],
+  "status": "images_ready"
+}

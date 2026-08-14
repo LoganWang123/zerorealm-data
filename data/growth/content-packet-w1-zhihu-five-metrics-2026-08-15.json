@@ -5,7 +5,7 @@
   "piece_id": "w1-zhihu-five-metrics",
   "channel": "zhihu",
   "action": "publish_ready_packet",
-  "status": "production_ready_awaiting_images",
+  "status": "images_ready",
   "title": "智能柜运营商每周该盯哪五个过程指标？",
   "excerpt": "智能柜运营商若只盯 GMV，往往错过更早暴露的经营质量信号。本文用问答方式拆解缺货率、补货及时率、设备在线率、SKU 动销率与库存准确率——ZeroRealm 参考口径，非行业统一标准。",
   "tags": [
@@ -57,10 +57,14 @@
       "content_id": "w1-zhihu-five-metrics",
       "channel": "zhihu",
       "purpose": "cover",
-      "status": "awaiting_antigravity_images",
+      "status": "images_ready",
+      "asset_path": "assets/generated/content-ops/2026-08-15/w1-zhihu-five-metrics/cover.png",
       "aspect_ratio": "16:9",
       "width": 1200,
       "height": 675,
+      "sha256": "439d019a1120851cf265395dba1897172184230b991d2f46a9ee53ae7d774a71",
+      "model": "gemini-3.7-flash-high",
+      "review_result": "PASS",
       "subject": "ZeroRealm research visual for: 智能柜运营商每周该盯哪五个过程指标？",
       "must_include": [
         "smart retail cabinet / terminal context",
@@ -86,7 +90,7 @@
       "note": "Cursor prepares briefs only; Antigravity generates bitmaps."
     }
   ],
-  "image_status": "awaiting_antigravity_images",
+  "image_status": "images_ready",
   "sources": [
     {
       "type": "website_mdx",

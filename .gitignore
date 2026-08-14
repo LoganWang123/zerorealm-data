@@ -27,7 +27,8 @@ logs/
 output_daily/
 output/
 output/media/
-assets/generated/
+assets/generated/*
+!assets/generated/content-ops/
 storage/manifest/
 .cache/
 .test-tmp/
