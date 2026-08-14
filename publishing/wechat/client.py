@@ -161,6 +161,36 @@ class WechatClient:
         )
         return self._check_response(resp)
 
+    def list_drafts(
+        self,
+        *,
+        offset: int = 0,
+        count: int = 20,
+        no_content: int = 0,
+    ) -> dict:
+        """List unpublished drafts (read-only). Never deletes, updates, or publishes.
+
+        Uses cgi-bin/draft/batchget. ``no_content=1`` omits article bodies.
+        """
+        if offset < 0:
+            raise ValueError("offset must be >= 0")
+        if count < 1 or count > 20:
+            raise ValueError("count must be between 1 and 20")
+        if no_content not in (0, 1):
+            raise ValueError("no_content must be 0 or 1")
+        token = self.get_access_token()
+        resp = self._post_utf8_json(
+            f"{BASE_URL}/cgi-bin/draft/batchget",
+            params={"access_token": token},
+            payload={
+                "offset": offset,
+                "count": count,
+                "no_content": no_content,
+            },
+            timeout=30,
+        )
+        return self._check_response(resp)
+
     def delete_draft(self, media_id: str) -> dict:
         """Delete the specified draft."""
         token = self.get_access_token()

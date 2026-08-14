@@ -1,0 +1,42 @@
+{
+  "inspected_at": "2026-08-14T17:07:31+00:00",
+  "ops_date": "2026-08-15",
+  "mode": "read_only_list",
+  "safety": {
+    "delete": false,
+    "overwrite": false,
+    "publish": false,
+    "mass_send": false,
+    "llm_api": false,
+    "image_generation": false
+  },
+  "total_count": 1,
+  "item_count": 1,
+  "drafts": [
+    {
+      "media_id": "csbrZswCx_5hmuZ_bqWc6_aMLRMtgyHDcCnExyNx_zUuzOODWrtB0uYPC2pZYh1m",
+      "update_time": 1786251549,
+      "article_count": 1,
+      "titles": [
+        "点位有销量却不赚钱？用一张周表算清单点贡献"
+      ],
+      "articles": [
+        {
+          "title": "点位有销量却不赚钱？用一张周表算清单点贡献",
+          "author": "ZeroRealm AI",
+          "digest": "点位有流水，不等于点位赚钱。公开材料里没有「中国智能柜行业平均单点贡献」，也核实不到「全行业已完成从规模到质量转型」。能核对的是三组发行人信号——友宝、DyDo、Fuji Electric——它们只支持一个运营假设，即先用自己的周表算清单点",
+          "has_thumb_media": true,
+          "thumb_media_id_present": true,
+          "show_cover_pic": 0,
+          "update_time": 1786251549
+        }
+      ],
+      "media_status": {
+        "any_thumb_present": true,
+        "all_thumbs_present": true
+      }
+    }
+  ],
+  "plan_overlap": [],
+  "unknown_draft_policy": "Never delete, overwrite, publish, or mass-send unknown drafts. Human review required before any mutation."
+}
