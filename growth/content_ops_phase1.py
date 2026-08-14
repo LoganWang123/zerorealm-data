@@ -294,7 +294,7 @@ def build_zhihu_five_metrics_packet(*, body_markdown: str) -> dict[str, Any]:
 def build_wechat_stockout_packet(*, body_markdown: str) -> dict[str, Any]:
     piece = _piece_from_combat(WECHAT_STOCKOUT_PIECE_ID)
     excerpt = (
-        "柜机报警缺货，不等于立刻该补同一 SKU。"
+        "柜机报警缺货，不等于立刻该补同一货品。"
         "先用 7 步区分信号与真实缺货，再决定补货、调货或复盘选品；"
         "含可打印勾选清单与停止规则。"
     )

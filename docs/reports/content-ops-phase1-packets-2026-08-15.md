@@ -1,6 +1,6 @@
 # Content ops phase 1 packets · 2026-08-15
 
-- Status: `wechat_draft_created`
+- Status: `wechat_draft_updated`
 - Owner: `LoganWang123`
 - Image status: `images_ready`
 - LLM API used: **false**
@@ -15,16 +15,17 @@
    - CTA: `https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=zhihu&utm_medium=article&utm_campaign=founder14d_20260813&utm_content=five_metrics_qa`
 
 2. **WeChat** `w1-wechat-stockout` — 柜机缺货排查清单：先查这 7 步再补货 (**DRAFT**)
-   - Status: `wechat_draft_created`
+   - Status: `wechat_draft_updated`
    - Draft media_id prefix: `csbrZswCx_…`
-   - Author / digest / source URL: set on draft/add
+   - Author: `零域研究`
+   - Visible text: Chinese-only for domestic readers; href/src UTM remain hidden
    - Evidence: `data/growth/evidence/2026-08-15/w1-wechat-stockout/`
-   - CTA: `https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=wechat&utm_medium=article&utm_campaign=founder14d_20260813&utm_content=stockout_checklist`
+   - CTA href: `https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=wechat&utm_medium=article&utm_campaign=founder14d_20260813&utm_content=stockout_checklist`
 
 ## Compliance
 
-- Single tool-page CTA + UTM per article
-- No auto-publish / mass-send / delete / overwrite
-- Exact-title duplicates blocked
+- Single tool-page CTA + UTM per article (no raw URL shown)
+- No auto-publish / mass-send / delete
+- Official draft/update only on the stockout media_id
 - Unrelated single-point-contribution draft preserved
-- Bitmap images: **images_ready** (Antigravity; Cursor did not generate)
+- Bitmap images: **images_ready** (reused; Cursor did not generate)

@@ -3,14 +3,16 @@
   "ops_date": "2026-08-15",
   "phase": 1,
   "owner_github": "LoganWang123",
-  "status": "wechat_draft_created",
+  "status": "wechat_draft_updated",
   "safety": {
     "delete": false,
-    "overwrite": false,
+    "overwrite_unrelated": false,
     "publish": false,
     "mass_send": false,
     "llm_api": false,
-    "image_generation": false
+    "image_generation": false,
+    "image_reupload": false,
+    "update_stockout_only": true
   },
   "wechat_draft_inspection": {
     "total_count": 2,
@@ -53,7 +55,7 @@
       },
       "packet_json": "data/growth/content-packet-w1-wechat-stockout-2026-08-15.json",
       "article_source": "content/ops_packets/2026-08-15/w1-wechat-stockout.md",
-      "status": "wechat_draft_created",
+      "status": "wechat_draft_updated",
       "draft_media_id": "csbrZswCx_5hmuZ_bqWc6zcS1VzyvQNLeSX1jKSplP3aC_pDoSRoiJt2oPhgZX2H",
       "evidence": {
         "verification_json": "data/growth/evidence/2026-08-15/w1-wechat-stockout/verification.json",
@@ -70,15 +72,14 @@
   "exceptions": {
     "if_w1_wechat_five_metrics_unpublished": "On 2026-08-15 prioritize WeChat five-metrics publish; defer Zhihu rewrite to 2026-08-16 per CEO plan."
   },
-  "generated_at": "2026-08-14T18:07:53+00:00",
+  "generated_at": "2026-08-14T18:24:45+00:00",
   "wechat_draft": {
     "piece_id": "w1-wechat-stockout",
-    "status": "wechat_draft_created",
+    "status": "wechat_draft_updated",
     "title": "柜机缺货排查清单：先查这 7 步再补货",
     "media_id": "csbrZswCx_5hmuZ_bqWc6zcS1VzyvQNLeSX1jKSplP3aC_pDoSRoiJt2oPhgZX2H",
     "created": false,
-    "draft_present": true,
-    "exact_title_duplicate": true,
+    "exact_title_duplicate": null,
     "evidence": "data/growth/evidence/2026-08-15/w1-wechat-stockout/verification.json"
   }
 }

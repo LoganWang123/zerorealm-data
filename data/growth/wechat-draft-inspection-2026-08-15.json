@@ -1,5 +1,5 @@
 {
-  "inspected_at": "2026-08-14T18:07:53+00:00",
+  "inspected_at": "2026-08-14T18:24:45+00:00",
   "ops_date": "2026-08-15",
   "mode": "read_only_list",
   "safety": {
@@ -15,7 +15,7 @@
   "drafts": [
     {
       "media_id": "csbrZswCx_5hmuZ_bqWc6zcS1VzyvQNLeSX1jKSplP3aC_pDoSRoiJt2oPhgZX2H",
-      "update_time": 1786730771,
+      "update_time": 1786731883,
       "article_count": 1,
       "titles": [
         "柜机缺货排查清单：先查这 7 步再补货"
@@ -23,12 +23,12 @@
       "articles": [
         {
           "title": "柜机缺货排查清单：先查这 7 步再补货",
-          "author": "ZeroRealm AI",
-          "digest": "柜机报警缺货，不等于立刻该补同一 SKU。先用 7 步区分信号与真实缺货，再决定补货、调",
+          "author": "零域研究",
+          "digest": "柜机报警缺货，不等于立刻该补同一货品。先用 7 步区分信号与真实缺货，再决定补货、调",
           "has_thumb_media": true,
           "thumb_media_id_present": true,
           "show_cover_pic": 0,
-          "update_time": 1786730771
+          "update_time": 1786731883
         }
       ],
       "media_status": {
@@ -63,7 +63,7 @@
   "plan_overlap": [
     {
       "media_id": "csbrZswCx_5hmuZ_bqWc6zcS1VzyvQNLeSX1jKSplP3aC_pDoSRoiJt2oPhgZX2H",
-      "update_time": 1786730771,
+      "update_time": 1786731883,
       "piece_id": "w1-wechat-stockout",
       "matched_hints": [
         "缺货排查",

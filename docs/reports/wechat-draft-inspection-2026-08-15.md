@@ -1,6 +1,6 @@
 # WeChat draft inspection · 2026-08-15
 
-- Inspected at: `2026-08-14T18:07:53+00:00`
+- Inspected at: `2026-08-14T18:24:45+00:00`
 - Mode: **read_only_list** (list only)
 - total_count: **2**
 - item_count: **2**
@@ -15,7 +15,7 @@
 
 | # | media_id (prefix) | update_time | titles | thumb |
 | --- | --- | --- | --- | --- |
-| 1 | `csbrZswCx_…` | 1786730771 | 柜机缺货排查清单：先查这 7 步再补货 | yes |
+| 1 | `csbrZswCx_…` | 1786731883 | 柜机缺货排查清单：先查这 7 步再补货 | yes |
 | 2 | `csbrZswCx_…` | 1786729599 | 点位有销量却不赚钱？用一张周表算清单点贡献 | yes |
 
 ## Overlap with approved plan

@@ -12,22 +12,28 @@ from growth.wechat_stockout_draft import (
     APPROVED_TITLE,
     AUTHOR,
     PRESERVED_UNRELATED_TITLE,
+    STOCKOUT_MEDIA_ID,
     WechatDraftSafetyError,
     apply_wechat_draft_created,
+    assert_html_visible_text_chinese_only,
     assert_single_approved_cta,
     build_article_payload,
     build_stockout_html,
     create_authorized_stockout_draft,
     count_cta_occurrences,
+    latin_tokens,
     truncate_utf8,
+    update_authorized_stockout_draft,
     verify_local_images,
     verify_readback,
+    visible_text_from_html,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
 PACKET_PATH = ROOT / "data/growth/content-packet-w1-wechat-stockout-2026-08-15.json"
 MODULE_PATH = ROOT / "growth/wechat_stockout_draft.py"
 SCRIPT_PATH = ROOT / "scripts/create_wechat_stockout_draft.py"
+UPDATE_SCRIPT_PATH = ROOT / "scripts/update_wechat_stockout_draft.py"
 CTA_URL = (
     "https://zerorealm.tech/tools/smart-cabinet-weekly-review"
     "?utm_source=wechat&utm_medium=article"
@@ -128,8 +134,8 @@ class FakeDraftClient:
         raise AssertionError("send_mass_article must not be called")
 
 
-def test_source_files_never_call_mutating_or_publish_apis():
-    combined = MODULE_PATH.read_text(encoding="utf-8") + SCRIPT_PATH.read_text(encoding="utf-8")
+def test_create_script_never_calls_mutating_or_publish_apis():
+    combined = SCRIPT_PATH.read_text(encoding="utf-8")
     for forbidden in (
         ".delete_draft(",
         ".update_draft(",
@@ -144,6 +150,25 @@ def test_source_files_never_call_mutating_or_publish_apis():
         assert forbidden not in combined
 
 
+def test_update_script_only_allows_official_draft_update():
+    text = UPDATE_SCRIPT_PATH.read_text(encoding="utf-8")
+    assert ".update_draft(" in text
+    assert "draft/update" in text
+    for forbidden in (
+        ".delete_draft(",
+        ".submit_publish(",
+        ".send_mass_article(",
+        ".create_mass_article(",
+        "freepublish/submit",
+        "message/mass/sendall",
+        "draft/delete",
+        "cgi-bin/draft/add",
+    ):
+        assert forbidden not in text
+    assert "GenerateImage" not in text
+    assert "draft/update" in MODULE_PATH.read_text(encoding="utf-8")
+
+
 def test_html_has_exactly_one_approved_cta_and_illustration():
     packet = _packet()
     html = build_stockout_html(
@@ -153,6 +178,14 @@ def test_html_has_exactly_one_approved_cta_and_illustration():
         cta_copy=packet["cta"]["copy"],
     )
     assert_single_approved_cta(html, packet["cta"]["url"])
+    assert_html_visible_text_chinese_only(html)
+    visible = visible_text_from_html(html)
+    assert latin_tokens(visible) == []
+    assert "https://" not in visible
+    assert "SKU" not in visible
+    assert "CTA" not in visible
+    assert "ZeroRealm" not in visible
+    assert AUTHOR not in html or AUTHOR == "零域研究"
     assert count_cta_occurrences(html, packet["cta"]["url"]) == 1
     assert html.count("https://mmbiz.qpic.cn/stockout-illustration.png") == 1
     assert "缺货信号" in html
@@ -181,6 +214,7 @@ def test_article_payload_sets_author_digest_and_source_url():
         digest=packet["digest"],
         content_source_url=packet["cta"]["url"],
     )
+    assert AUTHOR == "零域研究"
     assert article["author"] == AUTHOR
     assert article["content_source_url"] == packet["cta"]["url"]
     assert len(article["digest"].encode("utf-8")) <= 120
@@ -338,8 +372,51 @@ def test_local_images_match_packet_sha256():
     assert paths["illustration"].name == "illustration.png"
 
 
+def test_readback_accepts_wechat_stripped_external_href():
+    packet = _packet()
+    html = build_stockout_html(
+        packet["body_markdown"],
+        illustration_url="https://mmbiz.qpic.cn/stockout-illustration.png",
+        cta_url=packet["cta"]["url"],
+        cta_copy=packet["cta"]["copy"],
+    )
+    from html import escape as html_escape
+
+    stripped = html.replace(f'href="{html_escape(packet["cta"]["url"], quote=True)}"', "")
+    assert packet["cta"]["url"] not in stripped
+    stored = {
+        "news_item": [
+            {
+                "title": packet["title"],
+                "author": AUTHOR,
+                "digest": truncate_utf8(packet["digest"]),
+                "content": stripped,
+                "content_source_url": packet["cta"]["url"],
+                "thumb_url": "https://mmbiz.qpic.cn/cover.png",
+                "thumb_media_id": "",
+            }
+        ]
+    }
+    expected = {
+        "title": packet["title"],
+        "author": AUTHOR,
+        "digest": truncate_utf8(packet["digest"]),
+        "content_source_url": packet["cta"]["url"],
+        "thumb_media_id": "unused",
+    }
+    checks = verify_readback(
+        stored,
+        expected,
+        illustration_url="https://mmbiz.qpic.cn/stockout-illustration.png",
+        require_uploaded_thumb=False,
+    )
+    assert checks["cta_count"] == 0
+    assert checks["visible_text_chinese_only"] is True
+    assert checks["illustration_present"] is True
+
+
 def test_second_cta_is_rejected():
-    html = '<p><a href="https://zerorealm.tech">home</a> ' f"{CTA_URL}</p>"
+    html = '<p><a href="https://zerorealm.tech">首页</a> ' f"{CTA_URL}</p>"
     with pytest.raises(WechatDraftSafetyError, match="exactly one"):
         assert_single_approved_cta(html, CTA_URL)
 
@@ -382,3 +459,160 @@ def test_apply_manifest_keeps_zhihu_publication_and_sets_draft_status():
     assert wechat["status"] == "wechat_draft_created"
     assert updated_packet["status"] == "wechat_draft_created"
     assert updated_packet["draft"]["content_source_url"] == CTA_URL
+
+
+def test_visible_text_ignores_href_src_but_rejects_latin_copy():
+    html = (
+        "<p>打开智能柜周复盘工具页</p>"
+        f'<a href="{CTA_URL}">打开智能柜周复盘工具页</a>'
+        '<img src="https://mmbiz.qpic.cn/stockout-illustration.png" alt="缺货信号不等于真实缺货">'
+    )
+    assert_html_visible_text_chinese_only(html)
+    assert latin_tokens(visible_text_from_html(html)) == []
+
+    with pytest.raises(WechatDraftSafetyError, match="Latin"):
+        assert_html_visible_text_chinese_only("<p>补原 SKU</p>")
+    with pytest.raises(WechatDraftSafetyError, match="Latin"):
+        assert_html_visible_text_chinese_only("<p>ZeroRealm AI</p>")
+    with pytest.raises(WechatDraftSafetyError, match="Latin"):
+        assert_html_visible_text_chinese_only("<p>唯一行动入口（单一 CTA）</p>")
+    with pytest.raises(WechatDraftSafetyError, match="Latin"):
+        assert_html_visible_text_chinese_only(f"<p>{CTA_URL}</p>")
+
+
+class FakeUpdateClient(FakeDraftClient):
+    def __init__(self, extra_items: list[dict] | None = None):
+        super().__init__(extra_items)
+        self.updated_articles: list[dict] = []
+
+    def upload_permanent_image(self, path: str) -> dict:
+        self.calls.append("upload_permanent_image")
+        raise AssertionError("image upload must not run on update")
+
+    def upload_content_image(self, path: str) -> str:
+        self.calls.append("upload_content_image")
+        raise AssertionError("image upload must not run on update")
+
+    def create_draft(self, articles: list[dict]) -> str:
+        self.calls.append("create_draft")
+        raise AssertionError("create_draft must not run on update")
+
+    def update_draft(self, media_id: str, index: int, article: dict) -> dict:
+        self.calls.append("update_draft")
+        self.updated.append(media_id)
+        self.updated_articles.append(article)
+        for item in self.items:
+            if item.get("media_id") == media_id:
+                news = dict(article)
+                # WeChat draft/get often omits thumb_media_id and keeps thumb_url.
+                news["thumb_url"] = "https://mmbiz.qpic.cn/cover.png"
+                news["thumb_media_id"] = ""
+                item["content"] = {"news_item": [news]}
+                return {"errcode": 0, "errmsg": "ok"}
+        raise AssertionError(f"unknown media_id {media_id}")
+
+
+def _existing_stockout_item(packet: dict) -> dict:
+    html = build_stockout_html(
+        packet["body_markdown"],
+        illustration_url="https://mmbiz.qpic.cn/stockout-illustration.png",
+        cta_url=packet["cta"]["url"],
+        cta_copy=packet["cta"]["copy"],
+    )
+    return {
+        "media_id": STOCKOUT_MEDIA_ID,
+        "update_time": 1,
+        "content": {
+            "news_item": [
+                {
+                    "title": APPROVED_TITLE,
+                    "author": "ZeroRealm AI",
+                    "digest": truncate_utf8(packet["digest"]),
+                    "content": html,
+                    "content_source_url": packet["cta"]["url"],
+                    "thumb_media_id": "thumb-existing",
+                }
+            ]
+        },
+    }
+
+
+def test_update_calls_official_draft_update_on_exact_media_id_only():
+    packet = _packet()
+    client = FakeUpdateClient(extra_items=[_existing_stockout_item(packet)])
+    result = update_authorized_stockout_draft(
+        client, packet=packet, media_id=STOCKOUT_MEDIA_ID, root=ROOT
+    )
+
+    assert result["status"] == "wechat_draft_updated"
+    assert result["updated"] is True
+    assert result["media_id"] == STOCKOUT_MEDIA_ID
+    assert result["author"] == "零域研究"
+    assert client.updated == [STOCKOUT_MEDIA_ID]
+    assert client.updated_articles[0]["author"] == "零域研究"
+    assert client.updated_articles[0]["thumb_media_id"] == "thumb-existing"
+    assert "https://mmbiz.qpic.cn/stockout-illustration.png" in client.updated_articles[0]["content"]
+    assert_html_visible_text_chinese_only(client.updated_articles[0]["content"])
+    assert "create_draft" not in client.calls
+    assert "upload_permanent_image" not in client.calls
+    assert "upload_content_image" not in client.calls
+    assert "delete_draft" not in client.calls
+    assert "submit_publish" not in client.calls
+    assert "send_mass_article" not in client.calls
+    assert result["preserved_unrelated"]["present_before"] is True
+    assert result["preserved_unrelated"]["present_after"] is True
+    assert result["readback"]["visible_text_chinese_only"] is True
+    assert result["readback"]["cta_count"] == 1
+    assert result["readback"]["thumb_match"] is True
+    assert result["cover_reuploaded"] is False
+
+
+def test_update_refuses_non_stockout_media_id():
+    packet = _packet()
+    client = FakeUpdateClient(extra_items=[_existing_stockout_item(packet)])
+    with pytest.raises(WechatDraftSafetyError, match="not the stockout draft"):
+        update_authorized_stockout_draft(
+            client, packet=packet, media_id=UNRELATED_MEDIA_ID, root=ROOT
+        )
+    assert client.updated == []
+
+
+def test_update_refuses_if_unrelated_draft_missing():
+    packet = _packet()
+    client = FakeUpdateClient(extra_items=[_existing_stockout_item(packet)])
+    client.items = [item for item in client.items if item.get("media_id") != UNRELATED_MEDIA_ID]
+    with pytest.raises(WechatDraftSafetyError, match="Unrelated"):
+        update_authorized_stockout_draft(
+            client, packet=packet, media_id=STOCKOUT_MEDIA_ID, root=ROOT
+        )
+    assert client.updated == []
+
+
+def test_update_reuploads_existing_cover_when_thumb_media_id_omitted():
+    packet = _packet()
+    existing = _existing_stockout_item(packet)
+    existing["content"]["news_item"][0]["thumb_media_id"] = ""
+    existing["content"]["news_item"][0]["thumb_url"] = "https://mmbiz.qpic.cn/old-cover.png"
+
+    class CoverFallbackClient(FakeUpdateClient):
+        def upload_permanent_image(self, path: str) -> dict:
+            self.calls.append("upload_permanent_image")
+            self.cover_uploads.append(path)
+            assert path.endswith("cover.png")
+            return {"media_id": "thumb-reuploaded"}
+
+        def upload_content_image(self, path: str) -> str:
+            self.calls.append("upload_content_image")
+            raise AssertionError("body image must be reused, not re-uploaded")
+
+    client = CoverFallbackClient(extra_items=[existing])
+    result = update_authorized_stockout_draft(
+        client, packet=packet, media_id=STOCKOUT_MEDIA_ID, root=ROOT
+    )
+    assert result["updated"] is True
+    assert result["cover_reuploaded"] is True
+    assert result["safety"]["image_generation"] is False
+    assert client.updated_articles[0]["thumb_media_id"] == "thumb-reuploaded"
+    assert "upload_content_image" not in client.calls
+    assert result["readback"]["thumb_match"] is True
+    assert PRESERVED_UNRELATED_TITLE in result["post_update"]["titles"]

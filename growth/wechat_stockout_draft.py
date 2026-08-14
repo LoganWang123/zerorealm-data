@@ -1,7 +1,8 @@
-"""Authorized WeChat draft-only flow for w1-wechat-stockout.
+"""Authorized WeChat draft flow for w1-wechat-stockout.
 
-Safety: list, upload media, draft/add, and draft/get only.
-Never delete, overwrite, free-publish, or mass-send.
+Create path: list, upload media, draft/add, and draft/get.
+Update path: list, draft/get, official draft/update on STOCKOUT_MEDIA_ID only, draft/get.
+Never delete, free-publish, or mass-send. Never touch the unrelated draft.
 Never generate images or print credentials.
 """
 
@@ -13,6 +14,7 @@ import os
 import re
 from datetime import datetime, timezone
 from html import escape, unescape
+from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any, Protocol
 
@@ -24,20 +26,26 @@ from growth.content_ops_phase1 import (
 from growth.combat_pack import CAMPAIGN, TOOL_PAGE_URL
 
 PIECE_ID = WECHAT_STOCKOUT_PIECE_ID
-AUTHOR = "ZeroRealm AI"
+AUTHOR = "零域研究"
 STATUS_CREATED = "wechat_draft_created"
+STATUS_UPDATED = "wechat_draft_updated"
 PRESERVED_UNRELATED_TITLE = "点位有销量却不赚钱？用一张周表算清单点贡献"
 APPROVED_TITLE = "柜机缺货排查清单：先查这 7 步再补货"
+STOCKOUT_MEDIA_ID = "csbrZswCx_5hmuZ_bqWc6zcS1VzyvQNLeSX1jKSplP3aC_pDoSRoiJt2oPhgZX2H"
 DIGEST_MAX_BYTES = 120
 ILLUSTRATION_MARKER_HEADING = "7 步排查"
 CTA_HEADING = "唯一行动入口"
+CTA_BUTTON_TEXT = "打开智能柜周复盘工具页"
 
 ZEROREALM_URL_RE = re.compile(r"https://zerorealm\.tech[^\s\"'<>]*")
 INLINE_TOKEN_RE = re.compile(r"(`[^`]+`|\*\*[^*]+\*\*)")
+LATIN_TOKEN_RE = re.compile(r"[A-Za-z]+")
+RAW_URL_RE = re.compile(r"https?://", re.IGNORECASE)
+URL_ATTR_NAMES = {"href", "src", "data-src", "poster", "action"}
 
 
 class DraftOnlyClient(Protocol):
-    """Narrow WeChat surface: no delete / update / publish / mass-send."""
+    """Narrow WeChat surface for create: no delete / update / publish / mass-send."""
 
     def list_drafts(self, *, offset: int = 0, count: int = 20, no_content: int = 0) -> dict: ...
 
@@ -50,8 +58,88 @@ class DraftOnlyClient(Protocol):
     def get_draft(self, media_id: str) -> dict: ...
 
 
+class DraftUpdateClient(Protocol):
+    """Narrow WeChat surface for Chinese-copy update of the stockout draft only."""
+
+    def list_drafts(self, *, offset: int = 0, count: int = 20, no_content: int = 0) -> dict: ...
+
+    def get_draft(self, media_id: str) -> dict: ...
+
+    def update_draft(self, media_id: str, index: int, article: dict) -> dict: ...
+
+    def upload_permanent_image(self, path: str) -> dict: ...
+
+
 class WechatDraftSafetyError(RuntimeError):
     """Raised when the authorized draft-only flow cannot proceed safely."""
+
+
+class _VisibleTextParser(HTMLParser):
+    """Collect customer-visible text nodes; ignore href/src and other URL attributes."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.parts: list[str] = []
+        self._skip = 0
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag in {"script", "style"}:
+            self._skip += 1
+            return
+        for name, value in attrs:
+            if not value:
+                continue
+            if name.lower() in URL_ATTR_NAMES:
+                continue
+            if name.lower() == "alt":
+                self.parts.append(value)
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag in {"script", "style"} and self._skip:
+            self._skip -= 1
+
+    def handle_data(self, data: str) -> None:
+        if self._skip:
+            return
+        self.parts.append(data)
+
+
+def visible_text_from_html(html: str) -> str:
+    parser = _VisibleTextParser()
+    parser.feed(html or "")
+    parser.close()
+    return unescape("".join(parser.parts))
+
+
+def latin_tokens(text: str) -> list[str]:
+    return LATIN_TOKEN_RE.findall(text or "")
+
+
+def assert_no_latin_visible(text: str, *, field: str) -> None:
+    tokens = latin_tokens(text)
+    if tokens:
+        preview = ", ".join(tokens[:12])
+        raise WechatDraftSafetyError(f"{field} contains Latin letters: {preview}")
+    if RAW_URL_RE.search(text or "") or "zerorealm.tech" in (text or "").lower():
+        raise WechatDraftSafetyError(f"{field} shows a raw URL")
+
+
+def assert_html_visible_text_chinese_only(html: str) -> None:
+    """Customer-visible HTML text must be Chinese-only; href/src UTM may remain hidden."""
+    assert_no_latin_visible(visible_text_from_html(html), field="HTML visible text")
+
+
+def assert_article_visible_text_chinese_only(
+    *,
+    title: str,
+    author: str,
+    digest: str,
+    html: str,
+) -> None:
+    assert_no_latin_visible(title, field="title")
+    assert_no_latin_visible(author, field="author")
+    assert_no_latin_visible(digest, field="digest")
+    assert_html_visible_text_chinese_only(html)
 
 
 def utc_now_iso() -> str:
@@ -142,6 +230,26 @@ def assert_single_approved_cta(html: str, cta_url: str) -> None:
         raise WechatDraftSafetyError("approved CTA URL must appear exactly once")
     if "mailto:" in unescaped or "hi@zerorealm.tech" in unescaped:
         raise WechatDraftSafetyError("second CTA / contact footer is not allowed")
+    assert_html_visible_text_chinese_only(html)
+
+
+def assert_readback_single_cta(html: str, stored: dict[str, Any], cta_url: str) -> int:
+    """Readback may keep the href or drop it; 阅读原文 must remain the only CTA."""
+    if str(stored.get("content_source_url") or "") != cta_url:
+        raise WechatDraftSafetyError("Draft readback source URL mismatch")
+    unescaped = unescape(html)
+    found = ZEROREALM_URL_RE.findall(unescaped)
+    if found and found != [cta_url]:
+        raise WechatDraftSafetyError("readback HTML has a non-approved ZeroRealm URL")
+    count = unescaped.count(cta_url)
+    if count not in {0, 1}:
+        raise WechatDraftSafetyError("approved CTA URL must appear at most once")
+    if "mailto:" in unescaped or "hi@zerorealm.tech" in unescaped:
+        raise WechatDraftSafetyError("second CTA / contact footer is not allowed")
+    if CTA_BUTTON_TEXT not in unescaped:
+        raise WechatDraftSafetyError("readback missing Chinese CTA copy")
+    assert_html_visible_text_chinese_only(html)
+    return count
 
 
 def _inline(text: str) -> str:
@@ -256,9 +364,11 @@ def _cta_box(cta_url: str, copy: str) -> str:
         'border-radius:8px;">'
         f'<p style="margin:0 0 10px;font-size:16px;line-height:1.8;font-weight:600;color:#0f172a;">'
         f"{escape(copy)}</p>"
-        '<p style="margin:0;padding:12px;background:#2563eb;color:#ffffff;font-size:14px;'
-        f'line-height:1.7;text-align:center;border-radius:6px;word-break:break-all;">'
-        f"{cta_url}</p></div>"
+        '<p style="margin:0;text-align:center;">'
+        f'<a href="{escape(cta_url, quote=True)}" '
+        'style="display:inline-block;padding:12px 18px;background:#2563eb;color:#ffffff;'
+        'font-size:14px;line-height:1.7;text-decoration:none;border-radius:6px;">'
+        f"{escape(CTA_BUTTON_TEXT)}</a></p></div>"
     )
 
 
@@ -394,6 +504,7 @@ def build_stockout_html(
         + "</div>"
     )
     assert_single_approved_cta(html, cta_url)
+    assert_html_visible_text_chinese_only(html)
     return html
 
 
@@ -409,6 +520,9 @@ def build_article_payload(
     if not thumb_media_id:
         raise WechatDraftSafetyError("thumb_media_id is required")
     assert_single_approved_cta(html, content_source_url)
+    assert_article_visible_text_chinese_only(
+        title=title, author=author, digest=truncate_utf8(digest), html=html
+    )
     return {
         "title": title,
         "author": author,
@@ -472,6 +586,19 @@ def verify_local_images(packet: dict[str, Any], root: Path) -> dict[str, Path]:
     return paths
 
 
+def extract_illustration_url(content: str) -> str:
+    """Reuse the live WeChat CDN image URL; never regenerate or re-upload bitmaps."""
+    imgs = re.findall(
+        r"<img[^>]+(?:data-src|src)=[\"']([^\"']+)",
+        content or "",
+        flags=re.IGNORECASE,
+    )
+    for url in imgs:
+        if "mmbiz.qpic.cn" in url:
+            return url
+    return imgs[0] if imgs else ""
+
+
 def _has_body_illustration(content: str, illustration_url: str) -> bool:
     imgs = re.findall(
         r"<img[^>]+(?:data-src|src)=[\"']([^\"']+)",
@@ -498,11 +625,11 @@ def verify_readback(
         raise WechatDraftSafetyError("Draft readback did not return an article")
     stored = items[0]
     content = str(stored.get("content") or "")
-    thumb_ok = (
-        stored.get("thumb_media_id") == expected["thumb_media_id"]
-        if require_uploaded_thumb
-        else bool(stored.get("thumb_media_id"))
-    )
+    stored_thumb = stored.get("thumb_media_id") or ""
+    if require_uploaded_thumb:
+        thumb_ok = stored_thumb == expected["thumb_media_id"]
+    else:
+        thumb_ok = bool(stored_thumb or stored.get("thumb_url"))
     checks = {
         "title_match": stored.get("title") == expected["title"],
         "author_match": stored.get("author") == expected["author"],
@@ -524,7 +651,16 @@ def verify_readback(
         raise WechatDraftSafetyError("Draft readback cover mismatch")
     if not checks["illustration_present"]:
         raise WechatDraftSafetyError("Draft readback missing body illustration")
-    assert_single_approved_cta(content, expected["content_source_url"])
+    checks["cta_count"] = assert_readback_single_cta(
+        content, stored, expected["content_source_url"]
+    )
+    assert_article_visible_text_chinese_only(
+        title=str(stored.get("title") or ""),
+        author=str(stored.get("author") or ""),
+        digest=str(stored.get("digest") or ""),
+        html=content,
+    )
+    checks["visible_text_chinese_only"] = True
     required = ["缺货信号", "7 步", "停止规则", "可打印清单"]
     missing = [fragment for fragment in required if fragment not in content]
     if missing:
@@ -702,6 +838,185 @@ def create_authorized_stockout_draft(
     return result
 
 
+def _media_id_for_title(list_payload: dict[str, Any], title: str) -> str:
+    item = find_exact_title_item(list_payload, title)
+    return str((item or {}).get("media_id") or "")
+
+
+def inspect_stockout_visible_text(html: str) -> dict[str, Any]:
+    visible = visible_text_from_html(html)
+    tokens = latin_tokens(visible)
+    return {
+        "visible_latin_tokens": tokens,
+        "visible_latin_count": len(tokens),
+        "raw_url_visible": bool(
+            RAW_URL_RE.search(visible) or "zerorealm.tech" in visible.lower()
+        ),
+        "illustration_url": extract_illustration_url(html),
+        "cta_url_in_href": bool(ZEROREALM_URL_RE.search(unescape(html))),
+    }
+
+
+def update_authorized_stockout_draft(
+    client: DraftUpdateClient,
+    *,
+    packet: dict[str, Any],
+    media_id: str,
+    root: Path,
+    prelisted: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Update only the existing stockout draft via official draft/update.
+
+    Reuses the live body illustration. Reuses thumb_media_id when WeChat still
+    returns it; if the readback omits it, re-uploads the existing local cover
+    file (same bytes, no image generation). Never publishes, deletes, or
+    mutates the unrelated draft.
+    """
+    if media_id != STOCKOUT_MEDIA_ID:
+        raise WechatDraftSafetyError(
+            "refusing to update a media_id that is not the stockout draft"
+        )
+    title = str(packet.get("title") or "").strip()
+    if title != APPROVED_TITLE:
+        raise WechatDraftSafetyError("packet title is not the approved stockout title")
+    cta_url = str((packet.get("cta") or {}).get("url") or "")
+    cta_copy = str((packet.get("cta") or {}).get("copy") or "")
+    digest = str(packet.get("digest") or packet.get("excerpt") or "")
+    markdown = str(packet.get("body_markdown") or "")
+
+    listed = prelisted if prelisted is not None else list_all_drafts(client)
+    pre_titles = collect_titles(listed)
+    unrelated_ok = preserved_unrelated_present(pre_titles)
+    if not unrelated_ok:
+        raise WechatDraftSafetyError(
+            "Unrelated single-point-contribution draft missing; refusing update"
+        )
+    listed_ids = [str(item.get("media_id") or "") for item in (listed.get("item") or [])]
+    if media_id not in listed_ids:
+        raise WechatDraftSafetyError("stockout media_id is not in the current draft list")
+    listed_item = next(
+        item for item in (listed.get("item") or []) if str(item.get("media_id") or "") == media_id
+    )
+    listed_title = ""
+    listed_news = ((listed_item.get("content") or {}).get("news_item") or [{}])[0]
+    listed_title = str(listed_news.get("title") or "").strip()
+    if listed_title != APPROVED_TITLE:
+        raise WechatDraftSafetyError("listed draft title does not match the stockout article")
+
+    stored = client.get_draft(media_id)
+    stored_article = (stored.get("news_item") or [{}])[0]
+    stored_html = str(stored_article.get("content") or "")
+    thumb_media_id = str(stored_article.get("thumb_media_id") or "")
+    cover_reuploaded = False
+    if not thumb_media_id:
+        image_paths = verify_local_images(packet, root)
+        uploaded = client.upload_permanent_image(str(image_paths["cover"]))
+        thumb_media_id = str(uploaded.get("media_id") or "")
+        cover_reuploaded = True
+        if not thumb_media_id:
+            raise WechatDraftSafetyError("cover re-upload returned no thumb_media_id")
+    illustration_url = extract_illustration_url(stored_html)
+    if not illustration_url:
+        raise WechatDraftSafetyError("existing stockout draft has no body illustration to reuse")
+    pre_visible = inspect_stockout_visible_text(stored_html)
+
+    html = build_stockout_html(
+        markdown,
+        illustration_url=illustration_url,
+        cta_url=cta_url,
+        cta_copy=cta_copy,
+    )
+    article = build_article_payload(
+        title=title,
+        html=html,
+        thumb_media_id=thumb_media_id,
+        digest=digest,
+        content_source_url=cta_url,
+        author=AUTHOR,
+    )
+    client.update_draft(media_id, 0, article)
+    after = client.get_draft(media_id)
+    readback = verify_readback(
+        after,
+        article,
+        illustration_url=illustration_url,
+        require_uploaded_thumb=False,
+    )
+    stored_after = (after.get("news_item") or [{}])[0]
+    evidence_html = str(stored_after.get("content") or html)
+    post = list_all_drafts(client)
+    post_titles = collect_titles(post)
+    post_ids = [str(item.get("media_id") or "") for item in (post.get("item") or [])]
+    if media_id not in post_ids:
+        raise WechatDraftSafetyError("stockout draft disappeared after update")
+    unrelated_after = preserved_unrelated_present(post_titles)
+    if not unrelated_after:
+        raise WechatDraftSafetyError(
+            "Unrelated single-point-contribution draft disappeared after update"
+        )
+    unrelated_media_id = _media_id_for_title(listed, PRESERVED_UNRELATED_TITLE)
+    unrelated_media_id_after = _media_id_for_title(post, PRESERVED_UNRELATED_TITLE)
+    if unrelated_media_id and unrelated_media_id_after != unrelated_media_id:
+        raise WechatDraftSafetyError("Unrelated draft media_id changed after stockout update")
+
+    return {
+        "piece_id": PIECE_ID,
+        "ops_date": PHASE1_DATE,
+        "mode": "draft_only",
+        "status": STATUS_UPDATED,
+        "action": STATUS_UPDATED,
+        "title": title,
+        "author": AUTHOR,
+        "cta_url": cta_url,
+        "safety": {
+            "delete": False,
+            "overwrite_unrelated": False,
+            "publish": False,
+            "mass_send": False,
+            "llm_api": False,
+            "image_generation": False,
+            "image_reupload": cover_reuploaded,
+            "update_stockout_only": True,
+        },
+        "pre_update": {
+            "total_count": listed.get("total_count"),
+            "item_count": listed.get("item_count"),
+            "titles": pre_titles,
+            "author": stored_article.get("author"),
+            "visible_text": pre_visible,
+        },
+        "preserved_unrelated": {
+            "title": PRESERVED_UNRELATED_TITLE,
+            "present_before": True,
+            "present_after": True,
+            "media_id": unrelated_media_id_after,
+        },
+        "media_id": media_id,
+        "created": False,
+        "updated": True,
+        "digest": article["digest"],
+        "content_source_url": article["content_source_url"],
+        "thumb_media_id_present": True,
+        "cover_reuploaded": cover_reuploaded,
+        "html": evidence_html,
+        "illustration": {
+            "cdn_host": "mmbiz.qpic.cn" if "mmbiz.qpic.cn" in illustration_url else "",
+            "reused": True,
+        },
+        "readback": readback,
+        "post_update": {
+            "total_count": post.get("total_count"),
+            "item_count": post.get("item_count"),
+            "titles": post_titles,
+        },
+        "message": (
+            "Official draft/update applied to the stockout media_id only. "
+            "Cover and body illustration were reused; unrelated draft was preserved. "
+            "No publish, mass-send, or delete."
+        ),
+    }
+
+
 def evidence_public_view(result: dict[str, Any]) -> dict[str, Any]:
     """Evidence JSON without full HTML body (kept as a sibling file)."""
     payload = {
@@ -729,7 +1044,7 @@ def apply_wechat_draft_created(
     """Patch committed manifest/packet; preserve unrelated Zhihu publication fields."""
     updated_manifest = json.loads(json.dumps(manifest))
     updated_packet = json.loads(json.dumps(packet))
-    updated_manifest["status"] = STATUS_CREATED
+    updated_manifest["status"] = result.get("status") or STATUS_CREATED
     updated_manifest["safety"] = result.get("safety") or updated_manifest.get("safety")
     updated_manifest["wechat_draft_inspection"] = {
         "total_count": inspection.get("total_count"),
@@ -772,7 +1087,7 @@ def apply_wechat_draft_created(
     updated_manifest["generated_at"] = utc_now_iso()
 
     updated_packet["status"] = result.get("status")
-    updated_packet["action"] = "wechat_draft_created"
+    updated_packet["action"] = result.get("action") or result.get("status")
     updated_packet["draft"] = {
         "media_id": result.get("media_id"),
         "author": result.get("author"),
