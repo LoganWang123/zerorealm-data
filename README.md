@@ -132,6 +132,12 @@ python scripts/generate_founder_growth_ops.py \
   --baseline-json data/growth/channel-baseline-2026-08-12.json \
   --write-templates \
   --start-date 2026-08-13
+
+# 3) 运营复盘：技术采集 vs 微信/知乎（新鲜度闸门；不把过期报表写入当期）
+python scripts/build_ops_retrospective.py \
+  --review-date 2026-08-15 \
+  --import-dir "/path/to/Downloads" \
+  --collection-snapshot-json data/growth/collection-run-31817014485.json
 ```
 
 口径：禁止跨周期漏斗（baseline 只读，当期 channel 默认 null）；

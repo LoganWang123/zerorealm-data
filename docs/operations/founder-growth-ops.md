@@ -43,6 +43,22 @@ python scripts/generate_founder_growth_ops.py \
   --ledger-json data/growth/experiment-ledger.filled.json
 ```
 
+## 运营复盘（技术采集 vs 渠道业务，含新鲜度闸门）
+
+渠道结果过期时，**不要**把 baseline 唯一阅读写入 `current_experiment`。只读导入本地报表并生成分列复盘：
+
+```bash
+python scripts/build_ops_retrospective.py \
+  --review-date 2026-08-15 \
+  --import-dir "/path/to/Downloads" \
+  --baseline-json data/growth/channel-baseline-2026-08-12.json \
+  --collection-snapshot-json data/growth/collection-run-31817014485.json
+```
+
+- `--import-dir` 会选择最新 `tendency_*.xls`；知乎优先 `日报表 (1).xls`，若已改名为 `日报表.xls` 则使用该文件。
+- 报表 `period.end` 距复盘日超过 1 天视为 stale；stale 报表 **拒绝** 填入当期渠道计数。
+- 产出只含聚合指标与 run 元数据，不复制原始报表。
+
 ## 口径硬规则
 
 - **禁止跨周期漏斗**：`baseline_snapshot` 只读历史参照；`current_experiment` 才是当期台账。默认生成时 `channel_observed` 为 `null`、事件 counters 为 `0`；**不得**把基线微信 unique 等人数当作当期漏斗分母。
@@ -64,7 +80,7 @@ python scripts/generate_founder_growth_ops.py \
 ## 测试
 
 ```bash
-python -m pytest -q tests/test_founder_growth_ops.py tests/test_channel_growth_baseline.py
+python -m pytest -q tests/test_founder_growth_ops.py tests/test_channel_growth_baseline.py tests/test_ops_retrospective.py
 python -m pytest -q
-ruff check growth scripts/generate_founder_growth_ops.py scripts/build_channel_growth_baseline.py tests/test_founder_growth_ops.py
+ruff check growth scripts/generate_founder_growth_ops.py scripts/build_channel_growth_baseline.py scripts/build_ops_retrospective.py tests/test_founder_growth_ops.py tests/test_ops_retrospective.py
 ```

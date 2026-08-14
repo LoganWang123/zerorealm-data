@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-08-15 — Ops retrospective + freshness-gated import
+
+- Recorded Daily Collection scheduled run 31817014485 (success) as technical metrics only
+- Added local WeChat/Zhihu report discovery, freshness gate, and operating retrospective
+- Stale channel reports never fill `current_experiment` counts
+
 ## Unreleased — Research Platform Phase 8–11 (local RC)
 
 ### Phase 8

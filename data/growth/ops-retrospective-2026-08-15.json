@@ -1,0 +1,242 @@
+{
+  "schema_version": 1,
+  "review_date": "2026-08-15",
+  "generated_on": "2026-08-15",
+  "privacy": {
+    "raw_reports_copied": false,
+    "user_pii_recorded": false,
+    "contents": "aggregates_and_run_metadata_only"
+  },
+  "separation": {
+    "technical_collection": "GitHub Actions Daily Collection health only",
+    "business_channels": "WeChat unique readers + Zhihu account-day totals only"
+  },
+  "technical_collection": {
+    "schema_version": 1,
+    "kind": "technical_collection",
+    "not_business_metrics": true,
+    "run_id": 31817014485,
+    "event": "schedule",
+    "status": "completed",
+    "conclusion": "success",
+    "html_url": "https://github.com/LoganWang123/zerorealm-data/actions/runs/31817014485",
+    "head_sha": "be4739b5876f49294c98a2c5a642a906c2e623d8",
+    "head_branch": "master",
+    "collection_date": "2026-08-14",
+    "created_at": "2026-08-14T15:57:23Z",
+    "updated_at": "2026-08-14T16:16:02Z",
+    "duration_seconds_workflow": 1119,
+    "duration_seconds_crawl": 1083.6,
+    "jobs": {
+      "collect": {
+        "id": 94821025652,
+        "conclusion": "success",
+        "duration_seconds": 1116,
+        "html_url": "https://github.com/LoganWang123/zerorealm-data/actions/runs/31817014485/job/94821025652",
+        "crawl_step_seconds": 1084
+      },
+      "contract-check": {
+        "id": 94821025521,
+        "conclusion": "success",
+        "duration_seconds": 23,
+        "html_url": "https://github.com/LoganWang123/zerorealm-data/actions/runs/31817014485/job/94821025521",
+        "pytest": "19 passed in 0.25s"
+      }
+    },
+    "artifact": {
+      "id": 9225967842,
+      "name": "daily-collection-2026-08-14",
+      "size_bytes": 514402,
+      "expired": false,
+      "download_url": "https://github.com/LoganWang123/zerorealm-data/actions/runs/31817014485/artifacts/9225967842"
+    },
+    "metrics": {
+      "run_id": "20260814_235752",
+      "duration_seconds": 1083.6,
+      "sources_total": 51,
+      "sources_success": 34,
+      "sources_failed": 17,
+      "items_total": 1166,
+      "items_new": 249,
+      "items_duplicate": 917,
+      "errors": [
+        "36kr_rss: no items returned",
+        "linkshop_web: no items returned",
+        "ebrun_alt: no items returned",
+        "hema_web: no items returned",
+        "dingdong_web: no items returned",
+        "easivend_web: no items returned",
+        "hetun_web: no items returned",
+        "hikvision_web: no items returned",
+        "quectel_web: no items returned",
+        "wantwant_web: no items returned",
+        "3squirrels_web: no items returned",
+        "vanke_web: no items returned",
+        "crland_web: no items returned",
+        "samr_web: no items returned",
+        "ccfa_web: no items returned",
+        "xinhua_web: no items returned",
+        "ccgp_web: no items returned"
+      ]
+    },
+    "health_gate": {
+      "result": "success",
+      "reason": "at least one enabled source succeeded"
+    },
+    "previous_run_31723561155": {
+      "event": "workflow_dispatch",
+      "conclusion": "success",
+      "html_url": "https://github.com/LoganWang123/zerorealm-data/actions/runs/31723561155",
+      "duration_seconds_workflow": 1106,
+      "head_sha": "838e3722644646df6d504d80b7e2c1d847103b0e",
+      "artifact_name": "daily-collection-2026-08-14",
+      "artifact_id": 9190898803
+    },
+    "policy": "crawl/rule-clean/dedupe/digest only; no LLM, image generation, publishing, website push, WeChat draft, or Supabase",
+    "health_ok": true
+  },
+  "business_channels": {
+    "wechat": {
+      "filename": "tendency_1783969521_1786475121.xls",
+      "selection_reason": "newest parseable tendency_*.xls (BIFF/OLE)",
+      "period": {
+        "start": "2026-07-14",
+        "end": "2026-08-12"
+      },
+      "unique_readers_全部": 90,
+      "overlapping_source_readers": {
+        "搜一搜": 47,
+        "推荐": 31,
+        "公众号主页": 19,
+        "聊天会话": 3,
+        "公众号消息": 2,
+        "朋友圈": 0,
+        "其他": 1
+      },
+      "engagement": {
+        "share_people": 6,
+        "original_link_people": 4,
+        "published_articles": 12
+      },
+      "freshness": {
+        "period_end": "2026-08-12",
+        "review_date": "2026-08-15",
+        "experiment_start": "2026-08-13",
+        "lag_days": 3,
+        "status": "stale",
+        "covers_experiment_start": false,
+        "covers_review_date": false,
+        "can_fill_current_experiment": false
+      },
+      "note": "“全部”为唯一阅读人数；来源可重叠，禁止相加。"
+    },
+    "zhihu": {
+      "filename": "日报表 (1).xls",
+      "aliases_not_selected": [
+        "日报表.xls"
+      ],
+      "selection_reason": "prefer 日报表 (1).xls when present, else longest parseable 日报表*.xls period (selected 日报表 (1).xls, 18 days 2026-07-27~2026-08-13)",
+      "period": {
+        "start": "2026-07-27",
+        "end": "2026-08-13"
+      },
+      "totals": {
+        "reads": 305,
+        "likes": 5,
+        "favorites": 5,
+        "shares": 4,
+        "comments": 0
+      },
+      "nonzero_read_days": 11,
+      "peak": {
+        "date": "2026-08-09",
+        "reads": 53
+      },
+      "freshness": {
+        "period_end": "2026-08-13",
+        "review_date": "2026-08-15",
+        "experiment_start": "2026-08-13",
+        "lag_days": 2,
+        "status": "stale",
+        "covers_experiment_start": true,
+        "covers_review_date": false,
+        "can_fill_current_experiment": false
+      },
+      "article_level_attribution_available": false,
+      "note": "账号级日汇总；缺文章级归因。"
+    },
+    "baseline_comparison": {
+      "wechat_aggregates_match_baseline": true,
+      "zhihu_aggregates_match_baseline": true,
+      "new_outcome_window": false
+    },
+    "current_experiment_import": {
+      "attempted": true,
+      "applied": false,
+      "zhihu_can_fill": false,
+      "reason": "wechat period_end 2026-08-12 status=stale; refusing to copy baseline unique readers into current_experiment"
+    },
+    "current_experiment_channel_observed": {
+      "wechat_unique_readers": null,
+      "wechat_overlapping_source_readers_sum": null,
+      "wechat_share_people": null,
+      "wechat_original_link_people": null,
+      "zhihu_reads": null,
+      "zhihu_engagement": null,
+      "zhihu_article_level_attribution_available": false
+    }
+  },
+  "website": {
+    "inspected": true,
+    "repo": "zerorealm-website",
+    "tool_path": "/tools/smart-cabinet-weekly-review",
+    "events_wired": [
+      "tool_view",
+      "subscribe_click",
+      "interview_click"
+    ],
+    "local_event_counts_available": false,
+    "note": "官网工具页已埋点 tool_view / subscribe_click / interview_click（PostHog）；本仓库无 PostHog 导出。漏斗保持手工计数，不虚构。"
+  },
+  "funnel_manual": {
+    "impressions": null,
+    "views": null,
+    "tool_views": 0,
+    "subscribe_click": 0,
+    "subscribe_success": 0,
+    "interview_click": 0,
+    "replies": 0,
+    "interview_completed": 0,
+    "public_case_permissions": 0
+  },
+  "funnel_rates_display": {
+    "impression_to_view": "n/a (zero/missing denominator)",
+    "view_to_tool": "n/a (zero/missing denominator)",
+    "tool_to_subscribe_click": "n/a (zero/missing denominator)",
+    "subscribe_click_to_success": "n/a (zero/missing denominator)",
+    "tool_to_interview_click": "n/a (zero/missing denominator)",
+    "interview_click_to_reply": "n/a (zero/missing denominator)"
+  },
+  "next_work_item": {
+    "id": "import_fresh_channel_reports_7d",
+    "owner": "founder",
+    "owner_github": "LoganWang123",
+    "title": "导入覆盖当期实验窗口的微信/知乎新报表，经 freshness 闸门后再填 current_experiment",
+    "seven_day_metric": {
+      "name": "fresh_wechat_report_covers_current_experiment",
+      "definition": "新微信 tendency 的 period.end 距复盘日 ≤1 天，且 covers_experiment_start=true，且 current_experiment.channel_observed.wechat_unique_readers 非 null"
+    },
+    "continue_threshold": "导入覆盖 2026-08-13 之后的微信“全部”唯一阅读；禁止把基线 unique_readers 当当期分母",
+    "stop_threshold": "到 2026-08-22 仍只有 period.end≤2026-08-12 的微信报表→ 停止把 14 天实验当作可量化增长结论；工具/清单文可继续人工发布，但不声称阅读提升",
+    "next_review_date": "2026-08-22",
+    "rationale": "渠道结果数据已过期；采集健康不能替代微信/知乎业务结果。 实验窗口至 2026-08-26。"
+  },
+  "limitations": [
+    "未复制原始报表，未记录用户 PII。",
+    "技术采集指标与微信/知乎业务指标分列，禁止混用。",
+    "报表过期时不把 baseline unique readers 写入 current_experiment。",
+    "官网漏斗无本地事件导出时保持 0 / n/a，不虚构转化。",
+    "小样本禁止因果结论；目标为内部实验目标。"
+  ],
+  "fabricated_outcomes": false
+}

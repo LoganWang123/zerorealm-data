@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "kind": "technical_collection",
+  "not_business_metrics": true,
+  "run_id": 31817014485,
+  "event": "schedule",
+  "status": "completed",
+  "conclusion": "success",
+  "html_url": "https://github.com/LoganWang123/zerorealm-data/actions/runs/31817014485",
+  "head_sha": "be4739b5876f49294c98a2c5a642a906c2e623d8",
+  "head_branch": "master",
+  "collection_date": "2026-08-14",
+  "created_at": "2026-08-14T15:57:23Z",
+  "updated_at": "2026-08-14T16:16:02Z",
+  "duration_seconds_workflow": 1119,
+  "duration_seconds_crawl": 1083.6,
+  "jobs": {
+    "collect": {
+      "id": 94821025652,
+      "conclusion": "success",
+      "duration_seconds": 1116,
+      "html_url": "https://github.com/LoganWang123/zerorealm-data/actions/runs/31817014485/job/94821025652",
+      "crawl_step_seconds": 1084
+    },
+    "contract-check": {
+      "id": 94821025521,
+      "conclusion": "success",
+      "duration_seconds": 23,
+      "html_url": "https://github.com/LoganWang123/zerorealm-data/actions/runs/31817014485/job/94821025521",
+      "pytest": "19 passed in 0.25s"
+    }
+  },
+  "artifact": {
+    "id": 9225967842,
+    "name": "daily-collection-2026-08-14",
+    "size_bytes": 514402,
+    "expired": false,
+    "download_url": "https://github.com/LoganWang123/zerorealm-data/actions/runs/31817014485/artifacts/9225967842"
+  },
+  "metrics": {
+    "run_id": "20260814_235752",
+    "duration_seconds": 1083.6,
+    "sources_total": 51,
+    "sources_success": 34,
+    "sources_failed": 17,
+    "items_total": 1166,
+    "items_new": 249,
+    "items_duplicate": 917,
+    "errors": [
+      "36kr_rss: no items returned",
+      "linkshop_web: no items returned",
+      "ebrun_alt: no items returned",
+      "hema_web: no items returned",
+      "dingdong_web: no items returned",
+      "easivend_web: no items returned",
+      "hetun_web: no items returned",
+      "hikvision_web: no items returned",
+      "quectel_web: no items returned",
+      "wantwant_web: no items returned",
+      "3squirrels_web: no items returned",
+      "vanke_web: no items returned",
+      "crland_web: no items returned",
+      "samr_web: no items returned",
+      "ccfa_web: no items returned",
+      "xinhua_web: no items returned",
+      "ccgp_web: no items returned"
+    ]
+  },
+  "health_gate": {
+    "result": "success",
+    "reason": "at least one enabled source succeeded"
+  },
+  "previous_run_31723561155": {
+    "event": "workflow_dispatch",
+    "conclusion": "success",
+    "html_url": "https://github.com/LoganWang123/zerorealm-data/actions/runs/31723561155",
+    "duration_seconds_workflow": 1106,
+    "head_sha": "838e3722644646df6d504d80b7e2c1d847103b0e",
+    "artifact_name": "daily-collection-2026-08-14",
+    "artifact_id": 9190898803
+  },
+  "policy": "crawl/rule-clean/dedupe/digest only; no LLM, image generation, publishing, website push, WeChat draft, or Supabase"
+}
