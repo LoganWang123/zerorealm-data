@@ -4,10 +4,10 @@
   "phase": 1,
   "piece_id": "w1-wechat-stockout",
   "channel": "wechat",
-  "action": "draft_ready_packet",
+  "action": "wechat_draft_created",
   "planned_draft_date": "2026-08-17",
   "planned_publish_date": "2026-08-18",
-  "status": "images_ready",
+  "status": "wechat_draft_created",
   "title": "柜机缺货排查清单：先查这 7 步再补货",
   "excerpt": "柜机报警缺货，不等于立刻该补同一 SKU。先用 7 步区分信号与真实缺货，再决定补货、调货或复盘选品；含可打印勾选清单与停止规则。",
   "digest": "柜机报警缺货，不等于立刻该补同一 SKU。先用 7 步区分信号与真实缺货，再决定补货、调货或复盘选品；含可打印勾选清单与停止规则。",
@@ -153,5 +153,13 @@
     }
   ],
   "auto_publish": false,
-  "llm_api_used": false
+  "llm_api_used": false,
+  "draft": {
+    "media_id": "csbrZswCx_5hmuZ_bqWc6zcS1VzyvQNLeSX1jKSplP3aC_pDoSRoiJt2oPhgZX2H",
+    "author": "ZeroRealm AI",
+    "digest": "柜机报警缺货，不等于立刻该补同一 SKU。先用 7 步区分信号与真实缺货，再决定补货、调",
+    "content_source_url": "https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=wechat&utm_medium=article&utm_campaign=founder14d_20260813&utm_content=stockout_checklist",
+    "created": false,
+    "verified_at": "2026-08-14T18:07:53+00:00"
+  }
 }

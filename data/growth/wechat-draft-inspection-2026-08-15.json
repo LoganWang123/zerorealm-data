@@ -1,5 +1,5 @@
 {
-  "inspected_at": "2026-08-14T17:07:31+00:00",
+  "inspected_at": "2026-08-14T18:07:53+00:00",
   "ops_date": "2026-08-15",
   "mode": "read_only_list",
   "safety": {
@@ -10,12 +10,35 @@
     "llm_api": false,
     "image_generation": false
   },
-  "total_count": 1,
-  "item_count": 1,
+  "total_count": 2,
+  "item_count": 2,
   "drafts": [
     {
+      "media_id": "csbrZswCx_5hmuZ_bqWc6zcS1VzyvQNLeSX1jKSplP3aC_pDoSRoiJt2oPhgZX2H",
+      "update_time": 1786730771,
+      "article_count": 1,
+      "titles": [
+        "柜机缺货排查清单：先查这 7 步再补货"
+      ],
+      "articles": [
+        {
+          "title": "柜机缺货排查清单：先查这 7 步再补货",
+          "author": "ZeroRealm AI",
+          "digest": "柜机报警缺货，不等于立刻该补同一 SKU。先用 7 步区分信号与真实缺货，再决定补货、调",
+          "has_thumb_media": true,
+          "thumb_media_id_present": true,
+          "show_cover_pic": 0,
+          "update_time": 1786730771
+        }
+      ],
+      "media_status": {
+        "any_thumb_present": true,
+        "all_thumbs_present": true
+      }
+    },
+    {
       "media_id": "csbrZswCx_5hmuZ_bqWc6_aMLRMtgyHDcCnExyNx_zUuzOODWrtB0uYPC2pZYh1m",
-      "update_time": 1786251549,
+      "update_time": 1786729599,
       "article_count": 1,
       "titles": [
         "点位有销量却不赚钱？用一张周表算清单点贡献"
@@ -26,9 +49,9 @@
           "author": "ZeroRealm AI",
           "digest": "点位有流水，不等于点位赚钱。公开材料里没有「中国智能柜行业平均单点贡献」，也核实不到「全行业已完成从规模到质量转型」。能核对的是三组发行人信号——友宝、DyDo、Fuji Electric——它们只支持一个运营假设，即先用自己的周表算清单点",
           "has_thumb_media": true,
-          "thumb_media_id_present": true,
+          "thumb_media_id_present": false,
           "show_cover_pic": 0,
-          "update_time": 1786251549
+          "update_time": 1786729599
         }
       ],
       "media_status": {
@@ -37,6 +60,20 @@
       }
     }
   ],
-  "plan_overlap": [],
+  "plan_overlap": [
+    {
+      "media_id": "csbrZswCx_5hmuZ_bqWc6zcS1VzyvQNLeSX1jKSplP3aC_pDoSRoiJt2oPhgZX2H",
+      "update_time": 1786730771,
+      "piece_id": "w1-wechat-stockout",
+      "matched_hints": [
+        "缺货排查",
+        "7 步",
+        "再补货"
+      ],
+      "titles": [
+        "柜机缺货排查清单：先查这 7 步再补货"
+      ]
+    }
+  ],
   "unknown_draft_policy": "Never delete, overwrite, publish, or mass-send unknown drafts. Human review required before any mutation."
 }

@@ -1,0 +1,59 @@
+{
+  "piece_id": "w1-wechat-stockout",
+  "ops_date": "2026-08-15",
+  "mode": "draft_only",
+  "status": "wechat_draft_created",
+  "title": "柜机缺货排查清单：先查这 7 步再补货",
+  "author": "ZeroRealm AI",
+  "cta_url": "https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=wechat&utm_medium=article&utm_campaign=founder14d_20260813&utm_content=stockout_checklist",
+  "safety": {
+    "delete": false,
+    "overwrite": false,
+    "publish": false,
+    "mass_send": false,
+    "llm_api": false,
+    "image_generation": false
+  },
+  "pre_create": {
+    "total_count": 2,
+    "item_count": 2,
+    "titles": [
+      "柜机缺货排查清单：先查这 7 步再补货",
+      "点位有销量却不赚钱？用一张周表算清单点贡献"
+    ]
+  },
+  "preserved_unrelated": {
+    "title": "点位有销量却不赚钱？用一张周表算清单点贡献",
+    "present_before": true,
+    "present_after": true
+  },
+  "exact_title_duplicate": true,
+  "created": false,
+  "draft_add_this_run": false,
+  "draft_present": true,
+  "media_id": "csbrZswCx_5hmuZ_bqWc6zcS1VzyvQNLeSX1jKSplP3aC_pDoSRoiJt2oPhgZX2H",
+  "digest": "柜机报警缺货，不等于立刻该补同一 SKU。先用 7 步区分信号与真实缺货，再决定补货、调",
+  "content_source_url": "https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=wechat&utm_medium=article&utm_campaign=founder14d_20260813&utm_content=stockout_checklist",
+  "thumb_media_id_present": true,
+  "readback": {
+    "title_match": true,
+    "author_match": true,
+    "digest_match": true,
+    "source_url_match": true,
+    "thumb_match": true,
+    "illustration_present": true,
+    "cta_count": 1
+  },
+  "post_create": {
+    "total_count": 2,
+    "item_count": 2,
+    "titles": [
+      "柜机缺货排查清单：先查这 7 步再补货",
+      "点位有销量却不赚钱？用一张周表算清单点贡献"
+    ]
+  },
+  "message": "draft/add already created this draft earlier in the session. Exact title existed on rerun, so draft/add was not called again. Existing draft was read back and verified; unrelated single-point-contribution draft was preserved. No overwrite, publish, mass-send, or delete.",
+  "verified_at": "2026-08-14T18:07:53+00:00",
+  "evidence_html": "data/growth/evidence/2026-08-15/w1-wechat-stockout/article.html",
+  "media_id_prefix": "csbrZswCx_…"
+}
