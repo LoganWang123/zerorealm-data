@@ -2,6 +2,13 @@
 
 > 生成日期：2026-08-13。仅聚合指标与手工漏斗计数；未复制原始报表，未记录用户 PII。目标为内部实验目标，非行业基准。**baseline_snapshot 只读参照；current_experiment 为当期台账；禁止跨周期漏斗。**
 
+## 运营附注（2026-08-15 更新，非当期结果）
+
+- 节奏决策：`reject_one_wechat_per_week` → 维持 **微信每周约 2 篇工具/清单 + 知乎每周 1 篇改写**（详见 `docs/reports/ceo-publish-distribution-plan-2026-08-15.md`）。
+- 基线新鲜度（复盘日 2026-08-15）：微信 tendency 至 **2026-08-12**（stale，lag=3）；知乎至 **2026-08-13**（stale，lag=2）。**未**把基线唯一阅读写入 `current_experiment`。
+- 当期渠道计数仍全为 **null**；官网漏斗手工事件仍为 0 / n/a。禁止在报表 fresh 前声称阅读提升。
+- P0 仍为：导入覆盖实验窗的新鲜渠道报表（`import_fresh_channel_reports_7d`）；Stop 检查点 **2026-08-22**。
+
 ## baseline_snapshot（只读历史参照）
 
 - 基线日期：2026-08-12

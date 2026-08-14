@@ -1,0 +1,249 @@
+{
+  "schema_version": 1,
+  "plan_id": "ceo_publish_distribution_2026-08-15",
+  "generated_on": "2026-08-15",
+  "window": {
+    "start": "2026-08-15",
+    "end": "2026-08-28"
+  },
+  "experiment_continuity": {
+    "ledger_label": "founder_14d_2026-08-13",
+    "ledger_period": {
+      "start": "2026-08-13",
+      "end": "2026-08-26"
+    },
+    "utm_campaign": "founder14d_20260813"
+  },
+  "fabricated_outcomes": false,
+  "baseline_freshness": {
+    "wechat": {
+      "period_end": "2026-08-12",
+      "lag_days_at_review": 3,
+      "status": "stale",
+      "unique_readers_全部_baseline_only": 90,
+      "can_fill_current_experiment": false
+    },
+    "zhihu": {
+      "period_end": "2026-08-13",
+      "lag_days_at_review": 2,
+      "status": "stale",
+      "reads_baseline_only": 305,
+      "can_fill_current_experiment": false
+    },
+    "current_experiment_channel_observed": {
+      "wechat_unique_readers": null,
+      "zhihu_reads": null
+    },
+    "note": "Stale channel reports must not be copied into current_experiment; technical collection health is not business outcome."
+  },
+  "cadence_decision": {
+    "id": "cadence_decision_2026-08-15",
+    "question": "Is one WeChat article per week too slow given current traffic?",
+    "answer": "yes_too_slow_for_experiment_do_not_daily",
+    "reject": "one_wechat_per_week",
+    "chosen": "wechat_2_per_week_plus_zhihu_1_reuse_per_week",
+    "evidence": [
+      "Baseline ~30d published 12 articles (~3/week); 1/week is ~1/3 historical density and yields too few shots in a 14d test.",
+      "tool_checklist mean unique readers 8.5 vs daily_digest 2.5 (descriptive, small sample).",
+      "Combat pack already sizes ~2 WeChat + 1 Zhihu rewrite/week within 8–15h solo budget.",
+      "current_experiment channel metrics are null (stale gate); cannot claim current traffic justifies slower cadence."
+    ],
+    "non_causal": true
+  },
+  "single_cta": {
+    "url": "https://zerorealm.tech/tools/smart-cabinet-weekly-review",
+    "utm_campaign": "founder14d_20260813",
+    "utm_medium": "article",
+    "utm_source_values": ["wechat", "zhihu"],
+    "rule": "One tool-page CTA URL per piece; no second CTA."
+  },
+  "topic": "smart-cabinet-weekly-review-tool",
+  "reuse_workflow": [
+    "WeChat tool/checklist draft with executable steps",
+    "Human review; paste piece CTA URL; no auto-publish",
+    "Zhihu Q&A rewrite within 1–3 days; no verbatim paste",
+    "Log CTA compliance and funnel_manual only for current period"
+  ],
+  "daily_time_budget": {
+    "wechat_publish_day_hours_max": 3.0,
+    "zhihu_rewrite_day_hours_max": 1.5,
+    "review_day_hours": 1.5,
+    "draft_or_outreach_hours": 1.0,
+    "estimated_total_hours_14d": 23.0,
+    "hours_per_week_range": [8, 15]
+  },
+  "calendar": [
+    {
+      "date": "2026-08-15",
+      "channel": "zhihu",
+      "action": "publish",
+      "piece_id": "w1-zhihu-five-metrics",
+      "hours": 1.5
+    },
+    {
+      "date": "2026-08-16",
+      "channel": "ops",
+      "action": "import_fresh_reports_and_outreach_slots",
+      "piece_id": "import_fresh_channel_reports_7d",
+      "hours": 1.0
+    },
+    {
+      "date": "2026-08-17",
+      "channel": "wechat",
+      "action": "draft",
+      "piece_id": "w1-wechat-stockout",
+      "hours": 1.5
+    },
+    {
+      "date": "2026-08-18",
+      "channel": "wechat",
+      "action": "publish",
+      "piece_id": "w1-wechat-stockout",
+      "utm_content": "stockout_checklist",
+      "hours": 3.0
+    },
+    {
+      "date": "2026-08-19",
+      "channel": "ops",
+      "action": "week1_review",
+      "piece_id": "week1-review",
+      "hours": 1.5
+    },
+    {
+      "date": "2026-08-20",
+      "channel": "wechat",
+      "action": "draft",
+      "piece_id": "w2-wechat-decision",
+      "hours": 1.5
+    },
+    {
+      "date": "2026-08-21",
+      "channel": "wechat",
+      "action": "publish",
+      "piece_id": "w2-wechat-decision",
+      "utm_content": "ops_decision_checklist",
+      "hours": 3.0
+    },
+    {
+      "date": "2026-08-22",
+      "channel": "zhihu",
+      "action": "publish",
+      "piece_id": "w2-zhihu-stockout",
+      "utm_content": "stockout_qa",
+      "hours": 1.5
+    },
+    {
+      "date": "2026-08-22",
+      "channel": "ops",
+      "action": "freshness_stop_gate",
+      "piece_id": "import_fresh_channel_reports_7d",
+      "hours": 0.5
+    },
+    {
+      "date": "2026-08-23",
+      "channel": "ops",
+      "action": "outreach_and_funnel_log",
+      "piece_id": null,
+      "hours": 1.0
+    },
+    {
+      "date": "2026-08-24",
+      "channel": "wechat",
+      "action": "draft",
+      "piece_id": "w2-wechat-reuse-decision",
+      "hours": 1.5
+    },
+    {
+      "date": "2026-08-25",
+      "channel": "wechat",
+      "action": "publish",
+      "piece_id": "w2-wechat-reuse-decision",
+      "utm_content": "metrics_to_decision",
+      "hours": 2.5
+    },
+    {
+      "date": "2026-08-26",
+      "channel": "ops",
+      "action": "experiment_closeout_review",
+      "piece_id": "week2-review",
+      "hours": 2.0
+    },
+    {
+      "date": "2026-08-27",
+      "channel": "ops",
+      "action": "reimport_reports_fill_ledger_if_fresh",
+      "piece_id": null,
+      "hours": 1.0
+    },
+    {
+      "date": "2026-08-28",
+      "channel": "ops",
+      "action": "next_14d_continue_stop_decision",
+      "piece_id": null,
+      "hours": 1.0
+    }
+  ],
+  "planned_ship_counts": {
+    "wechat_tool_pieces": 3,
+    "zhihu_reuse_pieces": 2
+  },
+  "leading_metrics": [
+    {
+      "name": "wechat_tool_pieces_shipped",
+      "target_14d": 3
+    },
+    {
+      "name": "zhihu_reuse_pieces_shipped",
+      "target_14d": 2
+    },
+    {
+      "name": "cta_url_compliance",
+      "target_14d": "100%"
+    },
+    {
+      "name": "fresh_wechat_report_imported",
+      "target": "true_by_2026-08-22"
+    },
+    {
+      "name": "funnel_manual_events",
+      "target_14d": 5
+    },
+    {
+      "name": "solo_hours_per_week",
+      "target_range": [8, 15]
+    }
+  ],
+  "continue_thresholds": [
+    "By 2026-08-26: >=3 WeChat tool pieces and >=2 Zhihu rewrites; no daily spam; no auto mass-send.",
+    "By 2026-08-22: fresh WeChat report covering experiment start written into current_experiment (not baseline copy).",
+    "Actual hours <=15/week for two consecutive weeks.",
+    "Every piece uses the single tool-page CTA with campaign founder14d_20260813."
+  ],
+  "stop_thresholds": [
+    "If WeChat report still period.end<=2026-08-12 on 2026-08-22: stop claiming quantifiable read growth for this 14d experiment.",
+    "If actual hours >15/week for two weeks or quality collapses to digest dumps: temporarily drop to 1 WeChat tool piece/week as capacity protection only (not traffic proof).",
+    "If second CTA, auto mass-send, or baseline 90 used as current denominator: stop that practice immediately.",
+    "If by 2026-08-26 tool pieces <3 and reports still stale: stop treating the round as a reviewable growth experiment."
+  ],
+  "do_not": [
+    "Default to one WeChat article per week in this window",
+    "Daily publish or digest-as-primary-growth",
+    "Sum overlapping WeChat sources or copy baseline 90 into current_experiment",
+    "Claim read growth while reports are stale",
+    "Auto-publish or mass-send",
+    "Multiple CTAs or new utm_campaign fragmentation",
+    "Causal claims from Zhihu day spikes or single posts",
+    "Treat technical collection success as channel business results",
+    "Ship checklists without steps/tables/stop rules",
+    "Fabricate outreach account names"
+  ],
+  "report_markdown": "docs/reports/ceo-publish-distribution-plan-2026-08-15.md",
+  "sources": [
+    "docs/reports/ops-retrospective-2026-08-15.md",
+    "data/growth/ops-retrospective-2026-08-15.json",
+    "docs/reports/channel-growth-baseline-2026-08-13.md",
+    "data/growth/channel-baseline-2026-08-12.json",
+    "docs/reports/founder-growth-combat-pack-2026-08-13.md",
+    "docs/reports/founder-growth-scorecard-2026-08-13.md"
+  ]
+}

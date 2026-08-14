@@ -22,6 +22,11 @@
 - 决策：所有微信/知乎内容人工审核后发布；命令只生成计划与台账，不触发发布。
 - 依据：combat_pack 全部 auto_publish=false。
 
+### P1 · reject_one_wechat_per_week_2026-08-15
+
+- 决策：拒绝「一周一篇微信」作为本实验默认节奏；维持微信约 2 篇工具/清单/周 + 知乎 1 篇改写/周；不日更。
+- 依据：基线约 30 天 12 篇发文密度、tool_checklist 均值高于日报类（描述性）、作战包工时预算、以及 2026-08-15 复盘时当期渠道指标仍为 null（stale）。详见 `ceo-publish-distribution-plan-2026-08-15`。
+
 ### P2 · prefer_tool_checklist_content
 
 - 决策：本周内容优先五指标复盘 / 缺货排查 / 运营决策清单，不主推泛日报搬运。

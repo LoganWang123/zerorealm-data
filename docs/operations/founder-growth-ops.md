@@ -77,6 +77,12 @@ python scripts/build_ops_retrospective.py \
 3. 只更新**当期**台账手工漏斗与渠道计数，跑生成命令看 scorecard 与周决策。
 4. 复盘只对照内部实验目标与告警；区分 baseline_snapshot 与 current_experiment。
 
+### 2026-08-15 节奏决议（执行指针）
+
+- **拒绝**默认「一周一篇微信」；采用 **微信约 2 篇/周 + 知乎 1 篇改写/周**，不日更。
+- 详细日历、领先指标、Continue/Stop：`docs/reports/ceo-publish-distribution-plan-2026-08-15.md`（JSON：`data/growth/ceo-publish-plan-2026-08-15.json`）。
+- 渠道报表 stale 时结果栏保持 null；P0 仍为导入新鲜报表。
+
 ## 测试
 
 ```bash

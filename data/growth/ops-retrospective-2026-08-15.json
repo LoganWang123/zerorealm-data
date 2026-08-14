@@ -229,7 +229,9 @@
     "continue_threshold": "导入覆盖 2026-08-13 之后的微信“全部”唯一阅读；禁止把基线 unique_readers 当当期分母",
     "stop_threshold": "到 2026-08-22 仍只有 period.end≤2026-08-12 的微信报表→ 停止把 14 天实验当作可量化增长结论；工具/清单文可继续人工发布，但不声称阅读提升",
     "next_review_date": "2026-08-22",
-    "rationale": "渠道结果数据已过期；采集健康不能替代微信/知乎业务结果。 实验窗口至 2026-08-26。"
+    "rationale": "渠道结果数据已过期；采集健康不能替代微信/知乎业务结果。 实验窗口至 2026-08-26。",
+    "related_publish_plan": "docs/reports/ceo-publish-distribution-plan-2026-08-15.md",
+    "cadence_decision": "reject_one_wechat_per_week; wechat_2_per_week_plus_zhihu_1_reuse"
   },
   "limitations": [
     "未复制原始报表，未记录用户 PII。",
