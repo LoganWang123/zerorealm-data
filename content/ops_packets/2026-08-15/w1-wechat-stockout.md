@@ -108,7 +108,7 @@
 
 ## 唯一行动入口
 
-打开智能柜周复盘工具页；订阅经营清单 / 预约运营商访谈入口在工具页内（人工跟进，不自动群发）：
+打开智能柜周复盘工具页；关注公众号后回复「复盘表」自助使用；可在工具页公开订阅经营清单：
 
 https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=wechat&utm_medium=article&utm_campaign=founder14d_20260813&utm_content=stockout_checklist
 

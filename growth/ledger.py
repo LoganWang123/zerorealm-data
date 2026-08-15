@@ -1,9 +1,12 @@
 """Experiment ledger schema validation and funnel aggregation.
 
 Current-period only: never use historical baseline counts as experiment
-denominators. Website event names map as:
+denominators. Website / OA event names map as:
   tool_view → tool_views (count)
-  subscribe_click / subscribe_success / interview_click → same field names
+  keyword「复盘表」replies → keyword_replies
+  subscribe_click / subscribe_success → same field names
+
+Interview / one-to-one outreach counters are intentionally absent.
 """
 
 from __future__ import annotations
@@ -21,12 +24,9 @@ SCHEMA_VERSION = 1
 FUNNEL_NULLABLE_KEYS = ("impressions", "views")
 FUNNEL_COUNTER_KEYS = (
     "tool_views",  # website event: tool_view
+    "keyword_replies",  # OA exact-match「复盘表」
     "subscribe_click",
     "subscribe_success",
-    "interview_click",
-    "replies",
-    "interview_completed",
-    "public_case_permissions",
 )
 FUNNEL_SLOT_KEYS = FUNNEL_NULLABLE_KEYS + FUNNEL_COUNTER_KEYS
 
@@ -35,8 +35,6 @@ FUNNEL_RATE_KEYS = (
     "view_to_tool",
     "tool_to_subscribe_click",
     "subscribe_click_to_success",
-    "tool_to_interview_click",
-    "interview_click_to_reply",
 )
 
 LEDGER_SCHEMA: dict[str, Any] = {
@@ -93,9 +91,10 @@ LEDGER_SCHEMA: dict[str, Any] = {
                 **{key: {"type": "integer", "minimum": 0} for key in FUNNEL_COUNTER_KEYS},
             },
             "description": (
-                "Current-period acquisition + website event counts. "
+                "Current-period anonymous-observable counts. "
                 "impressions/views default null until entered; "
-                "tool_views counts website tool_view events."
+                "tool_views counts website tool_view events; "
+                "keyword_replies counts OA「复盘表」exact matches."
             ),
         },
         "channel_observed": {
@@ -133,7 +132,19 @@ LEDGER_SCHEMA: dict[str, Any] = {
         "experiment_targets": {
             "type": "object",
             "additionalProperties": {"type": "string"},
-            "description": "Internal experiment goals only; not industry benchmarks.",
+            "required": [
+                "content_prep_on_time_rate",
+                "keyword_replies",
+                "tool_views",
+                "public_platform_engagement_delta",
+            ],
+            "properties": {
+                "content_prep_on_time_rate": {"type": "string", "minLength": 1},
+                "keyword_replies": {"type": "string", "minLength": 1},
+                "tool_views": {"type": "string", "minLength": 1},
+                "public_platform_engagement_delta": {"type": "string", "minLength": 1},
+            },
+            "description": "Anonymous-observable internal experiment goals; not industry benchmarks.",
         },
         "alerts": {
             "type": "array",
@@ -143,7 +154,10 @@ LEDGER_SCHEMA: dict[str, Any] = {
                 "required": ["code", "severity", "message"],
                 "properties": {
                     "code": {"type": "string"},
-                    "severity": {"type": "string", "enum": ["info", "warning", "critical"]},
+                    "severity": {
+                        "type": "string",
+                        "enum": ["info", "warning", "critical"],
+                    },
                     "message": {"type": "string"},
                 },
             },
@@ -154,14 +168,27 @@ LEDGER_SCHEMA: dict[str, Any] = {
 
 
 class LedgerError(ValueError):
-    """Raised when an experiment ledger fails validation."""
+    """Raised when a ledger fails schema or integrity checks."""
 
 
 def default_funnel_manual() -> dict[str, Any]:
-    """Nullable impressions/views; event counters start at 0."""
-    slots: dict[str, Any] = {key: None for key in FUNNEL_NULLABLE_KEYS}
-    slots.update({key: 0 for key in FUNNEL_COUNTER_KEYS})
-    return slots
+    return {
+        **{key: None for key in FUNNEL_NULLABLE_KEYS},
+        **{key: 0 for key in FUNNEL_COUNTER_KEYS},
+    }
+
+
+def default_experiment_targets() -> dict[str, str]:
+    return {
+        "content_prep_on_time_rate": (
+            "计划内容按期准备率（草稿/配置就绪人工核对；未观测不填造）"
+        ),
+        "keyword_replies": "关键词「复盘表」回复数（公众号后台人工计数；未观测保持 0）",
+        "tool_views": "工具页访问（网站 tool_view / 人工录入；未观测保持 0）",
+        "public_platform_engagement_delta": (
+            "公开平台收藏/赞同/阅读变化（仅渠道报表新鲜时录入，否则保持 null，不虚构）"
+        ),
+    }
 
 
 def default_ledger_template(
@@ -189,16 +216,7 @@ def default_ledger_template(
             "zhihu_engagement": None,
             "zhihu_article_level_attribution_available": False,
         },
-        "experiment_targets": {
-            "wechat_unique_readers_14d": "相对基线周均提升 ≥20%（内部实验目标，非行业基准）",
-            "wechat_share_or_original_link": "14天内分享+阅读原文合计 ≥ 8",
-            "zhihu_nonzero_read_days": "14天内非零阅读日 ≥ 10",
-            "zhihu_reads_14d": "≥ 350（相对基线窗口温和抬升）",
-            "cta_events": (
-                "tool_view / subscribe_click / interview_click 等网站事件"
-                "合计 ≥ 5（人工录入当期台账）"
-            ),
-        },
+        "experiment_targets": default_experiment_targets(),
         "alerts": [],
         "notes": "",
     }
@@ -257,16 +275,12 @@ def compute_funnel_rates(ledger: dict[str, Any]) -> dict[str, Any]:
     tool_views = funnel["tool_views"]
     subscribe_click = funnel["subscribe_click"]
     subscribe_success = funnel["subscribe_success"]
-    interview_click = funnel["interview_click"]
-    replies = funnel["replies"]
 
     rates = {
         "impression_to_view": safe_rate(views, impressions),
         "view_to_tool": safe_rate(tool_views, views),
         "tool_to_subscribe_click": safe_rate(subscribe_click, tool_views),
         "subscribe_click_to_success": safe_rate(subscribe_success, subscribe_click),
-        "tool_to_interview_click": safe_rate(interview_click, tool_views),
-        "interview_click_to_reply": safe_rate(replies, interview_click),
     }
     return {
         "counts": {key: funnel[key] for key in FUNNEL_SLOT_KEYS},
@@ -275,9 +289,9 @@ def compute_funnel_rates(ledger: dict[str, Any]) -> dict[str, Any]:
         "zero_denominator_slots": [key for key, value in rates.items() if value is None],
         "website_event_map": {
             "tool_views": "tool_view",
+            "keyword_replies": "oa_keyword_fupanbiao",
             "subscribe_click": "subscribe_click",
             "subscribe_success": "subscribe_success",
-            "interview_click": "interview_click",
         },
     }
 

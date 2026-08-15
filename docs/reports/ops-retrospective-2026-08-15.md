@@ -58,15 +58,15 @@
 
 ### 官网漏斗（无本地导出则不虚构）
 
-- 官网工具页已埋点 tool_view / subscribe_click / interview_click（PostHog）；本仓库无 PostHog 导出。漏斗保持手工计数，不虚构。
+- 官网工具页已埋点 tool_view / subscribe_click / keyword_replies（PostHog）；本仓库无 PostHog 导出。漏斗保持手工计数，不虚构。
 - `impressions`: null
 - `views`: null
 - `tool_views`: 0
 - `subscribe_click`: 0
 - `subscribe_success`: 0
-- `interview_click`: 0
+- `keyword_replies`: 0
 - `replies`: 0
-- `interview_completed`: 0
+- `keyword_replies`: 0
 - `public_case_permissions`: 0
 
 ### 漏斗转化率
@@ -75,8 +75,8 @@
 - `view_to_tool`: n/a (zero/missing denominator)
 - `tool_to_subscribe_click`: n/a (zero/missing denominator)
 - `subscribe_click_to_success`: n/a (zero/missing denominator)
-- `tool_to_interview_click`: n/a (zero/missing denominator)
-- `interview_click_to_reply`: n/a (zero/missing denominator)
+- `tool_to_keyword_replies`: n/a (zero/missing denominator)
+- `keyword_replies_to_reply`: n/a (zero/missing denominator)
 
 ## C. 下一步（单一最高优先级，已落地自动化）
 

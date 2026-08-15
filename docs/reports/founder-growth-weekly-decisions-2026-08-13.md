@@ -2,7 +2,7 @@
 
 > 本决策清单用于单人创始人周运营，不构成因果证明，目标为内部实验目标而非行业基准。
 
-- 生成日期：2026-08-13
+- 生成日期：2026-08-15
 - 预估工时/周：11.5h（预算 8–15h）
 
 ## 决策
@@ -22,11 +22,6 @@
 - 决策：所有微信/知乎内容人工审核后发布；命令只生成计划与台账，不触发发布。
 - 依据：combat_pack 全部 auto_publish=false。
 
-### P1 · reject_one_wechat_per_week_2026-08-15
-
-- 决策：拒绝「一周一篇微信」作为本实验默认节奏；维持微信约 2 篇工具/清单/周 + 知乎 1 篇改写/周；不日更。
-- 依据：基线约 30 天 12 篇发文密度、tool_checklist 均值高于日报类（描述性）、作战包工时预算、以及 2026-08-15 复盘时当期渠道指标仍为 null（stale）。详见 `ceo-publish-distribution-plan-2026-08-15`。
-
 ### P2 · prefer_tool_checklist_content
 
 - 决策：本周内容优先五指标复盘 / 缺货排查 / 运营决策清单，不主推泛日报搬运。
@@ -34,18 +29,18 @@
 
 ### P2 · fill_manual_funnel
 
-- 决策：只录入当期台账：impressions/views 与网站事件 tool_views(tool_view)/subscribe_click/subscribe_success/interview_click/replies；零或缺失分母转化率记为 n/a；禁止把基线人数当当期分母。
-- 依据：当前 n/a 槽位: impression_to_view, view_to_tool, tool_to_subscribe_click, subscribe_click_to_success, tool_to_interview_click, interview_click_to_reply。
+- 决策：只录入可匿名观测台账：内容按期准备率、关键词「复盘表」回复数、工具页访问、公开平台收藏/赞同/阅读变化；以及 impressions/views 与 subscribe_click/subscribe_success；零或缺失分母转化率记为 n/a；禁止把基线人数当当期分母；不记录访谈线索。
+- 依据：当前 n/a 槽位: impression_to_view, view_to_tool, tool_to_subscribe_click, subscribe_click_to_success。
 
 ### P2 · use_piece_cta_url
 
-- 决策：发布时粘贴该条可复制 CTA URL（工具页 + 本条 UTM）；订阅/访谈入口在工具页内。
-- 依据：combat_pack 每条含 cta_url，禁止只用泛化文案。
+- 决策：发布时粘贴该条可复制 CTA URL（工具页 + 本条 UTM）；文案唯一行动为回复「复盘表」或打开自助工具。
+- 依据：combat_pack 每条含 cta_url，禁止再用访谈 CTA。
 
-### P3 · outreach_empty_slots
+### P3 · self_serve_funnel_only
 
-- 决策：填写本周 3–5 个目标账户空槽；无对象则保持空白，禁止虚构名称。
-- 依据：外联是漏斗后段唯一来源，且不得自动发布。
+- 决策：转化只走公开内容 → 关注公众号 → 回复「复盘表」→ 自助周复盘工具；可公开订阅；禁止一对一联系、加微信、访谈或索取公司/点位身份。
+- 依据：创始人仍在智能柜公司任职，不适合开展运营商访谈。
 
 ## 漏斗转化率
 
@@ -53,8 +48,6 @@
 - `view_to_tool`: n/a (zero/missing denominator)
 - `tool_to_subscribe_click`: n/a (zero/missing denominator)
 - `subscribe_click_to_success`: n/a (zero/missing denominator)
-- `tool_to_interview_click`: n/a (zero/missing denominator)
-- `interview_click_to_reply`: n/a (zero/missing denominator)
 
 ## 告警
 

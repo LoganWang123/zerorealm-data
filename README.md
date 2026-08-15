@@ -142,7 +142,7 @@ python scripts/build_ops_retrospective.py \
 
 口径：禁止跨周期漏斗（baseline 只读，当期 channel 默认 null）；
 微信来源可重叠不可当唯一人数；知乎缺文章级归因会告警；
-台账对齐网站 `tool_view` / `subscribe_click` / `subscribe_success` / `interview_click`；
+台账对齐网站 `tool_view` / `subscribe_click` / `subscribe_success` / `keyword_replies`；
 漏斗零/缺失分母为 `n/a`；作战包每条含可复制工具页 CTA URL+UTM；
 目标为内部实验目标而非行业基准。
 详见 [founder-growth-ops.md](docs/operations/founder-growth-ops.md)。

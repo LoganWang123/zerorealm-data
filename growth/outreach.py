@@ -1,107 +1,87 @@
-"""Interview / public-case templates and empty outreach slots."""
+"""Self-serve growth ops templates and professional employment boundaries.
+
+Interview / one-to-one outreach templates are retired while the founder remains
+employed at a smart-cabinet company.
+"""
 
 from __future__ import annotations
 
 from typing import Any
 
 
-INTERVIEW_TEMPLATE = {
-    "id": "operator_interview_v1",
-    "title": "智能柜运营商访谈提纲（公开前需授权）",
-    "duration_minutes": 30,
-    "privacy_rules": [
-        "未经书面/明确许可，不公开姓名、公司名、点位地址或可识别信息。",
-        "公开案例只使用对方确认可披露的聚合口径。",
-        "拒绝录音时改为要点笔记，不虚构引语。",
+PROFESSIONAL_BOUNDARIES = {
+    "id": "founder_employment_boundaries_v1",
+    "title": "创始人在职职业边界（智能柜公司任职期间）",
+    "rules": [
+        "不使用现任公司内部经营数据。",
+        "不使用现任公司客户名单。",
+        "不使用未公开案例。",
+        "不使用内部流程截图。",
+        "不引用同事观点作为对外材料。",
+        "不以雇主名义发言。",
+        "示例仅用公开资料、合成数据或匿名通用场景。",
     ],
-    "sections": [
-        {
-            "name": "背景",
-            "questions": [
-                "目前管理大约多少台柜？主要场景？",
-                "本周你最常看的经营数字是哪 1–2 个？",
-            ],
-        },
-        {
-            "name": "五指标周复盘",
-            "questions": [
-                "如果只能保留五个过程指标，你会留哪五个？为什么？",
-                "哪一个指标最容易“看起来好看但实际没帮到补货/选品”？",
-            ],
-        },
-        {
-            "name": "缺货排查",
-            "questions": [
-                "最近一次严重缺货是怎么发现的？",
-                "补货前你实际会先查哪几步？",
-            ],
-        },
-        {
-            "name": "运营决策",
-            "questions": [
-                "上周你做过的一个保留/调货/撤点决策，依据是什么？",
-                "如果重来，你会多要哪一条证据？",
-            ],
-        },
-        {
-            "name": "公开意愿",
-            "questions": [
-                "是否愿意以匿名或具名形式出现在公开案例？",
-                "哪些数字绝对不能写进公开文？",
-            ],
-        },
+    "forbidden_asks": [
+        "一对一联系",
+        "加微信",
+        "预约访谈",
+        "提供公司或点位身份",
+        "有效运营商交流线索",
+    ],
+}
+
+CONVERSION_FUNNEL = {
+    "id": "organic_self_serve_v1",
+    "steps": [
+        "公开内容",
+        "关注公众号",
+        "回复「复盘表」",
+        "自助使用周经营复盘工具",
+    ],
+    "allowed_extra": "工具页公开订阅经营清单（可选）",
+    "cta_zh": (
+        "关注公众号后回复「复盘表」，自助打开智能柜周经营复盘工具；"
+        "可在工具页公开订阅经营清单"
+    ),
+}
+
+SELF_SERVE_CHECKLIST = {
+    "id": "self_serve_ops_checklist_v1",
+    "title": "公开内容自助转化检查清单",
+    "items": [
+        "文末唯一 CTA 指向周复盘工具或引导回复「复盘表」",
+        "未要求加微信、一对一联系、访谈或公司/点位身份",
+        "未使用现任公司内部数据、客户名单、未公开案例、内部截图或同事观点",
+        "未以雇主名义发言；示例为公开/合成/匿名通用场景",
+        "可保留公开订阅入口，但不作为访谈前置条件",
     ],
 }
 
 
-PUBLIC_CASE_TEMPLATE = {
-    "id": "public_case_v1",
-    "title": "公开案例写作模板（需授权）",
-    "required_fields": [
-        "permission_status",
-        "anonymization_level",
-        "context",
-        "metric_before_after",
-        "action_taken",
-        "stop_rule",
-        "source_of_truth",
-        "operator_quote_approved",
-    ],
-    "field_notes": {
-        "permission_status": "pending | granted | denied（无授权不得发布）",
-        "anonymization_level": "full_name | company_only | anonymous_role",
-        "context": "场景、柜量级（区间）、时间窗；禁止写入精确地址。",
-        "metric_before_after": "仅写对方确认可披露的指标变化；标注内部实验口径。",
-        "action_taken": "具体经营动作（补货/调货/撤点等）。",
-        "stop_rule": "什么情况下停止该动作。",
-        "source_of_truth": "对方系统截图/口述聚合；不收录用户 PII。",
-        "operator_quote_approved": "true 仅当原话已确认；否则留空，禁止虚构。",
-    },
-    "forbidden": [
-        "虚构公司名、人名或案例结果",
-        "把小样本访谈写成行业基准",
-        "在知乎/微信混用未授权细节",
-    ],
-}
-
-
-def empty_target_account_slots(*, week_label: str, count: int = 4) -> list[dict[str, Any]]:
-    """Return empty outreach slots; names must be filled by the operator."""
+def empty_public_distribution_slots(
+    *, week_label: str, count: int = 4
+) -> list[dict[str, Any]]:
+    """Return empty public-distribution review slots (no personal outreach)."""
     if count < 3 or count > 5:
-        raise ValueError("weekly target account slots must be between 3 and 5")
+        raise ValueError("weekly public distribution slots must be between 3 and 5")
     return [
         {
             "slot": idx,
             "week": week_label,
-            "account_or_org": "",
-            "contact_channel": "",
+            "surface": "",
+            "piece_id": "",
             "why_relevant": "",
-            "ask": "访谈 / 公开案例授权 / 订阅经营清单（择一）",
+            "ask": "公开内容自检 / 关键词「复盘表」路径 / 工具页自助（择一核对）",
             "status": "empty",
-            "notes": "勿虚构名称；无合适对象则保持空白并在周复盘说明。",
+            "notes": "勿填写公司/点位身份或个人联系方式；无内容则保持空白。",
         }
         for idx in range(1, count + 1)
     ]
+
+
+# Backward-compatible alias used by older tests / imports.
+def empty_target_account_slots(*, week_label: str, count: int = 4) -> list[dict[str, Any]]:
+    return empty_public_distribution_slots(week_label=week_label, count=count)
 
 
 def build_outreach_pack(
@@ -112,29 +92,41 @@ def build_outreach_pack(
 ) -> dict[str, Any]:
     return {
         "schema_version": 1,
-        "interview_template": INTERVIEW_TEMPLATE,
-        "public_case_template": PUBLIC_CASE_TEMPLATE,
-        "weekly_target_slots": {
-            week1_label: empty_target_account_slots(
+        "professional_boundaries": PROFESSIONAL_BOUNDARIES,
+        "conversion_funnel": CONVERSION_FUNNEL,
+        "self_serve_checklist": SELF_SERVE_CHECKLIST,
+        "weekly_public_distribution_slots": {
+            week1_label: empty_public_distribution_slots(
                 week_label=week1_label, count=slots_per_week
             ),
-            week2_label: empty_target_account_slots(
+            week2_label: empty_public_distribution_slots(
+                week_label=week2_label, count=slots_per_week
+            ),
+        },
+        # Keep key for callers that still read weekly_target_slots.
+        "weekly_target_slots": {
+            week1_label: empty_public_distribution_slots(
+                week_label=week1_label, count=slots_per_week
+            ),
+            week2_label: empty_public_distribution_slots(
                 week_label=week2_label, count=slots_per_week
             ),
         },
         "rules": [
-            "每周 3–5 个目标账户槽位，默认空值，不预填虚构名称。",
-            "访谈与公开案例必须先授权。",
-            "外联结果只记聚合意向数到实验台账漏斗槽位。",
+            "转化链路：公开内容 → 关注公众号 → 回复「复盘表」→ 自助周复盘工具。",
+            "允许公开订阅；禁止一对一联系、加微信、访谈、索取公司或点位身份。",
+            "遵守创始人在职职业边界；不记录有效运营商交流线索目标。",
+            "每周 3–5 个公开分发自检槽位，默认空值，不预填虚构对象。",
         ],
     }
 
 
 def render_outreach_markdown(pack: dict[str, Any]) -> str:
-    interview = pack["interview_template"]
-    case = pack["public_case_template"]
+    boundaries = pack["professional_boundaries"]
+    funnel = pack["conversion_funnel"]
+    checklist = pack["self_serve_checklist"]
     lines = [
-        "# 访谈 / 公开案例模板与目标账户槽位",
+        "# 自助转化模板与职业边界",
         "",
         "## 规则",
         "",
@@ -142,35 +134,34 @@ def render_outreach_markdown(pack: dict[str, Any]) -> str:
     for rule in pack["rules"]:
         lines.append(f"- {rule}")
 
-    lines.extend(["", f"## 访谈提纲 · {interview['title']}", ""])
-    for rule in interview["privacy_rules"]:
+    lines.extend(["", f"## 职业边界 · {boundaries['title']}", ""])
+    for rule in boundaries["rules"]:
         lines.append(f"- {rule}")
     lines.append("")
-    for section in interview["sections"]:
-        lines.append(f"### {section['name']}")
-        lines.append("")
-        for question in section["questions"]:
-            lines.append(f"- {question}")
-        lines.append("")
-
-    lines.extend(["", f"## 公开案例模板 · {case['title']}", ""])
-    for field in case["required_fields"]:
-        note = case["field_notes"].get(field, "")
-        lines.append(f"- `{field}`: {note}")
-    lines.append("")
-    lines.append("禁止：")
-    for item in case["forbidden"]:
+    lines.append("禁用请求：")
+    for item in boundaries["forbidden_asks"]:
         lines.append(f"- {item}")
 
-    lines.extend(["", "## 每周目标账户槽位（空）", ""])
-    for week, slots in pack["weekly_target_slots"].items():
+    lines.extend(["", "## 转化链路", ""])
+    lines.append(" → ".join(funnel["steps"]))
+    lines.append("")
+    lines.append(f"- 允许附加：{funnel['allowed_extra']}")
+    lines.append(f"- CTA：{funnel['cta_zh']}")
+
+    lines.extend(["", f"## 检查清单 · {checklist['title']}", ""])
+    for item in checklist["items"]:
+        lines.append(f"- [ ] {item}")
+
+    lines.extend(["", "## 公开分发自检槽位", ""])
+    for week, slots in pack["weekly_public_distribution_slots"].items():
         lines.append(f"### {week}")
         lines.append("")
-        lines.append("| # | 账户/组织 | 渠道 | 相关原因 | 诉求 | 状态 |")
-        lines.append("| --- | --- | --- | --- | --- | --- |")
+        lines.append("| 槽位 | 公开面 | 内容 ID | 核对项 | 状态 |")
+        lines.append("| --- | --- | --- | --- | --- |")
         for slot in slots:
             lines.append(
-                f"| {slot['slot']} |  |  |  | {slot['ask']} | {slot['status']} |"
+                f"| {slot['slot']} |  |  | {slot['ask']} | {slot['status']} |"
             )
         lines.append("")
-    return "\n".join(lines)
+
+    return "\n".join(lines).rstrip() + "\n"

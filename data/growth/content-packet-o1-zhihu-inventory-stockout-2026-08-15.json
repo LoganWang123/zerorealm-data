@@ -21,7 +21,7 @@
     "auto_publish": false,
     "reuse_of": "o1-wechat-stockout-tieku"
   },
-  "status": "images_ready",
+  "status": "production_ready_awaiting_images",
   "title": "库存显示有货，为什么柜机还是缺货？",
   "excerpt": "后台库存显示有货，柜机却买不到，通常不是单一缺货问题。本文用场景拆解账实、同步、应售状态与补货时效，并给出最小动作。",
   "tags": [
@@ -51,9 +51,9 @@
       "唯一行动入口"
     ]
   },
-  "body_markdown": "# 库存显示有货，为什么柜机还是缺货？\n\n> 知乎场景改写 · 计划发布日 2026-08-18（亚洲/上海）\n> 改写自公众号贴图《柜机缺货先查这7步》，非原文搬运。\n> 口径：零域参考 / 企业内部实验口径，非行业统一标准。\n> 归因：知乎多为账号级阅读，无法做稳定的文章级归因；勿用单日波动下因果。\n> 分发：仅知乎公开面；禁止朋友圈、微信群/社群、个人号私发。\n\n## 场景重述\n\n运营同学常碰到这种组合：\n\n- 后台库存显示「有货」\n- 消费者在柜机端买不到，或巡检看到货道空着\n- 团队第一反应是「再补一轮」\n\n**观点：** 库存有货与柜机可买，不是同一件事。先分层排查，再决定补货。\n\n## 为什么会出现「账上有货、柜上缺货」？\n\n按优先级看四层（企业内部实验口径，不是行业基准）：\n\n### 1）账实不一致\n\n系统库存、货道库存、最近盘点结果可能彼此错位。账实不稳时，任何「有货/缺货」结论都会被放大误差。\n\n**最小动作：** 对报警货品做抽盘；一致后再谈加补。\n\n### 2）同步与在线状态\n\n设备离线、支付/识别异常、延迟回传，都可能让后台仍显示旧库存，而现场已不可售。\n\n**最小动作：** 先确认设备在线可售，再解释「缺货」信号。\n\n### 3）应售状态被运营动作改写\n\n主动下架、清场、调改货道、测试锁定，不应算作真实缺货；但若仍留在「应售」集合，报表会打架。\n\n**最小动作：** 先定性——信号噪声还是真实缺货。\n\n### 4）补货时效与点位错配\n\n任务已生成却超时，或补的是仓库想清掉、点位并不动销的货，都会表现为「好像一直缺」。\n\n**最小动作：** 核对补货是否超时；核对点位×货品动销，再决定补原货、调货或换品。\n\n## 一张可执行对照\n\n| 现象 | 优先检查 | 不建议的第一反应 |\n| --- | --- | --- |\n| 后台有货、柜机买不到 | 账实、在线、应售标记 | 立刻加倍补同一货品 |\n| 反复同货品报警 | 畅销判定 + 安全库存/调货规则 | 连续两周原样加补且不复盘 |\n| 低动销货品空置 | 点位匹配与结构 | 用仓配压力驱动补货 |\n\n**停止规则：** 同一货品连续两周真实缺货，仍不调货/不换品/不改安全库存 → 本周强制进入选品复盘。\n\n## 和周复盘的衔接\n\n把结论回填到五个过程指标里的缺货率、补货及时率、设备在线率、动销率、库存准确率，避免「现场吵过、指标没记」。\n\n## 唯一行动入口\n\n打开智能柜周经营复盘工具页；订阅经营清单与预约运营商访谈入口在工具页内（人工跟进，不自动群发）：\n\n[打开智能柜周复盘工具页](https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=zhihu&utm_medium=article&utm_campaign=founder14d_20260813&utm_content=inventory_vs_stockout_qa)\n\n---\n\n**合规：** 不提供行业缺货率均值；不把小样本阅读/销售波动写成因果；不构成投资建议。\n",
+  "body_markdown": "# 库存显示有货，为什么柜机还是缺货？\n\n> 知乎场景改写 · 计划发布日 2026-08-18（亚洲/上海）\n> 改写自公众号贴图《柜机缺货先查这7步》，非原文搬运。\n> 口径：零域参考 / 企业内部实验口径，非行业统一标准。\n> 归因：知乎多为账号级阅读，无法做稳定的文章级归因；勿用单日波动下因果。\n> 分发：仅知乎公开面；禁止朋友圈、微信群/社群、个人号私发。\n\n## 场景重述\n\n运营同学常碰到这种组合：\n\n- 后台库存显示「有货」\n- 消费者在柜机端买不到，或巡检看到货道空着\n- 团队第一反应是「再补一轮」\n\n**观点：** 库存有货与柜机可买，不是同一件事。先分层排查，再决定补货。\n\n## 为什么会出现「账上有货、柜上缺货」？\n\n按优先级看四层（企业内部实验口径，不是行业基准）：\n\n### 1）账实不一致\n\n系统库存、货道库存、最近盘点结果可能彼此错位。账实不稳时，任何「有货/缺货」结论都会被放大误差。\n\n**最小动作：** 对报警货品做抽盘；一致后再谈加补。\n\n### 2）同步与在线状态\n\n设备离线、支付/识别异常、延迟回传，都可能让后台仍显示旧库存，而现场已不可售。\n\n**最小动作：** 先确认设备在线可售，再解释「缺货」信号。\n\n### 3）应售状态被运营动作改写\n\n主动下架、清场、调改货道、测试锁定，不应算作真实缺货；但若仍留在「应售」集合，报表会打架。\n\n**最小动作：** 先定性——信号噪声还是真实缺货。\n\n### 4）补货时效与点位错配\n\n任务已生成却超时，或补的是仓库想清掉、点位并不动销的货，都会表现为「好像一直缺」。\n\n**最小动作：** 核对补货是否超时；核对点位×货品动销，再决定补原货、调货或换品。\n\n## 一张可执行对照\n\n| 现象 | 优先检查 | 不建议的第一反应 |\n| --- | --- | --- |\n| 后台有货、柜机买不到 | 账实、在线、应售标记 | 立刻加倍补同一货品 |\n| 反复同货品报警 | 畅销判定 + 安全库存/调货规则 | 连续两周原样加补且不复盘 |\n| 低动销货品空置 | 点位匹配与结构 | 用仓配压力驱动补货 |\n\n**停止规则：** 同一货品连续两周真实缺货，仍不调货/不换品/不改安全库存 → 本周强制进入选品复盘。\n\n## 和周复盘的衔接\n\n把结论回填到五个过程指标里的缺货率、补货及时率、设备在线率、动销率、库存准确率，避免「现场吵过、指标没记」。\n\n## 唯一行动入口\n\n关注公众号后回复「复盘表」，自助打开智能柜周经营复盘工具；可在工具页公开订阅经营清单：\n\n[打开智能柜周复盘工具页](https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=zhihu&utm_medium=article&utm_campaign=founder14d_20260813&utm_content=inventory_vs_stockout_qa)\n\n---\n\n**合规：** 不提供行业缺货率均值；不把小样本阅读/销售波动写成因果；不构成投资建议。\n**职业边界：** 不使用现任公司内部经营数据、客户名单、未公开案例、内部流程截图、同事观点；不以雇主名义发言；示例为公开/合成/匿名通用场景。\n",
   "cta": {
-    "copy": "打开智能柜周经营复盘工具页；订阅经营清单与预约运营商访谈入口在工具页内（人工跟进，不自动群发）",
+    "copy": "关注公众号后回复「复盘表」，自助打开智能柜周经营复盘工具；可在工具页公开订阅经营清单",
     "button_text": "打开智能柜周复盘工具页",
     "url": "https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=zhihu&utm_medium=article&utm_campaign=founder14d_20260813&utm_content=inventory_vs_stockout_qa",
     "utm": "utm_source=zhihu&utm_medium=article&utm_campaign=founder14d_20260813&utm_content=inventory_vs_stockout_qa",
@@ -74,6 +74,12 @@
     "no_friends_circle": true,
     "no_groups": true,
     "no_personal_private_distribution": true,
+    "no_interview_cta": true,
+    "no_one_to_one_contact_ask": true,
+    "no_wechat_add_ask": true,
+    "no_company_or_site_identity_ask": true,
+    "conversion_funnel": "公开内容 → 关注公众号 → 回复「复盘表」→ 自助使用周经营复盘工具",
+    "professional_boundaries_zh": "不使用现任公司内部经营数据、客户名单、未公开案例、内部流程截图、同事观点；不以雇主名义发言；示例仅用公开资料、合成数据或匿名通用场景。",
     "organic_only": true,
     "single_campaign": "founder14d_20260813",
     "tool_page": "https://zerorealm.tech/tools/smart-cabinet-weekly-review",
@@ -88,13 +94,9 @@
       "channel": "zhihu",
       "purpose": "cover",
       "status": "images_ready",
-      "asset_path": "assets/generated/organic-sprint/2026-08-15/o1-zhihu-inventory-stockout/cover.png",
       "aspect_ratio": "16:9",
       "width": 1200,
       "height": 675,
-      "sha256": "214bbb7f6cc79233b2fbec519e9b9105e50c150202dd5b12067d0d26375aa24d",
-      "model": "gemini-3.7-flash-high",
-      "review_result": "PASS",
       "subject": "零域研究贴图视觉：库存显示有货，为什么柜机还是缺货？",
       "must_include": [
         "智能柜 / 终端履约现场",
@@ -118,7 +120,11 @@
       "prompt_zh": "为「库存显示有货，为什么柜机还是缺货？」生成克制的智能柜运营贴图。场景围绕柜机补货、点位巡检或账实核对；专业真实，无科幻机器人，无霓虹科技风；若叠字仅用 brief 中文，勿虚构排名或行业均值。",
       "color_hint": "#2563EB 冷蓝白",
       "owner": "antigravity",
-      "note": "Cursor 只准备 briefs；Antigravity 生成位图。"
+      "note": "Cursor 只准备 briefs；Antigravity 生成位图。",
+      "asset_path": "assets/generated/organic-sprint/2026-08-15/o1-zhihu-inventory-stockout/cover.png",
+      "sha256": "214bbb7f6cc79233b2fbec519e9b9105e50c150202dd5b12067d0d26375aa24d",
+      "model": "gemini-3.7-flash-high",
+      "review_result": "PASS"
     }
   ],
   "image_status": "images_ready",
@@ -141,11 +147,5 @@
   "draft_status": "draft_saved",
   "assets_status": "assets_ready",
   "scheduled": false,
-  "published": false,
-  "external_draft": {
-    "account": "ZeroRealm AI",
-    "draft_id": "2072013992894149965",
-    "planned_publish_window": "2026-08-18T20:30:00+08:00",
-    "web_schedule_supported": false
-  }
+  "published": false
 }

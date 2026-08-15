@@ -10,8 +10,8 @@ CAMPAIGN = "founder14d_20260813"
 HOURS_PER_WEEK_RANGE = (8, 15)
 TOOL_PAGE_URL = "https://zerorealm.tech/tools/smart-cabinet-weekly-review"
 CTA_COPY = (
-    "打开智能柜周复盘工具页；订阅经营清单 / 预约运营商访谈入口在工具页内"
-    "（人工跟进，不自动群发）"
+    "关注公众号后回复「复盘表」，自助打开智能柜周经营复盘工具；"
+    "可在工具页公开订阅经营清单"
 )
 
 
@@ -189,8 +189,8 @@ def build_combat_pack(*, start_date: str = "2026-08-13") -> dict[str, Any]:
             "checklist": [
                 "只读“全部”唯一阅读，不把搜一搜/推荐相加",
                 "记录知乎账号日阅读，标注缺文章级归因",
-                "更新当期台账：impressions/views + tool_views/subscribe_click/"
-                "interview_click 等；禁止用基线人数当漏斗分母",
+                "更新当期台账：内容按期准备率、关键词「复盘表」回复数、"
+                "工具页访问、公开平台收藏/赞同/阅读变化；禁止用基线人数当漏斗分母",
                 "不从小样本波动推因果；只决定下周是否继续清单文",
             ],
             "estimated_hours": 1.5,
@@ -200,20 +200,20 @@ def build_combat_pack(*, start_date: str = "2026-08-13") -> dict[str, Any]:
             "date": end.isoformat(),
             "title": "第 2 周复盘 + 14 天实验收口（90–120 分钟）",
             "checklist": [
-                "对照内部实验目标（非行业基准）",
+                "对照可匿名观测的内部实验目标（非行业基准）",
                 "漏斗零/缺失分母槽位标为 n/a，不当成 0%",
-                "访谈意向跟进与空目标账户槽位清理",
-                "决定下一轮 14 天是否沿用工具/清单优先",
+                "核对职业边界：未使用现任公司内部数据/客户名单/未公开案例",
+                "决定下一轮 14 天是否沿用公开内容 → 复盘表 → 自助工具链路",
             ],
             "estimated_hours": 2.0,
         },
     ]
 
-    outreach_hours_per_week = 2.5
+    self_serve_ops_hours_per_week = 2.5
     content_hours = sum(p["estimated_hours"] for p in pieces)
     ritual_hours = sum(r["estimated_hours"] for r in rituals)
-    outreach_hours = outreach_hours_per_week * 2
-    total_hours = content_hours + ritual_hours + outreach_hours
+    self_serve_ops_hours = self_serve_ops_hours_per_week * 2
+    total_hours = content_hours + ritual_hours + self_serve_ops_hours
 
     return {
         "schema_version": 1,
@@ -237,15 +237,20 @@ def build_combat_pack(*, start_date: str = "2026-08-13") -> dict[str, Any]:
             "微信来源阅读可重叠，不可当唯一人数。",
             "目标为内部实验目标，不是行业基准。",
             "总量适配单人创始人每周 8–15 小时。",
+            "转化链路：公开内容 → 关注公众号 → 回复「复盘表」→ 自助周复盘工具；"
+            "允许公开订阅，禁止一对一联系/加微信/访谈/索取公司或点位身份。",
+            "职业边界：不使用现任公司内部经营数据、客户名单、未公开案例、"
+            "内部流程截图、同事观点；不以雇主名义发言；"
+            "示例仅用公开资料、合成数据或匿名通用场景。",
             f"每条内容 CTA 使用可复制 URL，指向 {TOOL_PAGE_URL} 并带本条 UTM；"
-            "订阅/访谈入口在工具页内。",
+            "唯一行动为回复「复盘表」或打开自助工具。",
         ],
         "pieces": pieces,
         "rituals": rituals,
         "hour_breakdown": {
             "content_production": content_hours,
             "weekly_reviews": ritual_hours,
-            "outreach_slots": outreach_hours,
+            "self_serve_ops": self_serve_ops_hours,
         },
     }
 
@@ -259,7 +264,8 @@ def render_combat_pack_markdown(pack: dict[str, Any]) -> str:
         f"预算区间 {pack['hours_budget_per_week']['min']}–"
         f"{pack['hours_budget_per_week']['max']}h/周。"
         "不自动发布；不从小样本推因果。",
-        f"工具页：`{pack.get('tool_page_url', TOOL_PAGE_URL)}`（订阅/访谈入口在页内）。",
+        f"工具页：`{pack.get('tool_page_url', TOOL_PAGE_URL)}`"
+        "（回复「复盘表」或打开自助工具；可公开订阅）。",
         "",
         "## 规则",
         "",
@@ -305,7 +311,7 @@ def render_combat_pack_markdown(pack: dict[str, Any]) -> str:
             "",
             f"- 内容生产: {pack['hour_breakdown']['content_production']}h",
             f"- 周复盘: {pack['hour_breakdown']['weekly_reviews']}h",
-            f"- 外联槽位: {pack['hour_breakdown']['outreach_slots']}h",
+            f"- 自助转化运营: {pack['hour_breakdown']['self_serve_ops']}h",
             "",
         ]
     )

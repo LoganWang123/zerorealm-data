@@ -16,7 +16,7 @@ RETROSPECTIVE_SCHEMA_VERSION = 1
 FOUNDER_OWNER = "founder"
 FOUNDER_GITHUB = "LoganWang123"
 TOOL_PAGE_PATH = "/tools/smart-cabinet-weekly-review"
-WEBSITE_EVENTS = ("tool_view", "subscribe_click", "interview_click")
+WEBSITE_EVENTS = ("tool_view", "subscribe_click", "keyword_reply")
 
 
 def _aggregates_match_baseline(
@@ -194,8 +194,9 @@ def build_ops_retrospective(
         "events_wired": list(WEBSITE_EVENTS),
         "local_event_counts_available": False,
         "note": (
-            "官网工具页已埋点 tool_view / subscribe_click / interview_click（PostHog）；"
-            "本仓库无 PostHog 导出。漏斗保持手工计数，不虚构。"
+            "官网工具页已埋点 tool_view / subscribe_click（PostHog）；"
+            "公众号关键词「复盘表」人工计数。本仓库无 PostHog 导出。"
+            "漏斗保持手工计数，不虚构；无访谈线索指标。"
         ),
     }
 

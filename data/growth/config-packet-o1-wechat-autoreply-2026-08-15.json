@@ -42,14 +42,12 @@
       "可见文案仅中文",
       "每条回复仅一个工具页行动入口",
       "禁止声称可下载表格文件",
-      "浏览器已保存启用：被关注回复与关键词「复盘表」精确匹配"
-    ],
-    "welcome_rule_id": "456828165",
-    "keyword_rule_id": "456844465"
+      "本阶段只交付配置包，不调用公众号接口写入"
+    ]
   },
   "welcome_reply": {
-    "visible_text_zh": "欢迎关注零域研究。\n这里分享智能柜运营可执行清单与周复盘方法。\n回复「复盘表」，获取智能柜周经营复盘工具入口（浏览器打开、本地计算，不上传经营数据）。\n打开智能柜周经营复盘工具页；订阅经营清单与预约运营商访谈入口在工具页内（人工跟进，不自动群发）。\n打开智能柜周复盘工具页",
-    "html": "<p>欢迎关注零域研究。</p><p>这里分享智能柜运营可执行清单与周复盘方法。</p><p>回复「复盘表」，获取智能柜周经营复盘工具入口（浏览器打开、本地计算，不上传经营数据）。</p><p>打开智能柜周经营复盘工具页；订阅经营清单与预约运营商访谈入口在工具页内（人工跟进，不自动群发）。</p><p><a href=\"https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=wechat&utm_medium=auto_reply&utm_campaign=founder14d_20260813&utm_content=wechat_welcome\">打开智能柜周复盘工具页</a></p>",
+    "visible_text_zh": "欢迎关注零域研究。\n这里分享智能柜运营可执行清单与周复盘方法。\n回复「复盘表」，即可自助打开智能柜周经营复盘工具（浏览器打开、本地计算，不上传经营数据）。\n可在工具页公开订阅经营清单。\n打开智能柜周复盘工具页",
+    "html": "<p>欢迎关注零域研究。</p><p>这里分享智能柜运营可执行清单与周复盘方法。</p><p>回复「复盘表」，即可自助打开智能柜周经营复盘工具（浏览器打开、本地计算，不上传经营数据）。</p><p>可在工具页公开订阅经营清单。</p><p><a href=\"https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=wechat&utm_medium=auto_reply&utm_campaign=founder14d_20260813&utm_content=wechat_welcome\">打开智能柜周复盘工具页</a></p>",
     "cta": {
       "button_text": "打开智能柜周复盘工具页",
       "url": "https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=wechat&utm_medium=auto_reply&utm_campaign=founder14d_20260813&utm_content=wechat_welcome",
@@ -61,8 +59,8 @@
     {
       "keyword": "复盘表",
       "match": "exact",
-      "visible_text_zh": "智能柜周经营复盘工具：按五个过程指标对照本周与上周。\n在浏览器打开即可填写；数值只在本地计算，刷新即清空。\n这不是表格文件派发，也不提供行业均值下载。\n打开智能柜周经营复盘工具页；订阅经营清单与预约运营商访谈入口在工具页内（人工跟进，不自动群发）。\n打开智能柜周复盘工具页",
-      "html": "<p>智能柜周经营复盘工具：按五个过程指标对照本周与上周。</p><p>在浏览器打开即可填写；数值只在本地计算，刷新即清空。</p><p>这不是表格文件派发，也不提供行业均值下载。</p><p>打开智能柜周经营复盘工具页；订阅经营清单与预约运营商访谈入口在工具页内（人工跟进，不自动群发）。</p><p><a href=\"https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=wechat&utm_medium=auto_reply&utm_campaign=founder14d_20260813&utm_content=wechat_kw_fupanbiao\">打开智能柜周复盘工具页</a></p>",
+      "visible_text_zh": "智能柜周经营复盘工具：按五个过程指标对照本周与上周。\n在浏览器打开即可填写；数值只在本地计算，刷新即清空。\n这不是表格文件派发，也不提供行业均值下载。\n点下方入口自助使用；可公开订阅经营清单。\n打开智能柜周复盘工具页",
+      "html": "<p>智能柜周经营复盘工具：按五个过程指标对照本周与上周。</p><p>在浏览器打开即可填写；数值只在本地计算，刷新即清空。</p><p>这不是表格文件派发，也不提供行业均值下载。</p><p>点下方入口自助使用；可公开订阅经营清单。</p><p><a href=\"https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=wechat&utm_medium=auto_reply&utm_campaign=founder14d_20260813&utm_content=wechat_kw_fupanbiao\">打开智能柜周复盘工具页</a></p>",
       "cta": {
         "button_text": "打开智能柜周复盘工具页",
         "url": "https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=wechat&utm_medium=auto_reply&utm_campaign=founder14d_20260813&utm_content=wechat_kw_fupanbiao",
@@ -82,6 +80,12 @@
     "no_friends_circle": true,
     "no_groups": true,
     "no_personal_private_distribution": true,
+    "no_interview_cta": true,
+    "no_one_to_one_contact_ask": true,
+    "no_wechat_add_ask": true,
+    "no_company_or_site_identity_ask": true,
+    "conversion_funnel": "公开内容 → 关注公众号 → 回复「复盘表」→ 自助使用周经营复盘工具",
+    "professional_boundaries_zh": "不使用现任公司内部经营数据、客户名单、未公开案例、内部流程截图、同事观点；不以雇主名义发言；示例仅用公开资料、合成数据或匿名通用场景。",
     "organic_only": true,
     "single_campaign": "founder14d_20260813",
     "tool_page": "https://zerorealm.tech/tools/smart-cabinet-weekly-review",

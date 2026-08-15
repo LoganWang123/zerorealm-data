@@ -138,6 +138,24 @@
       "tz": "Asia/Shanghai"
     },
     "leading_only_while_channel_reports_stale": true,
+    "anonymous_observables": [
+      {
+        "id": "content_prep_on_time_rate",
+        "rule": "计划内容按期准备率（草稿/配置就绪人工核对；未观测不填造）"
+      },
+      {
+        "id": "keyword_replies",
+        "rule": "关键词「复盘表」回复数（公众号后台人工计数；未观测保持 0）"
+      },
+      {
+        "id": "tool_views",
+        "rule": "工具页访问（网站 tool_view / 人工录入；未观测保持 0）"
+      },
+      {
+        "id": "public_platform_engagement_delta",
+        "rule": "公开平台收藏/赞同/阅读变化（仅渠道报表新鲜时录入，否则保持 null，不虚构）"
+      }
+    ],
     "continue_all_of": [
       {
         "id": "organic_pieces_on_dates",
@@ -145,7 +163,15 @@
       },
       {
         "id": "single_cta_compliance",
-        "rule": "每条内容仅一个周复盘工具页行动入口，且带本条追踪参数"
+        "rule": "每条内容仅一个周复盘工具页行动入口（或引导回复「复盘表」），且带本条追踪参数；无访谈 CTA"
+      },
+      {
+        "id": "self_serve_funnel_only",
+        "rule": "公开内容 → 关注公众号 → 回复「复盘表」→ 自助使用周经营复盘工具；可公开订阅，无一对一/加微信/访谈"
+      },
+      {
+        "id": "professional_boundaries",
+        "rule": "不使用现任公司内部经营数据、客户名单、未公开案例、内部流程截图、同事观点；不以雇主名义发言；示例仅用公开资料、合成数据或匿名通用场景。"
       },
       {
         "id": "no_private_distribution",
@@ -164,6 +190,14 @@
       {
         "id": "private_channel_used",
         "action": "立即停止该分发动作并回滚口径；本冲刺仅保留公众号与知乎公开面"
+      },
+      {
+        "id": "interview_or_one_to_one_cta",
+        "action": "停止发布该稿；改为自助「复盘表」/工具页 CTA"
+      },
+      {
+        "id": "employer_boundary_breach",
+        "action": "下架或改正文案；删除内部数据/客户/未公开案例/同事观点痕迹"
       },
       {
         "id": "second_cta_or_raw_url_visible_on_wechat",

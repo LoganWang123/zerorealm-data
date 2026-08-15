@@ -479,6 +479,76 @@ def test_wechat_tieku_committed_assets_match_provenance_and_chinese_overlays():
     validate_wechat_tieku_packet(wechat)
 
 
+def test_forbidden_cta_terms_and_professional_boundaries():
+    from growth.organic_sprint_phase1 import (
+        FORBIDDEN_CTA_TERMS,
+        PROFESSIONAL_BOUNDARIES_ZH,
+        assert_no_forbidden_cta_terms,
+        assert_professional_boundaries_declared,
+        build_wechat_autoreply_packet,
+        build_wechat_tieku_packet,
+        build_zhihu_scenario_packet,
+    )
+
+    wechat = build_wechat_tieku_packet(body_markdown="# x\n")
+    zhihu = build_zhihu_scenario_packet(
+        body_markdown=(
+            f"[打开智能柜周复盘工具页]("
+            f"{TOOL_PAGE_URL}?utm_source=zhihu&utm_medium=article"
+            f"&utm_campaign={CAMPAIGN}&utm_content=inventory_vs_stockout_qa)\n"
+        )
+    )
+    autoreply = build_wechat_autoreply_packet()
+
+    for packet in (wechat, zhihu, autoreply):
+        assert_professional_boundaries_declared(packet["compliance"])
+        assert packet["compliance"]["conversion_funnel"]
+        assert "内部经营数据" in packet["compliance"]["professional_boundaries_zh"]
+
+    blobs = [
+        wechat["visible_caption_zh"],
+        wechat["cta"]["copy"],
+        wechat["body_markdown"],
+        zhihu["body_markdown"],
+        zhihu["cta"]["copy"],
+        autoreply["welcome_reply"]["visible_text_zh"],
+        autoreply["keyword_replies"][0]["visible_text_zh"],
+    ]
+    for blob in blobs:
+        assert_no_forbidden_cta_terms(blob)
+        for term in FORBIDDEN_CTA_TERMS:
+            assert term not in blob
+
+    ledger = build_organic_experiment_ledger_update()
+    assert "interview_click" not in ledger["funnel_manual"]
+    assert "keyword_replies" in ledger["funnel_manual"]
+    assert ledger["funnel_manual"]["keyword_replies"] == 0
+    assert ledger["anonymous_metrics"]["content_prep_on_time_rate"] is None
+    targets = ledger["experiment_targets"]
+    assert "keyword_replies" in targets
+    assert "交流线索" not in json.dumps(targets, ensure_ascii=False)
+    assert PROFESSIONAL_BOUNDARIES_ZH in ledger["notes"]
+
+    committed = [
+        ROOT / "data/growth/content-packet-o1-wechat-stockout-tieku-2026-08-15.json",
+        ROOT / "data/growth/content-packet-o1-zhihu-inventory-stockout-2026-08-15.json",
+        ROOT / "data/growth/config-packet-o1-wechat-autoreply-2026-08-15.json",
+        ROOT / "content/organic_packets/2026-08-15/o1-wechat-stockout-tieku.md",
+        ROOT / "content/organic_packets/2026-08-15/o1-zhihu-inventory-stockout.md",
+        ROOT / "content/organic_packets/2026-08-15/o1-wechat-autoreply-fupan.md",
+    ]
+    for path in committed:
+        text = path.read_text(encoding="utf-8")
+        for term in (
+            "预约运营商访谈",
+            "有效运营商交流线索",
+            "交流线索",
+            "加微信",
+            "一对一联系",
+        ):
+            assert term not in text, f"{term} found in {path}"
+
+
 def test_manifest_builder_wires_tracking_and_handoff():
     wechat = build_wechat_tieku_packet(body_markdown="# a\n")
     zhihu = build_zhihu_scenario_packet(

@@ -72,12 +72,9 @@
         "impressions",
         "views",
         "tool_views",
+        "keyword_replies",
         "subscribe_click",
-        "subscribe_success",
-        "interview_click",
-        "replies",
-        "interview_completed",
-        "public_case_permissions"
+        "subscribe_success"
       ],
       "properties": {
         "impressions": {
@@ -98,6 +95,10 @@
           "type": "integer",
           "minimum": 0
         },
+        "keyword_replies": {
+          "type": "integer",
+          "minimum": 0
+        },
         "subscribe_click": {
           "type": "integer",
           "minimum": 0
@@ -105,25 +106,9 @@
         "subscribe_success": {
           "type": "integer",
           "minimum": 0
-        },
-        "interview_click": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "replies": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "interview_completed": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "public_case_permissions": {
-          "type": "integer",
-          "minimum": 0
         }
       },
-      "description": "Current-period acquisition + website event counts. impressions/views default null until entered; tool_views counts website tool_view events."
+      "description": "Current-period anonymous-observable counts. impressions/views default null until entered; tool_views counts website tool_view events; keyword_replies counts OA「复盘表」exact matches."
     },
     "channel_observed": {
       "type": "object",
@@ -191,7 +176,31 @@
       "additionalProperties": {
         "type": "string"
       },
-      "description": "Internal experiment goals only; not industry benchmarks."
+      "required": [
+        "content_prep_on_time_rate",
+        "keyword_replies",
+        "tool_views",
+        "public_platform_engagement_delta"
+      ],
+      "properties": {
+        "content_prep_on_time_rate": {
+          "type": "string",
+          "minLength": 1
+        },
+        "keyword_replies": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tool_views": {
+          "type": "string",
+          "minLength": 1
+        },
+        "public_platform_engagement_delta": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "description": "Anonymous-observable internal experiment goals; not industry benchmarks."
     },
     "alerts": {
       "type": "array",

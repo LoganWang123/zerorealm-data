@@ -24,13 +24,26 @@
     "impressions": null,
     "views": null,
     "tool_views": 0,
+    "keyword_replies": 0,
     "subscribe_click": 0,
-    "subscribe_success": 0,
-    "interview_click": 0,
-    "replies": 0,
-    "interview_completed": 0,
-    "public_case_permissions": 0
+    "subscribe_success": 0
   },
+  "anonymous_metrics": {
+    "content_prep_on_time_rate": null,
+    "keyword_replies": 0,
+    "tool_views": 0,
+    "public_platform_favorites_delta": null,
+    "public_platform_likes_delta": null,
+    "public_platform_reads_delta": null
+  },
+  "experiment_targets": {
+    "content_prep_on_time_rate": "计划内容按期准备率（草稿/配置就绪人工核对；未观测不填造）",
+    "keyword_replies": "关键词「复盘表」回复数（公众号后台人工计数；未观测保持 0）",
+    "tool_views": "工具页访问（网站 tool_view / 人工录入；未观测保持 0）",
+    "public_platform_engagement_delta": "公开平台收藏/赞同/阅读变化（仅渠道报表新鲜时录入，否则保持 null，不虚构）"
+  },
+  "conversion_funnel": "公开内容 → 关注公众号 → 回复「复盘表」→ 自助使用周经营复盘工具",
+  "professional_boundaries_zh": "不使用现任公司内部经营数据、客户名单、未公开案例、内部流程截图、同事观点；不以雇主名义发言；示例仅用公开资料、合成数据或匿名通用场景。",
   "channel_observed": {
     "wechat_unique_readers": null,
     "wechat_overlapping_source_readers_sum": null,
@@ -173,5 +186,5 @@
       "message": "微信贴图草稿已保存但定时被管理员扫码验证阻塞；勿将 draft_saved 记为 scheduled/published。"
     }
   ],
-  "notes": "2026-08-15 organic sprint phase 1: public WeChat OA 贴图 + Zhihu rewrite + welcome/keyword「复盘表」. Browser manual ops verified: autoreply configured; WeChat 贴图 draft_saved but schedule blocked (admin_qr_verification_required); Zhihu draft_saved (planned 2026-08-18T20:30:00+08:00, web has no article schedule). No朋友圈, no groups, no personal/private distribution. No CDN/token/cookie recorded. Keep channel_observed null until freshness gate passes. Do not claim Excel download for the weekly-review tool."
+  "notes": "2026-08-15 organic sprint phase 1: public WeChat OA 贴图 + Zhihu rewrite + welcome/keyword「复盘表」. Conversion: 公开内容 → 关注公众号 → 回复「复盘表」→ 自助周复盘工具. No interview / one-to-one / WeChat-add / company-site identity asks. Professional boundaries: 不使用现任公司内部经营数据、客户名单、未公开案例、内部流程截图、同事观点；不以雇主名义发言；示例仅用公开资料、合成数据或匿名通用场景。 Browser manual ops verified: autoreply configured; WeChat 贴图 draft_saved but schedule blocked (admin_qr_verification_required); Zhihu draft_saved (planned 2026-08-18T20:30:00+08:00, web has no article schedule). No朋友圈, no groups, no personal/private distribution. No CDN/token/cookie recorded. Anonymous metrics only; keep channel deltas null until freshness gate passes. Do not claim Excel download for the weekly-review tool."
 }

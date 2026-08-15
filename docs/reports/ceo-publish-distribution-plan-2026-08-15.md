@@ -40,7 +40,7 @@
 
 ## 2. 单一 CTA / UTM（全窗口只此一套）
 
-- **唯一 CTA 落点**：`https://zerorealm.tech/tools/smart-cabinet-weekly-review`（智能柜周经营复盘工具；订阅 / 访谈入口在页内）
+- **唯一 CTA 落点**：`https://zerorealm.tech/tools/smart-cabinet-weekly-review`（智能柜周经营复盘工具；回复「复盘表」或打开自助工具）
 - **唯一 campaign**：`utm_campaign=founder14d_20260813`
 - **固定参数**：`utm_medium=article`；`utm_source=wechat|zhihu`；`utm_content=<piece_slug>`
 - **文末只贴一条可复制 URL**（禁止并列官网首页、邮箱、多工具页等第二 CTA）
@@ -113,7 +113,7 @@ https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=wechat&utm_m
 | `zhihu_reuse_pieces_shipped` | 自微信改写的知乎篇数 | **≥ 2** |
 | `cta_url_compliance` | 每篇是否粘贴唯一工具页 UTM 链接 | **100%** |
 | `fresh_wechat_report_imported` | tendency `period.end` 距复盘日 ≤1 天且覆盖实验起点 | **在 2026-08-22 前为 true** |
-| `funnel_manual_events` | tool_views+subscribe_click+interview_click+replies（当期） | **≥ 5**（内部目标） |
+| `funnel_manual_events` | tool_views+subscribe_click+keyword_replies+replies（当期） | **≥ 5**（内部目标） |
 | `solo_hours_per_week` | 实际投入 | **8–15h**（越界则砍外联不砍质量闸） |
 
 报表 fresh 之后才启用结果指标（仍为内部实验目标，非行业基准）：

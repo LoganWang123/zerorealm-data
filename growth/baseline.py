@@ -74,19 +74,21 @@ def default_experiments(wechat: WechatTendencySummary, zhihu: ZhihuDailySummary)
             actions=[
                 "每周至少发布 3 篇智能柜经营工具/清单/过程指标文，减少纯资讯堆砌的泛日报。",
                 "标题与导语显式包含可执行动作（先查/复盘/清单/阈值），并保留问题型钩子。",
-                "文末固定 CTA：订阅经营清单 / 提交纠错 / 预约运营商访谈。",
+                "文末固定 CTA：关注公众号后回复「复盘表」，自助打开周复盘工具；可公开订阅经营清单。",
             ],
             metrics=[
-                "微信“全部”唯一阅读人数（不可用来源相加替代）",
-                "搜一搜与推荐来源阅读人数（重叠归因，仅作结构观察）",
-                "分享人数、阅读原文人数",
-                "知乎账号日阅读与非零阅读日数",
+                "内容按期准备率（草稿/配置就绪人工核对）",
+                "关键词「复盘表」回复数",
+                "工具页访问（tool_view）",
+                "公开平台收藏/赞同/阅读变化（报表新鲜时）",
             ],
             targets={
-                "wechat_unique_readers_14d": "相对本基线周均提升 ≥20%（小样本，仅作实验目标）",
-                "wechat_share_or_original_link": "14天内分享+阅读原文合计 ≥ 8",
-                "zhihu_nonzero_read_days": "14天内非零阅读日 ≥ 10",
-                "cta_events": "订阅/纠错/访谈意向合计 ≥ 5（人工计数）",
+                "content_prep_on_time_rate": "计划内容按期准备率（人工核对；未观测不填造）",
+                "keyword_replies": "关键词「复盘表」回复数（公众号后台人工计数）",
+                "tool_views": "工具页访问（网站 tool_view / 人工录入）",
+                "public_platform_engagement_delta": (
+                    "公开平台收藏/赞同/阅读变化（仅报表新鲜时录入，否则 null）"
+                ),
             },
         ),
         GrowthExperiment(

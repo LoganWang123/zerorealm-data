@@ -73,8 +73,28 @@ ZHIHU_PLANNED_WINDOW = "2026-08-18T20:30:00+08:00"
 
 CTA_BUTTON_TEXT = "打开智能柜周复盘工具页"
 CTA_SUPPORT_ZH = (
-    "打开智能柜周经营复盘工具页；订阅经营清单与预约运营商访谈入口在工具页内"
-    "（人工跟进，不自动群发）"
+    "关注公众号后回复「复盘表」，自助打开智能柜周经营复盘工具；"
+    "可在工具页公开订阅经营清单"
+)
+
+CONVERSION_FUNNEL_ZH = "公开内容 → 关注公众号 → 回复「复盘表」→ 自助使用周经营复盘工具"
+
+PROFESSIONAL_BOUNDARIES_ZH = (
+    "不使用现任公司内部经营数据、客户名单、未公开案例、内部流程截图、同事观点；"
+    "不以雇主名义发言；示例仅用公开资料、合成数据或匿名通用场景。"
+)
+
+FORBIDDEN_CTA_TERMS = (
+    "预约运营商访谈",
+    "运营商访谈",
+    "有效访谈",
+    "交流线索",
+    "有效运营商交流线索",
+    "加微信",
+    "一对一联系",
+    "留下公司",
+    "点位地址",
+    "点位身份",
 )
 
 FORBIDDEN_DISTRIBUTION = (
@@ -155,6 +175,27 @@ def continue_stop_metrics() -> dict[str, Any]:
     return {
         "window": {"start": "2026-08-15", "end": "2026-08-26", "tz": TIMEZONE_LABEL},
         "leading_only_while_channel_reports_stale": True,
+        "anonymous_observables": [
+            {
+                "id": "content_prep_on_time_rate",
+                "rule": "计划内容按期准备率（草稿/配置就绪人工核对；未观测不填造）",
+            },
+            {
+                "id": "keyword_replies",
+                "rule": "关键词「复盘表」回复数（公众号后台人工计数；未观测保持 0）",
+            },
+            {
+                "id": "tool_views",
+                "rule": "工具页访问（网站 tool_view / 人工录入；未观测保持 0）",
+            },
+            {
+                "id": "public_platform_engagement_delta",
+                "rule": (
+                    "公开平台收藏/赞同/阅读变化"
+                    "（仅渠道报表新鲜时录入，否则保持 null，不虚构）"
+                ),
+            },
+        ],
         "continue_all_of": [
             {
                 "id": "organic_pieces_on_dates",
@@ -165,7 +206,18 @@ def continue_stop_metrics() -> dict[str, Any]:
             },
             {
                 "id": "single_cta_compliance",
-                "rule": "每条内容仅一个周复盘工具页行动入口，且带本条追踪参数",
+                "rule": (
+                    "每条内容仅一个周复盘工具页行动入口（或引导回复「复盘表」），"
+                    "且带本条追踪参数；无访谈 CTA"
+                ),
+            },
+            {
+                "id": "self_serve_funnel_only",
+                "rule": CONVERSION_FUNNEL_ZH + "；可公开订阅，无一对一/加微信/访谈",
+            },
+            {
+                "id": "professional_boundaries",
+                "rule": PROFESSIONAL_BOUNDARIES_ZH,
             },
             {
                 "id": "no_private_distribution",
@@ -184,6 +236,14 @@ def continue_stop_metrics() -> dict[str, Any]:
             {
                 "id": "private_channel_used",
                 "action": "立即停止该分发动作并回滚口径；本冲刺仅保留公众号与知乎公开面",
+            },
+            {
+                "id": "interview_or_one_to_one_cta",
+                "action": "停止发布该稿；改为自助「复盘表」/工具页 CTA",
+            },
+            {
+                "id": "employer_boundary_breach",
+                "action": "下架或改正文案；删除内部数据/客户/未公开案例/同事观点痕迹",
             },
             {
                 "id": "second_cta_or_raw_url_visible_on_wechat",
@@ -276,6 +336,12 @@ def _compliance_block() -> dict[str, Any]:
         "no_friends_circle": True,
         "no_groups": True,
         "no_personal_private_distribution": True,
+        "no_interview_cta": True,
+        "no_one_to_one_contact_ask": True,
+        "no_wechat_add_ask": True,
+        "no_company_or_site_identity_ask": True,
+        "conversion_funnel": CONVERSION_FUNNEL_ZH,
+        "professional_boundaries_zh": PROFESSIONAL_BOUNDARIES_ZH,
         "organic_only": True,
         "single_campaign": CAMPAIGN,
         "tool_page": TOOL_PAGE_URL,
@@ -656,15 +722,15 @@ def build_wechat_autoreply_packet() -> dict[str, Any]:
     welcome_paragraphs = [
         "欢迎关注零域研究。",
         "这里分享智能柜运营可执行清单与周复盘方法。",
-        f"回复「{KEYWORD_FUPAN}」，获取智能柜周经营复盘工具入口"
+        f"回复「{KEYWORD_FUPAN}」，即可自助打开智能柜周经营复盘工具"
         "（浏览器打开、本地计算，不上传经营数据）。",
-        CTA_SUPPORT_ZH + "。",
+        "可在工具页公开订阅经营清单。",
     ]
     keyword_paragraphs = [
         "智能柜周经营复盘工具：按五个过程指标对照本周与上周。",
         "在浏览器打开即可填写；数值只在本地计算，刷新即清空。",
         "这不是表格文件派发，也不提供行业均值下载。",
-        CTA_SUPPORT_ZH + "。",
+        "点下方入口自助使用；可公开订阅经营清单。",
     ]
 
     welcome_html = _wechat_reply_html(welcome_paragraphs, cta_url=welcome_url)
@@ -955,13 +1021,30 @@ def build_organic_experiment_ledger_update() -> dict[str, Any]:
             "impressions": None,
             "views": None,
             "tool_views": 0,
+            "keyword_replies": 0,
             "subscribe_click": 0,
             "subscribe_success": 0,
-            "interview_click": 0,
-            "replies": 0,
-            "interview_completed": 0,
-            "public_case_permissions": 0,
         },
+        "anonymous_metrics": {
+            "content_prep_on_time_rate": None,
+            "keyword_replies": 0,
+            "tool_views": 0,
+            "public_platform_favorites_delta": None,
+            "public_platform_likes_delta": None,
+            "public_platform_reads_delta": None,
+        },
+        "experiment_targets": {
+            "content_prep_on_time_rate": (
+                "计划内容按期准备率（草稿/配置就绪人工核对；未观测不填造）"
+            ),
+            "keyword_replies": "关键词「复盘表」回复数（公众号后台人工计数；未观测保持 0）",
+            "tool_views": "工具页访问（网站 tool_view / 人工录入；未观测保持 0）",
+            "public_platform_engagement_delta": (
+                "公开平台收藏/赞同/阅读变化（仅渠道报表新鲜时录入，否则保持 null，不虚构）"
+            ),
+        },
+        "conversion_funnel": CONVERSION_FUNNEL_ZH,
+        "professional_boundaries_zh": PROFESSIONAL_BOUNDARIES_ZH,
         "channel_observed": {
             "wechat_unique_readers": None,
             "wechat_overlapping_source_readers_sum": None,
@@ -1028,12 +1111,15 @@ def build_organic_experiment_ledger_update() -> dict[str, Any]:
         "notes": (
             "2026-08-15 organic sprint phase 1: public WeChat OA 贴图 + Zhihu rewrite + "
             "welcome/keyword「复盘表」. "
+            "Conversion: 公开内容 → 关注公众号 → 回复「复盘表」→ 自助周复盘工具. "
+            "No interview / one-to-one / WeChat-add / company-site identity asks. "
+            f"Professional boundaries: {PROFESSIONAL_BOUNDARIES_ZH} "
             "Browser manual ops verified: autoreply configured; WeChat 贴图 draft_saved "
             f"but schedule blocked ({WECHAT_BLOCK_REASON}); Zhihu draft_saved "
             f"(planned {ZHIHU_PLANNED_WINDOW}, web has no article schedule). "
             "No朋友圈, no groups, no personal/private distribution. "
             "No CDN/token/cookie recorded. "
-            "Keep channel_observed null until freshness gate passes. "
+            "Anonymous metrics only; keep channel deltas null until freshness gate passes. "
             "Do not claim Excel download for the weekly-review tool."
         ),
     }
@@ -1158,6 +1244,37 @@ def build_phase1_manifest(
     }
 
 
+def assert_no_forbidden_cta_terms(text: str) -> None:
+    blob = text or ""
+    for term in FORBIDDEN_CTA_TERMS:
+        if term in blob:
+            raise ValueError(f"forbidden CTA/outreach term detected: {term}")
+
+
+def assert_professional_boundaries_declared(compliance: dict[str, Any]) -> None:
+    if not compliance.get("professional_boundaries_zh"):
+        raise ValueError("professional boundaries must be declared")
+    if compliance.get("no_interview_cta") is not True:
+        raise ValueError("no_interview_cta must be true")
+    if compliance.get("no_one_to_one_contact_ask") is not True:
+        raise ValueError("no_one_to_one_contact_ask must be true")
+    if compliance.get("no_wechat_add_ask") is not True:
+        raise ValueError("no_wechat_add_ask must be true")
+    if compliance.get("no_company_or_site_identity_ask") is not True:
+        raise ValueError("no_company_or_site_identity_ask must be true")
+    boundaries = str(compliance.get("professional_boundaries_zh") or "")
+    for needle in (
+        "内部经营数据",
+        "客户名单",
+        "未公开案例",
+        "内部流程截图",
+        "同事观点",
+        "不以雇主名义",
+    ):
+        if needle not in boundaries:
+            raise ValueError(f"professional boundaries missing: {needle}")
+
+
 def assert_no_excel_download_claim(text: str) -> None:
     for pattern in EXCEL_CLAIM_PATTERNS:
         if pattern.search(text or ""):
@@ -1201,6 +1318,8 @@ def assert_wechat_visible_rules(*, title: str, visible_text: str, html: str, cta
     assert_single_tool_cta(html, cta_url)
     assert_no_excel_download_claim(visible_text)
     assert_no_excel_download_claim(visible_text_from_html(html))
+    assert_no_forbidden_cta_terms(visible_text)
+    assert_no_forbidden_cta_terms(visible_text_from_html(html))
 
 
 def validate_wechat_tieku_packet(packet: dict[str, Any]) -> None:
@@ -1215,6 +1334,9 @@ def validate_wechat_tieku_packet(packet: dict[str, Any]) -> None:
         cta_url=packet["cta"]["url"],
     )
     assert_no_forbidden_distribution(packet["visible_caption_zh"])
+    assert_no_forbidden_cta_terms(packet.get("cta", {}).get("copy") or "")
+    assert_no_forbidden_cta_terms(packet.get("body_markdown") or "")
+    assert_professional_boundaries_declared(packet.get("compliance") or {})
     if packet["image_status"] not in (IMAGE_STATUS, "images_ready"):
         raise ValueError(
             "image status must be awaiting_antigravity_images or images_ready"
@@ -1267,6 +1389,9 @@ def validate_zhihu_packet(packet: dict[str, Any]) -> None:
             raise ValueError("Zhihu body must not show a raw URL as its own line")
     if body.count(packet["cta"]["url"]) != 1:
         raise ValueError("Zhihu body must contain exactly one CTA URL")
+    assert_no_forbidden_cta_terms(body)
+    assert_no_forbidden_cta_terms(packet.get("cta", {}).get("copy") or "")
+    assert_professional_boundaries_declared(packet.get("compliance") or {})
     if packet["image_status"] not in (IMAGE_STATUS, "images_ready"):
         raise ValueError("image status must be awaiting_antigravity_images or images_ready")
 
@@ -1296,6 +1421,10 @@ def validate_autoreply_packet(packet: dict[str, Any]) -> None:
         raise ValueError("auto-reply must not imply a file download")
     if LATIN_TOKEN_RE.search(visible_text_from_html(welcome["html"])):
         raise ValueError("welcome visible text has Latin letters")
+    assert_no_forbidden_cta_terms(blob)
+    assert_professional_boundaries_declared(packet.get("compliance") or {})
+    if KEYWORD_FUPAN not in welcome["visible_text_zh"]:
+        raise ValueError("welcome must guide reply 复盘表")
 
 
 def validate_external_ops(ops: dict[str, Any]) -> None:

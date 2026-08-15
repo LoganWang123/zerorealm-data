@@ -24,7 +24,11 @@ from growth.ledger import (
     validate_ledger,
 )
 from growth.ops import generate_founder_growth_ops, build_weekly_decisions
-from growth.outreach import build_outreach_pack, empty_target_account_slots
+from growth.outreach import (
+    build_outreach_pack,
+    empty_target_account_slots,
+    render_outreach_markdown,
+)
 from growth.rates import format_rate, safe_rate
 from growth.scorecard import build_founder_scorecard, seed_ledger_from_baseline
 
@@ -78,8 +82,8 @@ def _mini_baseline() -> dict:
                 "actions": ["a"],
                 "metrics": ["m"],
                 "targets": {
-                    "wechat_unique_readers_14d": "相对本基线周均提升 ≥20%",
-                    "cta_events": "订阅/纠错/访谈意向合计 ≥ 5（人工计数）",
+                    "content_prep_on_time_rate": "计划内容按期准备率",
+                    "keyword_replies": "关键词「复盘表」回复数",
                 },
             }
         ],
@@ -127,15 +131,15 @@ class TestLedgerSchemaAndFunnel:
             "impressions",
             "views",
             "tool_views",
+            "keyword_replies",
             "subscribe_click",
             "subscribe_success",
-            "interview_click",
-            "replies",
-            "interview_completed",
-            "public_case_permissions",
         ):
             assert key in slots
         assert set(FUNNEL_SLOT_KEYS) == set(slots)
+        assert "interview_click" not in slots
+        assert "interview_completed" not in slots
+        assert "public_case_permissions" not in slots
 
     def test_schema_rejects_pii_flag(self):
         ledger = default_ledger_template()
@@ -151,6 +155,7 @@ class TestLedgerSchemaAndFunnel:
             assert funnel["rates_display"][key] == "n/a (zero/missing denominator)"
         assert set(funnel["zero_denominator_slots"]) == set(FUNNEL_RATE_KEYS)
         assert "unique_to_tool" not in funnel["rates"]
+        assert "tool_to_interview_click" not in funnel["rates"]
 
     def test_filled_period_rates(self):
         ledger = default_ledger_template()
@@ -159,10 +164,9 @@ class TestLedgerSchemaAndFunnel:
                 "impressions": 100,
                 "views": 40,
                 "tool_views": 10,
+                "keyword_replies": 5,
                 "subscribe_click": 4,
                 "subscribe_success": 2,
-                "interview_click": 3,
-                "replies": 1,
             }
         )
         funnel = compute_funnel_rates(ledger)
@@ -170,10 +174,21 @@ class TestLedgerSchemaAndFunnel:
         assert funnel["rates"]["view_to_tool"] == 0.25
         assert funnel["rates"]["tool_to_subscribe_click"] == 0.4
         assert funnel["rates"]["subscribe_click_to_success"] == 0.5
-        assert funnel["rates"]["tool_to_interview_click"] == 0.3
-        assert funnel["rates"]["interview_click_to_reply"] == pytest.approx(1 / 3)
         assert funnel["zero_denominator_slots"] == []
         assert funnel["website_event_map"]["tool_views"] == "tool_view"
+        assert funnel["counts"]["keyword_replies"] == 5
+
+    def test_anonymous_experiment_targets(self):
+        ledger = default_ledger_template()
+        targets = ledger["experiment_targets"]
+        assert "content_prep_on_time_rate" in targets
+        assert "keyword_replies" in targets
+        assert "tool_views" in targets
+        assert "public_platform_engagement_delta" in targets
+        assert "cta_events" not in targets
+        blob = json.dumps(targets, ensure_ascii=False)
+        assert "访谈" not in blob
+        assert "交流线索" not in blob
 
     def test_overlap_and_attribution_alerts_current_period(self):
         ledger = default_ledger_template()
@@ -261,12 +276,12 @@ class TestScorecard:
             "impressions",
             "views",
             "tool_views",
+            "keyword_replies",
             "subscribe_click",
             "subscribe_success",
-            "interview_click",
-            "replies",
         ):
             assert key in slots
+        assert "interview_click" not in slots
 
     def test_seed_ledger_deterministic(self):
         baseline = _mini_baseline()
@@ -290,6 +305,11 @@ class TestCombatPack:
         assert "五指标周复盘工具" in themes
         assert "缺货排查" in themes
         assert "运营决策清单" in themes
+        assert "self_serve_ops" in a["hour_breakdown"]
+        assert "outreach_slots" not in a["hour_breakdown"]
+        blob = json.dumps(a, ensure_ascii=False)
+        assert "预约运营商访谈" not in blob
+        assert "访谈意向" not in blob
 
     def test_cta_url_and_utm_per_piece(self):
         pack = build_combat_pack(start_date="2026-08-13")
@@ -303,6 +323,8 @@ class TestCombatPack:
             assert piece["search_intent"]
             assert piece["structure"]
             assert piece["cta"]
+            assert "访谈" not in piece["cta"]
+            assert "复盘表" in piece["cta"] or "周复盘工具" in piece["cta"]
 
         # Spot-check known utm_content values.
         by_id = {p["id"]: p for p in pack["pieces"]}
@@ -322,6 +344,7 @@ class TestCombatPack:
         assert "不自动发布" in md
         assert TOOL_PAGE_URL in md
         assert "CTA URL（可复制）" in md
+        assert "预约运营商访谈" not in md
         for piece in pack["pieces"]:
             assert piece["cta_url"] in md
 
@@ -330,14 +353,21 @@ class TestOutreach:
     def test_empty_slots_no_fabricated_names(self):
         slots = empty_target_account_slots(week_label="2026-W33", count=4)
         assert len(slots) == 4
-        assert all(slot["account_or_org"] == "" for slot in slots)
+        assert all(slot.get("surface", "") == "" for slot in slots)
         assert all(slot["status"] == "empty" for slot in slots)
+        assert all("访谈" not in slot["ask"] for slot in slots)
 
     def test_slots_bounds(self):
         with pytest.raises(ValueError):
             empty_target_account_slots(week_label="x", count=2)
         pack = build_outreach_pack(slots_per_week=3)
         assert len(pack["weekly_target_slots"]["2026-W33"]) == 3
+        assert "professional_boundaries" in pack
+        assert "interview_template" not in pack
+        md = render_outreach_markdown(pack)
+        assert "职业边界" in md
+        assert "复盘表" in md
+        assert "预约运营商访谈" not in md
 
 
 class TestOpsBundle:
@@ -363,6 +393,10 @@ class TestOpsBundle:
         assert "use_unique_readers_only" in ids
         assert "no_auto_publish" in ids
         assert "use_piece_cta_url" in ids
+        assert "self_serve_funnel_only" in ids
+        assert "outreach_empty_slots" not in ids
+        decision_blob = json.dumps(decisions, ensure_ascii=False)
+        assert "预约运营商访谈" not in decision_blob
 
     def test_real_baseline_file_if_present(self):
         if not BASELINE_PATH.is_file():
@@ -395,6 +429,10 @@ class TestOpsBundle:
             display.startswith("n/a")
             for display in bundle["funnel"]["rates_display"].values()
         )
+        assert "interview_click" not in bundle["ledger"]["funnel_manual"]
+        targets = bundle["ledger"]["experiment_targets"]
+        assert "keyword_replies" in targets
+        assert "cta_events" not in targets
 
     def test_weekly_decisions_include_funnel_display(self):
         baseline = _mini_baseline()

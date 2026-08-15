@@ -14,6 +14,7 @@ from typing import Any
 
 from growth.ledger import (
     compute_funnel_rates,
+    default_experiment_targets,
     default_ledger_template,
     derive_ledger_alerts,
     validate_ledger,
@@ -74,19 +75,17 @@ def seed_ledger_from_baseline(
     """
     ledger = default_ledger_template(start=start, end=end)
 
-    targets: dict[str, str] = {}
+    targets = default_experiment_targets()
     for experiment in baseline.get("experiments_14d", []):
         for key, value in experiment.get("targets", {}).items():
-            targets[key] = value
-    if targets:
-        ledger["experiment_targets"] = {
-            key: (
+            if key not in targets:
+                continue
+            targets[key] = (
                 value
                 if "行业" in value or "内部" in value or "实验" in value
                 else f"{value}（内部实验目标，非行业基准）"
             )
-            for key, value in targets.items()
-        }
+    ledger["experiment_targets"] = targets
 
     ledger["alerts"] = derive_ledger_alerts(ledger)
     ledger["notes"] = (
@@ -208,8 +207,8 @@ def build_founder_scorecard(
             "禁止跨周期漏斗：基线人数不可作当期分母。",
             "当期 impressions/views 未录入或分母为 0 时转化率为 n/a。",
             "漏斗事件字段对齐网站 tool_view / subscribe_click / "
-            "subscribe_success / interview_click。",
-            "目标为内部实验目标，不是行业基准。",
+            "subscribe_success，以及公众号关键词「复盘表」回复数。",
+            "目标为可匿名观测的内部实验目标，不是行业基准；无访谈线索目标。",
         ],
     }
     return scorecard
@@ -269,12 +268,12 @@ def render_scorecard_markdown(scorecard: dict[str, Any]) -> str:
     lines.extend(
         [
             "",
-            "### 当期漏斗计数（网站事件对齐）",
+            "### 当期漏斗计数（可匿名观测）",
             "",
             "- 字段：`impressions` / `views`（未录入默认 null）+"
-            "`tool_views`（网站 `tool_view`）/ `subscribe_click` / "
-            "`subscribe_success` / `interview_click` / `replies`；"
-            "另保留 `interview_completed` / `public_case_permissions`。",
+            "`tool_views`（网站 `tool_view`）/ `keyword_replies`（「复盘表」）/ "
+            "`subscribe_click` / `subscribe_success`。"
+            "无访谈/一对一线索计数。",
             "",
         ]
     )

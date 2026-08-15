@@ -14,12 +14,9 @@
     "impressions": null,
     "views": null,
     "tool_views": 0,
+    "keyword_replies": 0,
     "subscribe_click": 0,
-    "subscribe_success": 0,
-    "interview_click": 0,
-    "replies": 0,
-    "interview_completed": 0,
-    "public_case_permissions": 0
+    "subscribe_success": 0
   },
   "channel_observed": {
     "wechat_unique_readers": null,
@@ -31,12 +28,11 @@
     "zhihu_article_level_attribution_available": false
   },
   "experiment_targets": {
-    "wechat_unique_readers_14d": "相对基线周均提升 ≥20%（内部实验目标，非行业基准）",
-    "wechat_share_or_original_link": "14天内分享+阅读原文合计 ≥ 8",
-    "zhihu_nonzero_read_days": "14天内非零阅读日 ≥ 10",
-    "zhihu_reads_14d": "≥ 350（相对基线窗口温和抬升）",
-    "cta_events": "tool_view / subscribe_click / interview_click 等网站事件合计 ≥ 5（人工录入当期台账）"
+    "content_prep_on_time_rate": "计划内容按期准备率（草稿/配置就绪人工核对；未观测不填造）",
+    "keyword_replies": "关键词「复盘表」回复数（公众号后台人工计数；未观测保持 0）",
+    "tool_views": "工具页访问（网站 tool_view / 人工录入；未观测保持 0）",
+    "public_platform_engagement_delta": "公开平台收藏/赞同/阅读变化（仅渠道报表新鲜时录入，否则保持 null，不虚构）"
   },
   "alerts": [],
-  "notes": "2026-08-15 cadence: reject one WeChat/week; execute wechat_2/week + zhihu_1_reuse/week per docs/reports/ceo-publish-distribution-plan-2026-08-15.md and data/growth/ceo-publish-plan-2026-08-15.json. Channel reports were stale at ops retrospective (wechat period_end 2026-08-12); keep channel_observed null until freshness gate passes. Do not copy baseline unique readers into this ledger. 2026-08-15 organic sprint phase 1: OA 贴图 draft_saved/blocked (admin_qr_verification_required) + Zhihu draft_saved (planned 2026-08-18 20:30, web no schedule) + welcome/keyword「复盘表」configured; organic-only (no朋友圈/groups/private); drafts are not scheduled/published; see data/growth/organic-only-schedule-2026-08-15.json and data/growth/organic-experiment-ledger-2026-08-15.json."
+  "notes": "2026-08-15 cadence: reject one WeChat/week; execute wechat_2/week + zhihu_1_reuse/week per docs/reports/ceo-publish-distribution-plan-2026-08-15.md and data/growth/ceo-publish-plan-2026-08-15.json. Channel reports were stale at ops retrospective (wechat period_end 2026-08-12); keep channel_observed null until freshness gate passes. Do not copy baseline unique readers into this ledger. 2026-08-15 organic sprint phase 1: OA 贴图 draft_saved/blocked (admin_qr_verification_required) + Zhihu draft_saved (planned 2026-08-18 20:30, web no schedule) + welcome/keyword「复盘表」configured; self-serve funnel only (no interview / one-to-one); drafts are not scheduled/published; see data/growth/organic-only-schedule-2026-08-15.json and data/growth/organic-experiment-ledger-2026-08-15.json."
 }

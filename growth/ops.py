@@ -56,20 +56,23 @@ def build_weekly_decisions(
             "id": "fill_manual_funnel",
             "priority": 2,
             "decision": (
-                "只录入当期台账：impressions/views 与网站事件 "
-                "tool_views(tool_view)/subscribe_click/subscribe_success/"
-                "interview_click/replies；零或缺失分母转化率记为 n/a；"
-                "禁止把基线人数当当期分母。"
+                "只录入可匿名观测台账：内容按期准备率、关键词「复盘表」回复数、"
+                "工具页访问、公开平台收藏/赞同/阅读变化；"
+                "以及 impressions/views 与 subscribe_click/subscribe_success；"
+                "零或缺失分母转化率记为 n/a；禁止把基线人数当当期分母；不记录访谈线索。"
             ),
             "because": (
                 f"当前 n/a 槽位: {', '.join(zero_slots) if zero_slots else '无'}。"
             ),
         },
         {
-            "id": "outreach_empty_slots",
+            "id": "self_serve_funnel_only",
             "priority": 3,
-            "decision": "填写本周 3–5 个目标账户空槽；无对象则保持空白，禁止虚构名称。",
-            "because": "外联是漏斗后段唯一来源，且不得自动发布。",
+            "decision": (
+                "转化只走公开内容 → 关注公众号 → 回复「复盘表」→ 自助周复盘工具；"
+                "可公开订阅；禁止一对一联系、加微信、访谈或索取公司/点位身份。"
+            ),
+            "because": "创始人仍在智能柜公司任职，不适合开展运营商访谈。",
         },
         {
             "id": "no_auto_publish",
@@ -81,10 +84,10 @@ def build_weekly_decisions(
             "id": "use_piece_cta_url",
             "priority": 2,
             "decision": (
-                "发布时粘贴该条可复制 CTA URL"
-                "（工具页 + 本条 UTM）；订阅/访谈入口在工具页内。"
+                "发布时粘贴该条可复制 CTA URL（工具页 + 本条 UTM）；"
+                "文案唯一行动为回复「复盘表」或打开自助工具。"
             ),
-            "because": "combat_pack 每条含 cta_url，禁止只用泛化文案。",
+            "because": "combat_pack 每条含 cta_url，禁止再用访谈 CTA。",
         },
     ]
 

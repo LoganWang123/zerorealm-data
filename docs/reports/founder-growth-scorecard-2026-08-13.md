@@ -1,13 +1,6 @@
 # Founder Growth Scorecard（founder_14d_2026-08-13）
 
-> 生成日期：2026-08-13。仅聚合指标与手工漏斗计数；未复制原始报表，未记录用户 PII。目标为内部实验目标，非行业基准。**baseline_snapshot 只读参照；current_experiment 为当期台账；禁止跨周期漏斗。**
-
-## 运营附注（2026-08-15 更新，非当期结果）
-
-- 节奏决策：`reject_one_wechat_per_week` → 维持 **微信每周约 2 篇工具/清单 + 知乎每周 1 篇改写**（详见 `docs/reports/ceo-publish-distribution-plan-2026-08-15.md`）。
-- 基线新鲜度（复盘日 2026-08-15）：微信 tendency 至 **2026-08-12**（stale，lag=3）；知乎至 **2026-08-13**（stale，lag=2）。**未**把基线唯一阅读写入 `current_experiment`。
-- 当期渠道计数仍全为 **null**；官网漏斗手工事件仍为 0 / n/a。禁止在报表 fresh 前声称阅读提升。
-- P0 仍为：导入覆盖实验窗的新鲜渠道报表（`import_fresh_channel_reports_7d`）；Stop 检查点 **2026-08-22**。
+> 生成日期：2026-08-15。仅聚合指标与手工漏斗计数；未复制原始报表，未记录用户 PII。目标为内部实验目标，非行业基准。**baseline_snapshot 只读参照；current_experiment 为当期台账；禁止跨周期漏斗。**
 
 ## baseline_snapshot（只读历史参照）
 
@@ -46,19 +39,16 @@
 - `zhihu_engagement`: null
 - `zhihu_article_level_attribution_available`: False
 
-### 当期漏斗计数（网站事件对齐）
+### 当期漏斗计数（可匿名观测）
 
-- 字段：`impressions` / `views`（未录入默认 null）+`tool_views`（网站 `tool_view`）/ `subscribe_click` / `subscribe_success` / `interview_click` / `replies`；另保留 `interview_completed` / `public_case_permissions`。
+- 字段：`impressions` / `views`（未录入默认 null）+`tool_views`（网站 `tool_view`）/ `keyword_replies`（「复盘表」）/ `subscribe_click` / `subscribe_success`。无访谈/一对一线索计数。
 
 - `impressions`: null
 - `views`: null
 - `tool_views`: 0
+- `keyword_replies`: 0
 - `subscribe_click`: 0
 - `subscribe_success`: 0
-- `interview_click`: 0
-- `replies`: 0
-- `interview_completed`: 0
-- `public_case_permissions`: 0
 
 ### 当期漏斗转化率（零/缺失分母 → n/a）
 
@@ -66,17 +56,13 @@
 - `view_to_tool`: n/a (zero/missing denominator)
 - `tool_to_subscribe_click`: n/a (zero/missing denominator)
 - `subscribe_click_to_success`: n/a (zero/missing denominator)
-- `tool_to_interview_click`: n/a (zero/missing denominator)
-- `interview_click_to_reply`: n/a (zero/missing denominator)
 
 ## 内部实验目标（非行业基准）
 
-- `wechat_unique_readers_14d`: 相对本基线周均提升 ≥20%（小样本，仅作实验目标）
-- `wechat_share_or_original_link`: 14天内分享+阅读原文合计 ≥ 8（内部实验目标，非行业基准）
-- `zhihu_nonzero_read_days`: 14天内非零阅读日 ≥ 10（内部实验目标，非行业基准）
-- `cta_events`: 订阅/纠错/访谈意向合计 ≥ 5（人工计数）（内部实验目标，非行业基准）
-- `zhihu_reads_14d`: ≥ 350（相对本基线窗口 305 的温和抬升目标）（内部实验目标，非行业基准）
-- `zhihu_engagement_14d`: 赞+藏+分享合计 ≥ 12（内部实验目标，非行业基准）
+- `content_prep_on_time_rate`: 计划内容按期准备率（人工核对；未观测不填造）（内部实验目标，非行业基准）
+- `keyword_replies`: 关键词「复盘表」回复数（公众号后台人工计数）（内部实验目标，非行业基准）
+- `tool_views`: 工具页访问（网站 tool_view / 人工录入）（内部实验目标，非行业基准）
+- `public_platform_engagement_delta`: 公开平台收藏/赞同/阅读变化（仅报表新鲜时录入，否则 null）（内部实验目标，非行业基准）
 
 ## 告警
 
@@ -91,5 +77,5 @@
 - 知乎缺文章级归因。
 - 禁止跨周期漏斗：基线人数不可作当期分母。
 - 当期 impressions/views 未录入或分母为 0 时转化率为 n/a。
-- 漏斗事件字段对齐网站 tool_view / subscribe_click / subscribe_success / interview_click。
-- 目标为内部实验目标，不是行业基准。
+- 漏斗事件字段对齐网站 tool_view / subscribe_click / subscribe_success，以及公众号关键词「复盘表」回复数。
+- 目标为可匿名观测的内部实验目标，不是行业基准；无访谈线索目标。

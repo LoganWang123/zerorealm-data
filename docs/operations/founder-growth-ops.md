@@ -64,9 +64,9 @@ python scripts/build_ops_retrospective.py \
 - **禁止跨周期漏斗**：`baseline_snapshot` 只读历史参照；`current_experiment` 才是当期台账。默认生成时 `channel_observed` 为 `null`、事件 counters 为 `0`；**不得**把基线微信 unique 等人数当作当期漏斗分母。
 - 微信 **“全部”** = 唯一阅读人数；搜一搜/推荐等 **可重叠**，禁止相加。
 - 知乎默认 **无文章级归因** → scorecard / 台账会打出 `zhihu_missing_article_attribution` 告警。
-- 台账事件字段对齐网站：`tool_views`（网站 `tool_view`）、`subscribe_click`、`subscribe_success`、`interview_click`，另有 `impressions` / `views` / `replies`；可保留 `interview_completed` / `public_case_permissions`。
-- 漏斗率：`impression_to_view`、`view_to_tool`、`tool_to_subscribe_click`、`subscribe_click_to_success`、`tool_to_interview_click`、`interview_click_to_reply`；**零或缺失分母**为 `n/a`，不是 `0%`。
-- 作战包每条内容给出可复制 **CTA URL**：`https://zerorealm.tech/tools/smart-cabinet-weekly-review` + 该条 UTM；订阅/访谈入口在工具页内。
+- 台账事件字段对齐网站：`tool_views`（网站 `tool_view`）、`subscribe_click`、`subscribe_success`、`keyword_replies`，另有 `impressions` / `views` / `replies`；可保留 `keyword_replies` / `public_case_permissions`。
+- 漏斗率：`impression_to_view`、`view_to_tool`、`tool_to_subscribe_click`、`subscribe_click_to_success`、`tool_to_keyword_replies`、`keyword_replies_to_reply`；**零或缺失分母**为 `n/a`，不是 `0%`。
+- 作战包每条内容给出可复制 **CTA URL**：`https://zerorealm.tech/tools/smart-cabinet-weekly-review` + 该条 UTM；回复「复盘表」或打开自助工具。
 - 量化目标是 **内部实验目标**，不是行业基准。
 - 不从小样本推因果；命令不触发任何渠道发布。
 
