@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "period": {
+    "start": "2026-08-13",
+    "end": "2026-08-26",
+    "label": "founder_14d_2026-08-13"
+  },
+  "organic_only": true,
+  "privacy": {
+    "raw_reports_copied": false,
+    "user_pii_recorded": false,
+    "contents": "aggregates_and_manual_counts_only"
+  },
+  "distribution_policy": {
+    "friends_circle": false,
+    "groups": false,
+    "personal_private": false,
+    "allowed_surfaces": [
+      "wechat_official_account",
+      "zhihu_public"
+    ]
+  },
+  "funnel_manual": {
+    "impressions": null,
+    "views": null,
+    "tool_views": 0,
+    "subscribe_click": 0,
+    "subscribe_success": 0,
+    "interview_click": 0,
+    "replies": 0,
+    "interview_completed": 0,
+    "public_case_permissions": 0
+  },
+  "channel_observed": {
+    "wechat_unique_readers": null,
+    "wechat_overlapping_source_readers_sum": null,
+    "wechat_share_people": null,
+    "wechat_original_link_people": null,
+    "zhihu_reads": null,
+    "zhihu_engagement": null,
+    "zhihu_article_level_attribution_available": false
+  },
+  "organic_phase1": {
+    "ops_date": "2026-08-15",
+    "pieces": [
+      {
+        "piece_id": "o1-wechat-stockout-tieku",
+        "date": "2026-08-17",
+        "title": "柜机缺货先查这7步"
+      },
+      {
+        "piece_id": "o1-zhihu-inventory-stockout",
+        "date": "2026-08-18",
+        "title": "库存显示有货，为什么柜机还是缺货？"
+      },
+      {
+        "piece_id": "o1-wechat-autoreply-fupan",
+        "keyword": "复盘表",
+        "config_ready_date": "2026-08-15"
+      }
+    ]
+  },
+  "alerts": [],
+  "notes": "2026-08-15 organic sprint phase 1: public WeChat OA 贴图 + Zhihu rewrite + welcome/keyword「复盘表」config packets only. No朋友圈, no groups, no personal/private distribution. No external WeChat/Zhihu mutation in phase 1. Keep channel_observed null until freshness gate passes. Do not claim Excel download for the weekly-review tool."
+}

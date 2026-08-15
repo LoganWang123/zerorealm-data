@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "schedule_id": "organic_only_2026-08-15",
+  "approved": true,
+  "ops_date": "2026-08-15",
+  "tz": "Asia/Shanghai",
+  "distribution_policy": {
+    "allowed": [
+      "wechat_official_account",
+      "zhihu_public"
+    ],
+    "forbidden": [
+      "朋友圈",
+      "微信群",
+      "社群",
+      "个人号私发",
+      "私域群发",
+      "一对一私发清单"
+    ],
+    "friends_circle": false,
+    "groups": false,
+    "personal_private": false
+  },
+  "experiment_continuity": {
+    "ledger_label": "founder_14d_2026-08-13",
+    "utm_campaign": "founder14d_20260813",
+    "tool_page": "https://zerorealm.tech/tools/smart-cabinet-weekly-review"
+  },
+  "calendar": [
+    {
+      "date": "2026-08-15",
+      "channel": "wechat",
+      "action": "prepare_autoreply_config_packet",
+      "piece_id": "o1-wechat-autoreply-fupan",
+      "status": "production_ready_config"
+    },
+    {
+      "date": "2026-08-17",
+      "channel": "wechat",
+      "action": "publish_image_post_tieku",
+      "piece_id": "o1-wechat-stockout-tieku",
+      "title": "柜机缺货先查这7步",
+      "status": "production_ready_awaiting_images"
+    },
+    {
+      "date": "2026-08-18",
+      "channel": "zhihu",
+      "action": "publish_scenario_rewrite",
+      "piece_id": "o1-zhihu-inventory-stockout",
+      "title": "库存显示有货，为什么柜机还是缺货？",
+      "status": "production_ready_awaiting_images"
+    }
+  ],
+  "single_cta_rule": {
+    "tool_page": "https://zerorealm.tech/tools/smart-cabinet-weekly-review",
+    "campaign": "founder14d_20260813",
+    "max_cta_per_piece": 1
+  },
+  "image_status": "awaiting_antigravity_images",
+  "external_state_mutated": false,
+  "llm_api_used": false
+}

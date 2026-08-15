@@ -38,5 +38,5 @@
     "cta_events": "tool_view / subscribe_click / interview_click 等网站事件合计 ≥ 5（人工录入当期台账）"
   },
   "alerts": [],
-  "notes": "2026-08-15 cadence: reject one WeChat/week; execute wechat_2/week + zhihu_1_reuse/week per docs/reports/ceo-publish-distribution-plan-2026-08-15.md and data/growth/ceo-publish-plan-2026-08-15.json. Channel reports were stale at ops retrospective (wechat period_end 2026-08-12); keep channel_observed null until freshness gate passes. Do not copy baseline unique readers into this ledger."
+  "notes": "2026-08-15 cadence: reject one WeChat/week; execute wechat_2/week + zhihu_1_reuse/week per docs/reports/ceo-publish-distribution-plan-2026-08-15.md and data/growth/ceo-publish-plan-2026-08-15.json. Channel reports were stale at ops retrospective (wechat period_end 2026-08-12); keep channel_observed null until freshness gate passes. Do not copy baseline unique readers into this ledger. 2026-08-15 organic sprint phase 1 approved: OA 贴图 2026-08-17《柜机缺货先查这7步》 + Zhihu 2026-08-18《库存显示有货，为什么柜机还是缺货？》 + welcome/keyword「复盘表」config; organic-only (no朋友圈/groups/private); see data/growth/organic-only-schedule-2026-08-15.json and data/growth/organic-experiment-ledger-2026-08-15.json."
 }

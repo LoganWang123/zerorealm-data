@@ -1,0 +1,380 @@
+{
+  "schema_version": 1,
+  "ops_date": "2026-08-15",
+  "phase": 1,
+  "piece_id": "o1-wechat-stockout-tieku",
+  "channel": "wechat",
+  "format": "image_post_tieku",
+  "action": "production_ready_packet",
+  "schedule_intent": {
+    "publish_date": "2026-08-17",
+    "tz": "Asia/Shanghai",
+    "surface": "wechat_official_account_only",
+    "forbidden_surfaces": [
+      "朋友圈",
+      "微信群",
+      "社群",
+      "个人号私发",
+      "私域群发",
+      "一对一私发清单"
+    ],
+    "auto_publish": false
+  },
+  "status": "production_ready_awaiting_images",
+  "title": "柜机缺货先查这7步",
+  "excerpt": "柜机缺货先别盲目加补。用七步分清信号与真实缺货，再决定补货、调货或进入选品复盘。",
+  "digest": "柜机缺货先别盲目加补。用七步分清信号与真实缺货，再决定补货、调货或进入选品复盘。",
+  "tags": [
+    "智能柜",
+    "缺货",
+    "补货",
+    "运营清单",
+    "周复盘"
+  ],
+  "platform_formatting": {
+    "style": "wechat_image_post_tieku",
+    "panel_count": 7,
+    "caption_max_hint": "短文案 + 七图叠字；可见文案仅中文",
+    "cta_rendering": "single_anchor_button_no_raw_url",
+    "sections": [
+      "先定性：是信号噪声，还是真实缺货",
+      "核对库存口径与账实，先校正再加补",
+      "确认是否畅销货品反复断货",
+      "检查补货任务是否超时",
+      "确认设备在线可售",
+      "检查点位与货品是否错配",
+      "选定主动作，并写下停止规则"
+    ],
+    "wechat_notes": [
+      "仅公众号公开贴图/图文",
+      "禁止朋友圈、群、个人号私发",
+      "人工审核后发布；本阶段不调用外部接口改状态"
+    ]
+  },
+  "body_markdown": "# 柜机缺货先查这7步\n\n> 公开号贴图稿 · 计划发布日 2026-08-17（亚洲/上海）\n> 仅公众号公开面；禁止朋友圈、微信群/社群、个人号私发。\n> 口径：零域参考 / 企业内部实验口径，非行业统一标准。\n> 本包为生产就绪文案；位图状态：等待 Antigravity 出图。禁止本阶段调用外部接口改状态。\n\n## 贴图主旨\n\n柜机报警缺货，不等于立刻该补同一货品。先按七步排查，再决定补货、调货或复盘选品。\n\n## 七图叠字（按序）\n\n1. 先定性：是信号噪声，还是真实缺货\n2. 核对库存口径与账实，先校正再加补\n3. 确认是否畅销货品反复断货\n4. 检查补货任务是否超时\n5. 确认设备在线可售\n6. 检查点位与货品是否错配\n7. 选定主动作，并写下停止规则\n\n## 停止规则（写入周复盘）\n\n若同一货品连续两周出现真实缺货，仍不调货、不换品、不改安全库存，则本周强制进入选品与结构复盘，而不是第三次原样加补。\n\n## 唯一行动入口\n\n打开智能柜周经营复盘工具页；订阅经营清单与预约运营商访谈入口在工具页内（人工跟进，不自动群发）。\n\n可见文案只保留中文按钮「打开智能柜周复盘工具页」；追踪参数写在链接属性中，不把完整网址写成可见纯文本。\n",
+  "visible_caption_zh": "【柜机缺货先查这7步】\n柜机报警缺货，不等于立刻该补同一货品。先按七步排查，再决定补货、调货或复盘选品。\n1）先定性：是信号噪声，还是真实缺货；2）核对库存口径与账实，先校正再加补；3）确认是否畅销货品反复断货；4）检查补货任务是否超时；5）确认设备在线可售；6）检查点位与货品是否错配；7）选定主动作，并写下停止规则。\n打开智能柜周经营复盘工具页；订阅经营清单与预约运营商访谈入口在工具页内（人工跟进，不自动群发）。\n点这里：打开智能柜周复盘工具页",
+  "html_caption": "<p>【柜机缺货先查这7步】<br/>柜机报警缺货，不等于立刻该补同一货品。先按七步排查，再决定补货、调货或复盘选品。<br/>1）先定性：是信号噪声，还是真实缺货；2）核对库存口径与账实，先校正再加补；3）确认是否畅销货品反复断货；4）检查补货任务是否超时；5）确认设备在线可售；6）检查点位与货品是否错配；7）选定主动作，并写下停止规则。<br/>打开智能柜周经营复盘工具页；订阅经营清单与预约运营商访谈入口在工具页内（人工跟进，不自动群发）。<br/>点这里：<a href=\"https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=wechat&utm_medium=image_post&utm_campaign=founder14d_20260813&utm_content=stockout_7steps_tieku\">打开智能柜周复盘工具页</a></p>",
+  "cta": {
+    "copy": "打开智能柜周经营复盘工具页；订阅经营清单与预约运营商访谈入口在工具页内（人工跟进，不自动群发）",
+    "button_text": "打开智能柜周复盘工具页",
+    "url": "https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=wechat&utm_medium=image_post&utm_campaign=founder14d_20260813&utm_content=stockout_7steps_tieku",
+    "utm": "utm_source=wechat&utm_medium=image_post&utm_campaign=founder14d_20260813&utm_content=stockout_7steps_tieku",
+    "tool_page": "https://zerorealm.tech/tools/smart-cabinet-weekly-review",
+    "campaign": "founder14d_20260813",
+    "utm_content": "stockout_7steps_tieku",
+    "tracking_id": "organic_20260817_wechat_tieku_stockout7",
+    "max_per_piece": 1
+  },
+  "compliance": {
+    "fact_inference_opinion": "口径为零域参考 / 企业内部实验口径，不是行业统一标准；文中区分事实、推断与观点。",
+    "no_investment_advice": true,
+    "no_fake_benchmarks": true,
+    "no_second_cta": true,
+    "no_raw_visible_urls_on_wechat": true,
+    "wechat_visible_text_chinese_only": true,
+    "no_excel_download_claim": true,
+    "no_friends_circle": true,
+    "no_groups": true,
+    "no_personal_private_distribution": true,
+    "organic_only": true,
+    "single_campaign": "founder14d_20260813",
+    "tool_page": "https://zerorealm.tech/tools/smart-cabinet-weekly-review",
+    "auto_publish": false,
+    "llm_api_used": false,
+    "external_state_mutated": false
+  },
+  "image_briefs": [
+    {
+      "content_id": "o1-wechat-stockout-tieku",
+      "channel": "wechat",
+      "purpose": "cover",
+      "status": "awaiting_antigravity_images",
+      "aspect_ratio": "1:1",
+      "width": 1080,
+      "height": 1080,
+      "subject": "零域研究贴图视觉：柜机缺货先查这7步",
+      "must_include": [
+        "智能柜 / 终端履约现场",
+        "真实光照",
+        "克制纪录片式商业摄影感"
+      ],
+      "must_avoid": [
+        "虚构仪表盘百分比",
+        "霓虹赛博风",
+        "机器人手",
+        "水印",
+        "虚构品牌标识",
+        "表情符号",
+        "朋友圈九宫格私域暗示"
+      ],
+      "text_overlay": {
+        "primary": "柜机缺货先查这7步",
+        "secondary": "公开号贴图 · 七步排查",
+        "privacy_note": "浏览器本地计算 · 不上传"
+      },
+      "prompt_zh": "为「柜机缺货先查这7步」生成克制的智能柜运营贴图。场景围绕柜机补货、点位巡检或账实核对；专业真实，无科幻机器人，无霓虹科技风；若叠字仅用 brief 中文，勿虚构排名或行业均值。",
+      "color_hint": "#2563EB 冷蓝白",
+      "owner": "antigravity",
+      "note": "Cursor 只准备 briefs；Antigravity 生成位图。"
+    },
+    {
+      "content_id": "o1-wechat-stockout-tieku",
+      "channel": "wechat",
+      "purpose": "tieku_panel",
+      "status": "awaiting_antigravity_images",
+      "aspect_ratio": "4:5",
+      "width": 1080,
+      "height": 1350,
+      "subject": "零域研究贴图视觉：柜机缺货先查这7步",
+      "must_include": [
+        "智能柜 / 终端履约现场",
+        "真实光照",
+        "克制纪录片式商业摄影感"
+      ],
+      "must_avoid": [
+        "虚构仪表盘百分比",
+        "霓虹赛博风",
+        "机器人手",
+        "水印",
+        "虚构品牌标识",
+        "表情符号",
+        "朋友圈九宫格私域暗示"
+      ],
+      "text_overlay": {
+        "primary": "第1步",
+        "secondary": "先定性：是信号噪声，还是真实缺货",
+        "privacy_note": "浏览器本地计算 · 不上传"
+      },
+      "prompt_zh": "为「柜机缺货先查这7步」生成克制的智能柜运营贴图。场景围绕柜机补货、点位巡检或账实核对；专业真实，无科幻机器人，无霓虹科技风；若叠字仅用 brief 中文，勿虚构排名或行业均值。",
+      "color_hint": "#2563EB 冷蓝白",
+      "owner": "antigravity",
+      "note": "Cursor 只准备 briefs；Antigravity 生成位图。",
+      "panel_index": 1
+    },
+    {
+      "content_id": "o1-wechat-stockout-tieku",
+      "channel": "wechat",
+      "purpose": "tieku_panel",
+      "status": "awaiting_antigravity_images",
+      "aspect_ratio": "4:5",
+      "width": 1080,
+      "height": 1350,
+      "subject": "零域研究贴图视觉：柜机缺货先查这7步",
+      "must_include": [
+        "智能柜 / 终端履约现场",
+        "真实光照",
+        "克制纪录片式商业摄影感"
+      ],
+      "must_avoid": [
+        "虚构仪表盘百分比",
+        "霓虹赛博风",
+        "机器人手",
+        "水印",
+        "虚构品牌标识",
+        "表情符号",
+        "朋友圈九宫格私域暗示"
+      ],
+      "text_overlay": {
+        "primary": "第2步",
+        "secondary": "核对库存口径与账实，先校正再加补",
+        "privacy_note": "浏览器本地计算 · 不上传"
+      },
+      "prompt_zh": "为「柜机缺货先查这7步」生成克制的智能柜运营贴图。场景围绕柜机补货、点位巡检或账实核对；专业真实，无科幻机器人，无霓虹科技风；若叠字仅用 brief 中文，勿虚构排名或行业均值。",
+      "color_hint": "#2563EB 冷蓝白",
+      "owner": "antigravity",
+      "note": "Cursor 只准备 briefs；Antigravity 生成位图。",
+      "panel_index": 2
+    },
+    {
+      "content_id": "o1-wechat-stockout-tieku",
+      "channel": "wechat",
+      "purpose": "tieku_panel",
+      "status": "awaiting_antigravity_images",
+      "aspect_ratio": "4:5",
+      "width": 1080,
+      "height": 1350,
+      "subject": "零域研究贴图视觉：柜机缺货先查这7步",
+      "must_include": [
+        "智能柜 / 终端履约现场",
+        "真实光照",
+        "克制纪录片式商业摄影感"
+      ],
+      "must_avoid": [
+        "虚构仪表盘百分比",
+        "霓虹赛博风",
+        "机器人手",
+        "水印",
+        "虚构品牌标识",
+        "表情符号",
+        "朋友圈九宫格私域暗示"
+      ],
+      "text_overlay": {
+        "primary": "第3步",
+        "secondary": "确认是否畅销货品反复断货",
+        "privacy_note": "浏览器本地计算 · 不上传"
+      },
+      "prompt_zh": "为「柜机缺货先查这7步」生成克制的智能柜运营贴图。场景围绕柜机补货、点位巡检或账实核对；专业真实，无科幻机器人，无霓虹科技风；若叠字仅用 brief 中文，勿虚构排名或行业均值。",
+      "color_hint": "#2563EB 冷蓝白",
+      "owner": "antigravity",
+      "note": "Cursor 只准备 briefs；Antigravity 生成位图。",
+      "panel_index": 3
+    },
+    {
+      "content_id": "o1-wechat-stockout-tieku",
+      "channel": "wechat",
+      "purpose": "tieku_panel",
+      "status": "awaiting_antigravity_images",
+      "aspect_ratio": "4:5",
+      "width": 1080,
+      "height": 1350,
+      "subject": "零域研究贴图视觉：柜机缺货先查这7步",
+      "must_include": [
+        "智能柜 / 终端履约现场",
+        "真实光照",
+        "克制纪录片式商业摄影感"
+      ],
+      "must_avoid": [
+        "虚构仪表盘百分比",
+        "霓虹赛博风",
+        "机器人手",
+        "水印",
+        "虚构品牌标识",
+        "表情符号",
+        "朋友圈九宫格私域暗示"
+      ],
+      "text_overlay": {
+        "primary": "第4步",
+        "secondary": "检查补货任务是否超时",
+        "privacy_note": "浏览器本地计算 · 不上传"
+      },
+      "prompt_zh": "为「柜机缺货先查这7步」生成克制的智能柜运营贴图。场景围绕柜机补货、点位巡检或账实核对；专业真实，无科幻机器人，无霓虹科技风；若叠字仅用 brief 中文，勿虚构排名或行业均值。",
+      "color_hint": "#2563EB 冷蓝白",
+      "owner": "antigravity",
+      "note": "Cursor 只准备 briefs；Antigravity 生成位图。",
+      "panel_index": 4
+    },
+    {
+      "content_id": "o1-wechat-stockout-tieku",
+      "channel": "wechat",
+      "purpose": "tieku_panel",
+      "status": "awaiting_antigravity_images",
+      "aspect_ratio": "4:5",
+      "width": 1080,
+      "height": 1350,
+      "subject": "零域研究贴图视觉：柜机缺货先查这7步",
+      "must_include": [
+        "智能柜 / 终端履约现场",
+        "真实光照",
+        "克制纪录片式商业摄影感"
+      ],
+      "must_avoid": [
+        "虚构仪表盘百分比",
+        "霓虹赛博风",
+        "机器人手",
+        "水印",
+        "虚构品牌标识",
+        "表情符号",
+        "朋友圈九宫格私域暗示"
+      ],
+      "text_overlay": {
+        "primary": "第5步",
+        "secondary": "确认设备在线可售",
+        "privacy_note": "浏览器本地计算 · 不上传"
+      },
+      "prompt_zh": "为「柜机缺货先查这7步」生成克制的智能柜运营贴图。场景围绕柜机补货、点位巡检或账实核对；专业真实，无科幻机器人，无霓虹科技风；若叠字仅用 brief 中文，勿虚构排名或行业均值。",
+      "color_hint": "#2563EB 冷蓝白",
+      "owner": "antigravity",
+      "note": "Cursor 只准备 briefs；Antigravity 生成位图。",
+      "panel_index": 5
+    },
+    {
+      "content_id": "o1-wechat-stockout-tieku",
+      "channel": "wechat",
+      "purpose": "tieku_panel",
+      "status": "awaiting_antigravity_images",
+      "aspect_ratio": "4:5",
+      "width": 1080,
+      "height": 1350,
+      "subject": "零域研究贴图视觉：柜机缺货先查这7步",
+      "must_include": [
+        "智能柜 / 终端履约现场",
+        "真实光照",
+        "克制纪录片式商业摄影感"
+      ],
+      "must_avoid": [
+        "虚构仪表盘百分比",
+        "霓虹赛博风",
+        "机器人手",
+        "水印",
+        "虚构品牌标识",
+        "表情符号",
+        "朋友圈九宫格私域暗示"
+      ],
+      "text_overlay": {
+        "primary": "第6步",
+        "secondary": "检查点位与货品是否错配",
+        "privacy_note": "浏览器本地计算 · 不上传"
+      },
+      "prompt_zh": "为「柜机缺货先查这7步」生成克制的智能柜运营贴图。场景围绕柜机补货、点位巡检或账实核对；专业真实，无科幻机器人，无霓虹科技风；若叠字仅用 brief 中文，勿虚构排名或行业均值。",
+      "color_hint": "#2563EB 冷蓝白",
+      "owner": "antigravity",
+      "note": "Cursor 只准备 briefs；Antigravity 生成位图。",
+      "panel_index": 6
+    },
+    {
+      "content_id": "o1-wechat-stockout-tieku",
+      "channel": "wechat",
+      "purpose": "tieku_panel",
+      "status": "awaiting_antigravity_images",
+      "aspect_ratio": "4:5",
+      "width": 1080,
+      "height": 1350,
+      "subject": "零域研究贴图视觉：柜机缺货先查这7步",
+      "must_include": [
+        "智能柜 / 终端履约现场",
+        "真实光照",
+        "克制纪录片式商业摄影感"
+      ],
+      "must_avoid": [
+        "虚构仪表盘百分比",
+        "霓虹赛博风",
+        "机器人手",
+        "水印",
+        "虚构品牌标识",
+        "表情符号",
+        "朋友圈九宫格私域暗示"
+      ],
+      "text_overlay": {
+        "primary": "第7步",
+        "secondary": "选定主动作，并写下停止规则",
+        "privacy_note": "浏览器本地计算 · 不上传"
+      },
+      "prompt_zh": "为「柜机缺货先查这7步」生成克制的智能柜运营贴图。场景围绕柜机补货、点位巡检或账实核对；专业真实，无科幻机器人，无霓虹科技风；若叠字仅用 brief 中文，勿虚构排名或行业均值。",
+      "color_hint": "#2563EB 冷蓝白",
+      "owner": "antigravity",
+      "note": "Cursor 只准备 briefs；Antigravity 生成位图。",
+      "panel_index": 7
+    }
+  ],
+  "image_status": "awaiting_antigravity_images",
+  "continue_stop_metrics_ref": "manifest.continue_stop_metrics",
+  "browser_handoff_ref": "manifest.browser_handoff",
+  "sources": [
+    {
+      "type": "organic_sprint",
+      "ops_date": "2026-08-15",
+      "piece_id": "o1-wechat-stockout-tieku"
+    },
+    {
+      "type": "related_checklist",
+      "note": "叙事对齐缺货七步清单，贴图为公开号短视觉版，非原文搬运"
+    },
+    {
+      "type": "tool_page",
+      "url": "https://zerorealm.tech/tools/smart-cabinet-weekly-review"
+    }
+  ],
+  "auto_publish": false,
+  "llm_api_used": false,
+  "external_state_mutated": false
+}

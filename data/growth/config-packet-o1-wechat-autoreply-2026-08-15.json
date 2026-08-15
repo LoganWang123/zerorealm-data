@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "ops_date": "2026-08-15",
+  "phase": 1,
+  "piece_id": "o1-wechat-autoreply-fupan",
+  "channel": "wechat",
+  "format": "oa_auto_reply_config",
+  "action": "config_packet_browser_handoff_only",
+  "schedule_intent": {
+    "config_ready_date": "2026-08-15",
+    "apply_via": "browser_oa_backend_manual",
+    "tz": "Asia/Shanghai",
+    "api_mutation_allowed": false,
+    "forbidden_surfaces": [
+      "朋友圈",
+      "微信群",
+      "社群",
+      "个人号私发",
+      "私域群发",
+      "一对一私发清单"
+    ]
+  },
+  "status": "production_ready_config",
+  "title": "公众号欢迎语与关键词自动回复（复盘表）",
+  "excerpt": "中文欢迎语 + 唯一关键词「复盘表」自动回复，指向智能柜周经营复盘工具，不声称表格文件下载。",
+  "tags": [
+    "智能柜",
+    "周复盘",
+    "公众号",
+    "自动回复"
+  ],
+  "platform_formatting": {
+    "style": "wechat_oa_auto_reply",
+    "welcome_enabled": true,
+    "keyword_match": "exact",
+    "keywords": [
+      "复盘表"
+    ],
+    "keyword_count": 1,
+    "cta_rendering": "single_anchor_per_reply_no_raw_url",
+    "wechat_notes": [
+      "可见文案仅中文",
+      "每条回复仅一个工具页行动入口",
+      "禁止声称可下载表格文件",
+      "本阶段只交付配置包，不调用公众号接口写入"
+    ]
+  },
+  "welcome_reply": {
+    "visible_text_zh": "欢迎关注零域研究。\n这里分享智能柜运营可执行清单与周复盘方法。\n回复「复盘表」，获取智能柜周经营复盘工具入口（浏览器打开、本地计算，不上传经营数据）。\n打开智能柜周经营复盘工具页；订阅经营清单与预约运营商访谈入口在工具页内（人工跟进，不自动群发）。\n打开智能柜周复盘工具页",
+    "html": "<p>欢迎关注零域研究。</p><p>这里分享智能柜运营可执行清单与周复盘方法。</p><p>回复「复盘表」，获取智能柜周经营复盘工具入口（浏览器打开、本地计算，不上传经营数据）。</p><p>打开智能柜周经营复盘工具页；订阅经营清单与预约运营商访谈入口在工具页内（人工跟进，不自动群发）。</p><p><a href=\"https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=wechat&utm_medium=auto_reply&utm_campaign=founder14d_20260813&utm_content=wechat_welcome\">打开智能柜周复盘工具页</a></p>",
+    "cta": {
+      "button_text": "打开智能柜周复盘工具页",
+      "url": "https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=wechat&utm_medium=auto_reply&utm_campaign=founder14d_20260813&utm_content=wechat_welcome",
+      "utm_content": "wechat_welcome",
+      "tracking_id": "organic_wechat_welcome_fupan_tool"
+    }
+  },
+  "keyword_replies": [
+    {
+      "keyword": "复盘表",
+      "match": "exact",
+      "visible_text_zh": "智能柜周经营复盘工具：按五个过程指标对照本周与上周。\n在浏览器打开即可填写；数值只在本地计算，刷新即清空。\n这不是表格文件派发，也不提供行业均值下载。\n打开智能柜周经营复盘工具页；订阅经营清单与预约运营商访谈入口在工具页内（人工跟进，不自动群发）。\n打开智能柜周复盘工具页",
+      "html": "<p>智能柜周经营复盘工具：按五个过程指标对照本周与上周。</p><p>在浏览器打开即可填写；数值只在本地计算，刷新即清空。</p><p>这不是表格文件派发，也不提供行业均值下载。</p><p>打开智能柜周经营复盘工具页；订阅经营清单与预约运营商访谈入口在工具页内（人工跟进，不自动群发）。</p><p><a href=\"https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=wechat&utm_medium=auto_reply&utm_campaign=founder14d_20260813&utm_content=wechat_kw_fupanbiao\">打开智能柜周复盘工具页</a></p>",
+      "cta": {
+        "button_text": "打开智能柜周复盘工具页",
+        "url": "https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=wechat&utm_medium=auto_reply&utm_campaign=founder14d_20260813&utm_content=wechat_kw_fupanbiao",
+        "utm_content": "wechat_kw_fupanbiao",
+        "tracking_id": "organic_wechat_kw_fupanbiao"
+      }
+    }
+  ],
+  "compliance": {
+    "fact_inference_opinion": "口径为零域参考 / 企业内部实验口径，不是行业统一标准；文中区分事实、推断与观点。",
+    "no_investment_advice": true,
+    "no_fake_benchmarks": true,
+    "no_second_cta": true,
+    "no_raw_visible_urls_on_wechat": true,
+    "wechat_visible_text_chinese_only": true,
+    "no_excel_download_claim": true,
+    "no_friends_circle": true,
+    "no_groups": true,
+    "no_personal_private_distribution": true,
+    "organic_only": true,
+    "single_campaign": "founder14d_20260813",
+    "tool_page": "https://zerorealm.tech/tools/smart-cabinet-weekly-review",
+    "auto_publish": false,
+    "llm_api_used": false,
+    "external_state_mutated": false
+  },
+  "image_briefs": [],
+  "image_status": "not_applicable",
+  "false_claim_guardrails": {
+    "excel_download": false,
+    "spreadsheet_attachment": false,
+    "industry_benchmark_file": false,
+    "stated_tool_behavior": "browser_local_weekly_review_tool"
+  },
+  "sources": [
+    {
+      "type": "tool_page",
+      "url": "https://zerorealm.tech/tools/smart-cabinet-weekly-review"
+    },
+    {
+      "type": "organic_sprint",
+      "ops_date": "2026-08-15",
+      "piece_id": "o1-wechat-autoreply-fupan"
+    }
+  ],
+  "auto_publish": false,
+  "llm_api_used": false,
+  "external_state_mutated": false
+}

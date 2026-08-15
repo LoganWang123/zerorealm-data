@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "ops_date": "2026-08-15",
+  "phase": 1,
+  "sprint": "organic",
+  "owner_github": "LoganWang123",
+  "tz": "Asia/Shanghai",
+  "status": "phase1_packets_ready",
+  "safety": {
+    "publish": false,
+    "mass_send": false,
+    "friends_circle": false,
+    "groups": false,
+    "personal_private_distribution": false,
+    "llm_api": false,
+    "image_generation": false,
+    "external_wechat_zhihu_mutation": false
+  },
+  "packets": [
+    {
+      "piece_id": "o1-wechat-stockout-tieku",
+      "channel": "wechat",
+      "format": "image_post_tieku",
+      "title": "柜机缺货先查这7步",
+      "publish_date": "2026-08-17",
+      "cta_url": "https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=wechat&utm_medium=image_post&utm_campaign=founder14d_20260813&utm_content=stockout_7steps_tieku",
+      "tracking_id": "organic_20260817_wechat_tieku_stockout7",
+      "image_status": "awaiting_antigravity_images",
+      "packet_json": "data/growth/content-packet-o1-wechat-stockout-tieku-2026-08-15.json",
+      "article_source": "content/organic_packets/2026-08-15/o1-wechat-stockout-tieku.md"
+    },
+    {
+      "piece_id": "o1-zhihu-inventory-stockout",
+      "channel": "zhihu",
+      "format": "scenario_qa_rewrite",
+      "title": "库存显示有货，为什么柜机还是缺货？",
+      "publish_date": "2026-08-18",
+      "cta_url": "https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=zhihu&utm_medium=article&utm_campaign=founder14d_20260813&utm_content=inventory_vs_stockout_qa",
+      "tracking_id": "organic_20260818_zhihu_inventory_stockout",
+      "image_status": "awaiting_antigravity_images",
+      "packet_json": "data/growth/content-packet-o1-zhihu-inventory-stockout-2026-08-15.json",
+      "article_source": "content/organic_packets/2026-08-15/o1-zhihu-inventory-stockout.md"
+    },
+    {
+      "piece_id": "o1-wechat-autoreply-fupan",
+      "channel": "wechat",
+      "format": "oa_auto_reply_config",
+      "title": "公众号欢迎语与关键词自动回复（复盘表）",
+      "keyword": "复盘表",
+      "image_status": "not_applicable",
+      "packet_json": "data/growth/config-packet-o1-wechat-autoreply-2026-08-15.json",
+      "article_source": "content/organic_packets/2026-08-15/o1-wechat-autoreply-fupan.md"
+    }
+  ],
+  "schedule_path": "data/growth/organic-only-schedule-2026-08-15.json",
+  "ledger_path": "data/growth/organic-experiment-ledger-2026-08-15.json",
+  "schedule_approved": true,
+  "tracking_ids": {
+    "campaign": "founder14d_20260813",
+    "tool_page": "https://zerorealm.tech/tools/smart-cabinet-weekly-review",
+    "pieces": {
+      "o1-wechat-stockout-tieku": {
+        "utm_source": "wechat",
+        "utm_medium": "image_post",
+        "utm_content": "stockout_7steps_tieku",
+        "tracking_id": "organic_20260817_wechat_tieku_stockout7"
+      },
+      "o1-zhihu-inventory-stockout": {
+        "utm_source": "zhihu",
+        "utm_medium": "article",
+        "utm_content": "inventory_vs_stockout_qa",
+        "tracking_id": "organic_20260818_zhihu_inventory_stockout"
+      },
+      "o1-wechat-autoreply-fupan": {
+        "welcome": {
+          "utm_source": "wechat",
+          "utm_medium": "auto_reply",
+          "utm_content": "wechat_welcome",
+          "tracking_id": "organic_wechat_welcome_fupan_tool"
+        },
+        "keyword": {
+          "keyword": "复盘表",
+          "utm_source": "wechat",
+          "utm_medium": "auto_reply",
+          "utm_content": "wechat_kw_fupanbiao",
+          "tracking_id": "organic_wechat_kw_fupanbiao"
+        }
+      }
+    }
+  },
+  "continue_stop_metrics": {
+    "window": {
+      "start": "2026-08-15",
+      "end": "2026-08-26",
+      "tz": "Asia/Shanghai"
+    },
+    "leading_only_while_channel_reports_stale": true,
+    "continue_all_of": [
+      {
+        "id": "organic_pieces_on_dates",
+        "rule": "2026-08-17 公众号贴图《柜机缺货先查这7步》与 2026-08-18 知乎改写《库存显示有货，为什么柜机还是缺货？》均已人工发布"
+      },
+      {
+        "id": "single_cta_compliance",
+        "rule": "每条内容仅一个周复盘工具页行动入口，且带本条追踪参数"
+      },
+      {
+        "id": "no_private_distribution",
+        "rule": "未使用朋友圈、微信群/社群、个人号私发或私域群发"
+      },
+      {
+        "id": "autoreply_no_excel_claim",
+        "rule": "欢迎语与关键词「复盘表」均未声称可下载表格文件"
+      },
+      {
+        "id": "solo_hours",
+        "rule": "连续两周实际投入 ≤15 小时/周"
+      }
+    ],
+    "stop_any_of": [
+      {
+        "id": "private_channel_used",
+        "action": "立即停止该分发动作并回滚口径；本冲刺仅保留公众号与知乎公开面"
+      },
+      {
+        "id": "second_cta_or_raw_url_visible_on_wechat",
+        "action": "停止发布该稿；修正为中文可见文案 + 隐藏链接参数"
+      },
+      {
+        "id": "excel_download_false_claim",
+        "action": "停止自动回复上线；改为指向浏览器周复盘工具"
+      },
+      {
+        "id": "fabricated_read_lift",
+        "action": "渠道报表仍过期时，停止宣称阅读已提升"
+      }
+    ]
+  },
+  "browser_handoff": {
+    "phase1_mutates_external_state": false,
+    "operator": "LoganWang123",
+    "steps": [
+      {
+        "order": 1,
+        "surface": "wechat_oa_backend",
+        "action": "浏览器打开公众号后台 → 自动回复：粘贴欢迎语与关键词「复盘表」配置包；链接用后台超链接/菜单，勿把完整网址写成可见纯文本；保存后自测关注与关键词，勿调用本仓发布接口。"
+      },
+      {
+        "order": 2,
+        "surface": "wechat_oa_image_post",
+        "action": "待 Antigravity 贴图位图就绪后，于 2026-08-17 人工发布《柜机缺货先查这7步》；仅公众号公开面；禁止朋友圈/群/私发。"
+      },
+      {
+        "order": 3,
+        "surface": "zhihu_editor",
+        "action": "于 2026-08-18 在知乎编辑器粘贴场景改写稿；文末仅保留一个指向周复盘工具的中文锚点链接；人工发布。"
+      },
+      {
+        "order": 4,
+        "surface": "ledger",
+        "action": "发布日记入 organic-only 排期与实验台账：是否单行动入口、是否禁用私域分发、图片状态。"
+      }
+    ],
+    "antigravity": {
+      "image_status": "awaiting_antigravity_images",
+      "note": "Cursor 只准备 image briefs；位图由 Antigravity 生成并回写约定路径。"
+    }
+  },
+  "single_cta_rule": {
+    "tool_page": "https://zerorealm.tech/tools/smart-cabinet-weekly-review",
+    "campaign": "founder14d_20260813",
+    "max_cta_per_piece": 1
+  },
+  "image_status": "awaiting_antigravity_images",
+  "generated_at": "2026-08-15T07:02:21+00:00"
+}
