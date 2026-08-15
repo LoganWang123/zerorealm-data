@@ -74,6 +74,8 @@
         "cdn_urls_recorded": false,
         "login_tokens_recorded": false,
         "cookies_recorded": false,
+        "file_ids_recorded": false,
+        "asset_addresses_recorded": false,
         "raw_visible_urls_on_wechat": false,
         "antigravity_account_recorded": false,
         "antigravity_email_recorded": false,
@@ -133,6 +135,28 @@
             "cancel_reason": "same_channel_topic_overlap_with_2026-08-15_article",
             "exited_safely": true
           }
+        },
+        "o1-wechat-point-contribution": {
+          "status": "production_ready_revision",
+          "external_sync_status": "external_sync_completed",
+          "draft_status": "draft_saved",
+          "synced": true,
+          "scheduled": false,
+          "published": false,
+          "auto_publish": false,
+          "employment_boundary_synced": true,
+          "account": "ZeroRealm零域AI",
+          "title": "点位有销量却不赚钱？用一张周表算清单点贡献",
+          "app_id": "100000152",
+          "data_seq": "4650782630374998016",
+          "data_seq_previous": "4649592826320846849",
+          "platform_state": "draft",
+          "updated_at": "2026-08-15T21:28:37+08:00",
+          "agy_model": "gemini-3.7-flash-high",
+          "agy_acceptance": "PASS",
+          "body_image_count": 3,
+          "cover_variants_retained": 2,
+          "note": "Agy（gemini-3.7-flash-high）已浏览器同步并验收 PASS：《点位有销量却不赚钱？用一张周表算清单点贡献》app_id=100000152，data_seq=4650782630374998016（previous 4649592826320846849）；platform_state=draft；draft_saved / external_sync_completed；synced=true；scheduled=false；published=false；auto_publish=false；updated_at=2026-08-15T21:28:37+08:00。草稿同步≠发布；不记录 CDN/file_id/token/cookie/素材地址。"
         },
         "o1-zhihu-inventory-stockout": {
           "status": "draft_saved",
@@ -250,13 +274,19 @@
         "date": "2026-08-15",
         "title": "点位有销量却不赚钱？用一张周表算清单点贡献",
         "status": "production_ready_revision",
-        "external_sync_status": "external_sync_pending",
+        "external_sync_status": "external_sync_completed",
+        "draft_status": "draft_saved",
         "scheduled": false,
         "published": false,
-        "synced": false,
+        "synced": true,
+        "auto_publish": false,
         "app_id": "100000152",
-        "data_seq": "4649592826320846849",
-        "note": "生产级修订就绪，等待 Agy 浏览器同步；不得标已同步/已发布/已定时。"
+        "data_seq": "4650782630374998016",
+        "data_seq_previous": "4649592826320846849",
+        "updated_at": "2026-08-15T21:28:37+08:00",
+        "agy_model": "gemini-3.7-flash-high",
+        "agy_acceptance": "PASS",
+        "note": "Agy（gemini-3.7-flash-high）已浏览器同步并验收 PASS：《点位有销量却不赚钱？用一张周表算清单点贡献》app_id=100000152，data_seq=4650782630374998016（previous 4649592826320846849）；platform_state=draft；draft_saved / external_sync_completed；synced=true；scheduled=false；published=false；auto_publish=false；updated_at=2026-08-15T21:28:37+08:00。草稿同步≠发布；不记录 CDN/file_id/token/cookie/素材地址。"
       },
       {
         "piece_id": "o1-zhihu-inventory-stockout",
@@ -309,5 +339,5 @@
       "message": "历史：知乎外部草稿曾 revision_pending / publish_blocked（antigravity_quota_temporarily_exhausted）；现已修订验收，事件保留且 resolved=true。"
     }
   ],
-  "notes": "2026-08-15 organic sprint phase 1 external truthfulness: public WeChat OA 单点贡献修订 + canceled 缺货贴图计划 + Zhihu rewrite + welcome/keyword「复盘表」. Conversion: 公开内容 → 关注公众号 → 回复「复盘表」→ 自助周复盘工具. No interview / one-to-one / WeChat-add / company-site identity asks. Professional boundaries: 不使用现任公司内部经营数据、客户名单、未公开案例、内部流程截图、同事观点；不以雇主名义发言；示例仅用公开资料、合成数据或匿名通用场景。 WeChat autoreply configured/enabled (employment_boundary_synced=true). WeChat 贴图计划 canceled (same_channel_topic_overlap_with_2026-08-15_article); draft/5 images/provenance retained; never mark autoreply/draft as deleted. Point-contribution article: production_ready_revision / external_sync_pending only (not synced/scheduled/published). Zhihu draft 2072013992894149965 accepted: draft_saved, revision_pending=false, employment_boundary_synced=true, publish_blocked=false, scheduled=false, published=false; legacy_interview_cta_status=deleted; historical antigravity_quota_temporarily_exhausted resolved. Do not record Antigravity account/email or quota recovery clock. No朋友圈, no groups, no personal/private distribution. No CDN/token/cookie recorded. Anonymous metrics only; keep channel deltas null until freshness gate passes. Do not claim Excel download for the weekly-review tool."
+  "notes": "2026-08-15 organic sprint phase 1 external truthfulness: public WeChat OA 单点贡献修订 + canceled 缺货贴图计划 + Zhihu rewrite + welcome/keyword「复盘表」. Conversion: 公开内容 → 关注公众号 → 回复「复盘表」→ 自助周复盘工具. No interview / one-to-one / WeChat-add / company-site identity asks. Professional boundaries: 不使用现任公司内部经营数据、客户名单、未公开案例、内部流程截图、同事观点；不以雇主名义发言；示例仅用公开资料、合成数据或匿名通用场景。 WeChat autoreply configured/enabled (employment_boundary_synced=true). WeChat 贴图计划 canceled (same_channel_topic_overlap_with_2026-08-15_article); draft/5 images/provenance retained; never mark autoreply/draft as deleted. Point-contribution article: production_ready_revision / external_sync_completed / draft_saved (synced=true; not scheduled/published; auto_publish=false; Agy gemini-3.7-flash-high PASS at 2026-08-15T21:28:37+08:00; data_seq=4650782630374998016). Zhihu draft 2072013992894149965 accepted: draft_saved, revision_pending=false, employment_boundary_synced=true, publish_blocked=false, scheduled=false, published=false; legacy_interview_cta_status=deleted; historical antigravity_quota_temporarily_exhausted resolved. Do not record Antigravity account/email or quota recovery clock. No朋友圈, no groups, no personal/private distribution. No CDN/token/cookie/file_id/asset address recorded. Anonymous metrics only; keep channel deltas null until freshness gate passes. Do not claim Excel download for the weekly-review tool."
 }

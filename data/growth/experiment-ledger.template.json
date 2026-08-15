@@ -34,5 +34,5 @@
     "public_platform_engagement_delta": "公开平台收藏/赞同/阅读变化（仅渠道报表新鲜时录入，否则保持 null，不虚构）"
   },
   "alerts": [],
-  "notes": "2026-08-15 organic sprint phase 1: point-contribution revision (production_ready_revision/external_sync_pending) + OA 贴图 2026-08-17 canceled (same_channel_topic_overlap_with_2026-08-15_article) + Zhihu 2026-08-18 + welcome/keyword「复盘表」; organic-only; see data/growth/organic-only-schedule-2026-08-15.json."
+  "notes": "2026-08-15 organic sprint phase 1: point-contribution revision (production_ready_revision/external_sync_completed/draft_saved; synced=true; scheduled=false; published=false) + OA 贴图 2026-08-17 canceled (same_channel_topic_overlap_with_2026-08-15_article) + Zhihu 2026-08-18 + welcome/keyword「复盘表」; organic-only; see data/growth/organic-only-schedule-2026-08-15.json."
 }

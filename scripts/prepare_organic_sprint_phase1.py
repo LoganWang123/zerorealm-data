@@ -84,7 +84,8 @@ def render_report(
         "- Truthfulness: WeChat autoreply `configured`/`enabled`; "
         f"缺货贴图计划 `{STATUS_CANCELED}` "
         f"(`{WECHAT_TIEKU_CANCEL_REASON}`；草稿/5图/provenance 保留)；"
-        "单点贡献稿 `production_ready_revision` / `external_sync_pending`；"
+        "单点贡献稿 `production_ready_revision` / `external_sync_completed` / "
+        f"`{STATUS_DRAFT_SAVED}`（synced=true；scheduled=false；published=false）；"
         "Zhihu external draft accepted "
         f"(`{STATUS_DRAFT_SAVED}`, `revision_pending=false`, `publish_blocked=false`, "
         "`employment_boundary_synced=true`); "
@@ -96,10 +97,17 @@ def render_report(
         f"1. **WeChat 单点贡献修订** `{POINT_CONTRIBUTION_DATE}` 《{POINT_CONTRIBUTION_TITLE}》",
         f"   - piece_id: `{POINT_CONTRIBUTION_PIECE_ID}`",
         "   - status: `production_ready_revision`",
-        "   - external_sync_status: `external_sync_pending`（不得标已同步/已发布/已定时）",
+        "   - external_sync_status: `external_sync_completed`",
+        f"   - draft_status: `{STATUS_DRAFT_SAVED}`",
+        "   - synced: `true`（草稿同步≠发布）",
+        "   - scheduled / published / auto_publish: `false`",
+        "   - Agy model: `gemini-3.7-flash-high`；acceptance: `PASS`",
+        "   - app_id: `100000152`；data_seq: `4650782630374998016`",
+        "   - updated_at: `2026-08-15T21:28:37+08:00`",
         "   - packet: `data/growth/content-packet-o1-wechat-point-contribution-2026-08-15.json`",
         f"   - agy handoff: `docs/reports/wechat-point-contribution-revision-{OPS_DATE}.md`",
         "   - CTA: 回复「复盘表」打开周经营复盘工具",
+        "   - privacy: no CDN / file_id / token / cookie / asset address",
         "",
         f"2. **WeChat 贴图（已取消发布计划）** `{WECHAT_TIEKU_DATE}` 《{WECHAT_TIEKU_TITLE}》",
         f"   - piece_id: `{WECHAT_TIEKU_PIECE_ID}`",
@@ -159,7 +167,8 @@ def render_report(
             "",
             "- Bitmap images: **images_ready**（缺货贴图 5 张保留；发布计划 canceled）",
             "- Cursor prepared revision + briefs only; do not generate bitmaps here.",
-            "- Point-contribution: Agy browser sync only; no WeChat backend publish.",
+            "- Point-contribution: Agy draft sync accepted (external_sync_completed); "
+            "not published/scheduled.",
             "",
         ]
     )
@@ -213,6 +222,15 @@ def main() -> int:
     wechat["image_status"] = "images_ready"
     zhihu["image_briefs"] = committed_zhihu["image_briefs"]
     zhihu["image_status"] = "images_ready"
+    for key in (
+        "canonical_id",
+        "canonical_version",
+        "contract",
+    ):
+        if key in committed_wechat:
+            wechat[key] = committed_wechat[key]
+        if key in committed_zhihu:
+            zhihu[key] = committed_zhihu[key]
     for key in (
         "external_status",
         "draft_status",
@@ -288,7 +306,8 @@ def main() -> int:
     template = json.loads(template_path.read_text(encoding="utf-8"))
     organic_note = (
         "2026-08-15 organic sprint phase 1: point-contribution revision "
-        "(production_ready_revision/external_sync_pending) + "
+        "(production_ready_revision/external_sync_completed/draft_saved; "
+        "synced=true; scheduled=false; published=false) + "
         f"OA 贴图 {WECHAT_TIEKU_DATE} canceled "
         f"({WECHAT_TIEKU_CANCEL_REASON}) + Zhihu {ZHIHU_DATE} + "
         "welcome/keyword「复盘表」; organic-only; see "

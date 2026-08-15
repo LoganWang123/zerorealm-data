@@ -80,6 +80,22 @@ WECHAT_TIEKU_CANCEL_REASON = "same_channel_topic_overlap_with_2026-08-15_article
 POINT_CONTRIBUTION_PIECE_ID = "o1-wechat-point-contribution"
 POINT_CONTRIBUTION_TITLE = "点位有销量却不赚钱？用一张周表算清单点贡献"
 POINT_CONTRIBUTION_DATE = "2026-08-15"
+POINT_CONTRIBUTION_APP_ID = "100000152"
+POINT_CONTRIBUTION_DATA_SEQ = "4650782630374998016"
+POINT_CONTRIBUTION_DATA_SEQ_PREVIOUS = "4649592826320846849"
+POINT_CONTRIBUTION_VERIFIED_AT = "2026-08-15T21:28:37+08:00"
+POINT_CONTRIBUTION_AGY_MODEL = "gemini-3.7-flash-high"
+STATUS_EXTERNAL_SYNC_COMPLETED = "external_sync_completed"
+POINT_CONTRIBUTION_ACCEPTED_NOTE = (
+    f"Agy（{POINT_CONTRIBUTION_AGY_MODEL}）已浏览器同步并验收 PASS："
+    f"《{POINT_CONTRIBUTION_TITLE}》app_id={POINT_CONTRIBUTION_APP_ID}，"
+    f"data_seq={POINT_CONTRIBUTION_DATA_SEQ}（previous "
+    f"{POINT_CONTRIBUTION_DATA_SEQ_PREVIOUS}）；"
+    f"platform_state=draft；{STATUS_DRAFT_SAVED} / {STATUS_EXTERNAL_SYNC_COMPLETED}；"
+    "synced=true；scheduled=false；published=false；auto_publish=false；"
+    f"updated_at={POINT_CONTRIBUTION_VERIFIED_AT}。"
+    "草稿同步≠发布；不记录 CDN/file_id/token/cookie/素材地址。"
+)
 SAME_CHANNEL_TOPIC_WINDOW_DAYS = 14
 ZHIHU_DRAFT_ID = "2072013992894149965"
 ZHIHU_PLANNED_WINDOW = "2026-08-18T20:30:00+08:00"
@@ -334,13 +350,8 @@ def browser_handoff_instructions() -> dict[str, Any]:
             {
                 "order": 3,
                 "surface": "wechat_oa_article_revision",
-                "status": "external_sync_pending",
-                "action": (
-                    f"《{POINT_CONTRIBUTION_TITLE}》本地状态为 "
-                    "production_ready_revision / external_sync_pending；"
-                    "供 Agy 浏览器同步既有草稿；不得标已同步/已发布/已定时；"
-                    "不得操作公众号后台发表。"
-                ),
+                "status": STATUS_EXTERNAL_SYNC_COMPLETED,
+                "action": POINT_CONTRIBUTION_ACCEPTED_NOTE,
             },
             {
                 "order": 4,
@@ -356,12 +367,14 @@ def browser_handoff_instructions() -> dict[str, Any]:
                     "WeChat autoreply configured/enabled；"
                     f"贴图计划 {STATUS_CANCELED}（{WECHAT_TIEKU_CANCEL_REASON}）；"
                     f"草稿/5 图/provenance 保留为 {STATUS_DRAFT_SAVED}；"
-                    f"单点贡献稿 production_ready_revision / external_sync_pending；"
+                    f"单点贡献稿 production_ready_revision / "
+                    f"{STATUS_EXTERNAL_SYNC_COMPLETED} / {STATUS_DRAFT_SAVED}；"
+                    "synced=true；scheduled=false；published=false；"
                     f"Zhihu {STATUS_DRAFT_SAVED} / publish_blocked=false / "
                     "employment_boundary_synced=true；"
                     f"legacy_interview_cta_status={STATUS_DELETED}；"
                     f"历史 {ZHIHU_REVISION_REASON} 已 resolved；"
-                    "草稿≠scheduled/published。"
+                    "草稿同步≠scheduled/published。"
                 ),
             },
         ],
@@ -948,6 +961,8 @@ def build_external_ops_verification() -> dict[str, Any]:
             "cdn_urls_recorded": False,
             "login_tokens_recorded": False,
             "cookies_recorded": False,
+            "file_ids_recorded": False,
+            "asset_addresses_recorded": False,
             "raw_visible_urls_on_wechat": False,
             "antigravity_account_recorded": False,
             "antigravity_email_recorded": False,
@@ -1007,6 +1022,28 @@ def build_external_ops_verification() -> dict[str, Any]:
                     "cancel_reason": WECHAT_TIEKU_CANCEL_REASON,
                     "exited_safely": True,
                 },
+            },
+            POINT_CONTRIBUTION_PIECE_ID: {
+                "status": "production_ready_revision",
+                "external_sync_status": STATUS_EXTERNAL_SYNC_COMPLETED,
+                "draft_status": STATUS_DRAFT_SAVED,
+                "synced": True,
+                "scheduled": False,
+                "published": False,
+                "auto_publish": False,
+                "employment_boundary_synced": True,
+                "account": WECHAT_OA_ACCOUNT,
+                "title": POINT_CONTRIBUTION_TITLE,
+                "app_id": POINT_CONTRIBUTION_APP_ID,
+                "data_seq": POINT_CONTRIBUTION_DATA_SEQ,
+                "data_seq_previous": POINT_CONTRIBUTION_DATA_SEQ_PREVIOUS,
+                "platform_state": "draft",
+                "updated_at": POINT_CONTRIBUTION_VERIFIED_AT,
+                "agy_model": POINT_CONTRIBUTION_AGY_MODEL,
+                "agy_acceptance": "PASS",
+                "body_image_count": 3,
+                "cover_variants_retained": 2,
+                "note": POINT_CONTRIBUTION_ACCEPTED_NOTE,
             },
             ZHIHU_SCENARIO_PIECE_ID: {
                 "status": STATUS_DRAFT_SAVED,
@@ -1188,16 +1225,24 @@ def build_organic_only_schedule(
                 "piece_id": POINT_CONTRIBUTION_PIECE_ID,
                 "title": POINT_CONTRIBUTION_TITLE,
                 "status": "production_ready_revision",
-                "external_sync_status": "external_sync_pending",
+                "external_sync_status": STATUS_EXTERNAL_SYNC_COMPLETED,
+                "draft_status": STATUS_DRAFT_SAVED,
                 "scheduled": False,
                 "published": False,
-                "synced": False,
+                "synced": True,
+                "auto_publish": False,
+                "app_id": POINT_CONTRIBUTION_APP_ID,
+                "data_seq": POINT_CONTRIBUTION_DATA_SEQ,
+                "updated_at": POINT_CONTRIBUTION_VERIFIED_AT,
+                "agy_model": POINT_CONTRIBUTION_AGY_MODEL,
+                "agy_acceptance": "PASS",
                 "core_question": (
                     "点位流水不等于赚钱，先用周表算清单点贡献再决定调优或暂时撤点"
                 ),
                 "packet_json": (
                     "data/growth/content-packet-o1-wechat-point-contribution-2026-08-15.json"
                 ),
+                "note": POINT_CONTRIBUTION_ACCEPTED_NOTE,
             },
             {
                 "date": ZHIHU_DATE,
@@ -1333,16 +1378,19 @@ def build_organic_experiment_ledger_update() -> dict[str, Any]:
                     "date": POINT_CONTRIBUTION_DATE,
                     "title": POINT_CONTRIBUTION_TITLE,
                     "status": "production_ready_revision",
-                    "external_sync_status": "external_sync_pending",
+                    "external_sync_status": STATUS_EXTERNAL_SYNC_COMPLETED,
+                    "draft_status": STATUS_DRAFT_SAVED,
                     "scheduled": False,
                     "published": False,
-                    "synced": False,
-                    "app_id": "100000152",
-                    "data_seq": "4649592826320846849",
-                    "note": (
-                        "生产级修订就绪，等待 Agy 浏览器同步；"
-                        "不得标已同步/已发布/已定时。"
-                    ),
+                    "synced": True,
+                    "auto_publish": False,
+                    "app_id": POINT_CONTRIBUTION_APP_ID,
+                    "data_seq": POINT_CONTRIBUTION_DATA_SEQ,
+                    "data_seq_previous": POINT_CONTRIBUTION_DATA_SEQ_PREVIOUS,
+                    "updated_at": POINT_CONTRIBUTION_VERIFIED_AT,
+                    "agy_model": POINT_CONTRIBUTION_AGY_MODEL,
+                    "agy_acceptance": "PASS",
+                    "note": POINT_CONTRIBUTION_ACCEPTED_NOTE,
                 },
                 {
                     "piece_id": ZHIHU_SCENARIO_PIECE_ID,
@@ -1416,7 +1464,11 @@ def build_organic_experiment_ledger_update() -> dict[str, Any]:
             f"({WECHAT_TIEKU_CANCEL_REASON}); draft/5 images/provenance retained; "
             f"never mark autoreply/draft as {STATUS_DELETED}. "
             "Point-contribution article: production_ready_revision / "
-            "external_sync_pending only (not synced/scheduled/published). "
+            f"{STATUS_EXTERNAL_SYNC_COMPLETED} / {STATUS_DRAFT_SAVED} "
+            "(synced=true; not scheduled/published; auto_publish=false; "
+            f"Agy {POINT_CONTRIBUTION_AGY_MODEL} PASS at "
+            f"{POINT_CONTRIBUTION_VERIFIED_AT}; "
+            f"data_seq={POINT_CONTRIBUTION_DATA_SEQ}). "
             f"Zhihu draft {ZHIHU_DRAFT_ID} accepted: {STATUS_DRAFT_SAVED}, "
             "revision_pending=false, employment_boundary_synced=true, "
             "publish_blocked=false, scheduled=false, published=false; "
@@ -1424,7 +1476,7 @@ def build_organic_experiment_ledger_update() -> dict[str, Any]:
             f"historical {ZHIHU_REVISION_REASON} resolved. "
             "Do not record Antigravity account/email or quota recovery clock. "
             "No朋友圈, no groups, no personal/private distribution. "
-            "No CDN/token/cookie recorded. "
+            "No CDN/token/cookie/file_id/asset address recorded. "
             "Anonymous metrics only; keep channel deltas null until freshness gate passes. "
             "Do not claim Excel download for the weekly-review tool."
         ),
@@ -1485,6 +1537,8 @@ def build_phase1_manifest(
             "cdn_urls_recorded": False,
             "tokens_recorded": False,
             "cookies_recorded": False,
+            "file_ids_recorded": False,
+            "asset_addresses_recorded": False,
         },
         "packets": [
             {
@@ -1529,12 +1583,18 @@ def build_phase1_manifest(
                 "title": POINT_CONTRIBUTION_TITLE,
                 "publish_date": POINT_CONTRIBUTION_DATE,
                 "external_status": "production_ready_revision",
-                "external_sync_status": "external_sync_pending",
+                "external_sync_status": STATUS_EXTERNAL_SYNC_COMPLETED,
+                "draft_status": STATUS_DRAFT_SAVED,
                 "scheduled": False,
                 "published": False,
-                "synced": False,
-                "app_id": "100000152",
-                "data_seq": "4649592826320846849",
+                "synced": True,
+                "auto_publish": False,
+                "app_id": POINT_CONTRIBUTION_APP_ID,
+                "data_seq": POINT_CONTRIBUTION_DATA_SEQ,
+                "data_seq_previous": POINT_CONTRIBUTION_DATA_SEQ_PREVIOUS,
+                "updated_at": POINT_CONTRIBUTION_VERIFIED_AT,
+                "agy_model": POINT_CONTRIBUTION_AGY_MODEL,
+                "agy_acceptance": "PASS",
                 "packet_json": (
                     "data/growth/content-packet-o1-wechat-point-contribution-2026-08-15.json"
                 ),
@@ -1544,6 +1604,7 @@ def build_phase1_manifest(
                 "agy_handoff": (
                     f"docs/reports/wechat-point-contribution-revision-{OPS_DATE}.md"
                 ),
+                "note": POINT_CONTRIBUTION_ACCEPTED_NOTE,
             },
             {
                 "piece_id": ZHIHU_SCENARIO_PIECE_ID,
@@ -1808,6 +1869,8 @@ def validate_external_ops(ops: dict[str, Any]) -> None:
         "cdn_urls_recorded",
         "login_tokens_recorded",
         "cookies_recorded",
+        "file_ids_recorded",
+        "asset_addresses_recorded",
         "antigravity_account_recorded",
         "antigravity_email_recorded",
         "quota_recovery_clock_recorded",
@@ -1818,6 +1881,7 @@ def validate_external_ops(ops: dict[str, Any]) -> None:
     for piece_id in (
         WECHAT_AUTOREPLY_PIECE_ID,
         WECHAT_TIEKU_PIECE_ID,
+        POINT_CONTRIBUTION_PIECE_ID,
         ZHIHU_SCENARIO_PIECE_ID,
     ):
         if piece_id not in pieces:
@@ -1880,6 +1944,31 @@ def validate_external_ops(ops: dict[str, Any]) -> None:
         raise ValueError("WeChat schedule prior_block_reason mismatch")
     if not attempt.get("exited_safely"):
         raise ValueError("schedule attempt must record safe exit")
+    point = pieces[POINT_CONTRIBUTION_PIECE_ID]
+    if point.get("status") != "production_ready_revision":
+        raise ValueError("point-contribution status must be production_ready_revision")
+    if point.get("external_sync_status") != STATUS_EXTERNAL_SYNC_COMPLETED:
+        raise ValueError("point-contribution sync must be external_sync_completed")
+    if point.get("draft_status") != STATUS_DRAFT_SAVED:
+        raise ValueError("point-contribution draft_status must be draft_saved")
+    if point.get("synced") is not True:
+        raise ValueError("point-contribution synced must be true")
+    if point.get("scheduled") or point.get("published") or point.get("auto_publish"):
+        raise ValueError(
+            "point-contribution must not be scheduled/published/auto_publish"
+        )
+    if point.get("app_id") != POINT_CONTRIBUTION_APP_ID:
+        raise ValueError("point-contribution app_id mismatch")
+    if point.get("data_seq") != POINT_CONTRIBUTION_DATA_SEQ:
+        raise ValueError("point-contribution data_seq mismatch")
+    if point.get("agy_model") != POINT_CONTRIBUTION_AGY_MODEL:
+        raise ValueError("point-contribution agy_model mismatch")
+    if point.get("agy_acceptance") != "PASS":
+        raise ValueError("point-contribution agy_acceptance must be PASS")
+    if point.get("updated_at") != POINT_CONTRIBUTION_VERIFIED_AT:
+        raise ValueError("point-contribution updated_at mismatch")
+    if point.get("platform_state") != "draft":
+        raise ValueError("point-contribution platform_state must be draft")
     zhihu = pieces[ZHIHU_SCENARIO_PIECE_ID]
     if zhihu.get("status") != STATUS_DRAFT_SAVED:
         raise ValueError("Zhihu status must be draft_saved")
@@ -2081,10 +2170,26 @@ def validate_schedule(schedule: dict[str, Any]) -> None:
         raise ValueError("schedule missing point-contribution revision row")
     if point_row.get("status") != "production_ready_revision":
         raise ValueError("point-contribution status must be production_ready_revision")
-    if point_row.get("external_sync_status") != "external_sync_pending":
-        raise ValueError("point-contribution sync must be external_sync_pending")
-    if point_row.get("scheduled") or point_row.get("published") or point_row.get("synced"):
-        raise ValueError("point-contribution must not be scheduled/published/synced")
+    if point_row.get("external_sync_status") != STATUS_EXTERNAL_SYNC_COMPLETED:
+        raise ValueError("point-contribution sync must be external_sync_completed")
+    if point_row.get("draft_status") != STATUS_DRAFT_SAVED:
+        raise ValueError("point-contribution draft_status must be draft_saved")
+    if point_row.get("synced") is not True:
+        raise ValueError("point-contribution synced must be true after draft acceptance")
+    if (
+        point_row.get("scheduled")
+        or point_row.get("published")
+        or point_row.get("auto_publish")
+    ):
+        raise ValueError(
+            "point-contribution must not be scheduled/published/auto_publish"
+        )
+    if point_row.get("app_id") != POINT_CONTRIBUTION_APP_ID:
+        raise ValueError("point-contribution app_id mismatch")
+    if point_row.get("data_seq") != POINT_CONTRIBUTION_DATA_SEQ:
+        raise ValueError("point-contribution data_seq mismatch")
+    if point_row.get("agy_acceptance") != "PASS":
+        raise ValueError("point-contribution agy_acceptance must be PASS")
     anti = schedule.get("anti_duplication") or {}
     if anti.get("window_days") != SAME_CHANNEL_TOPIC_WINDOW_DAYS:
         raise ValueError("anti_duplication window_days must be 14")

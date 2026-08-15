@@ -9,17 +9,24 @@
 - Secrets policy: no CDN URLs / login tokens / cookies recorded; no Antigravity account/email or quota recovery clock
 - Conversion: `公开内容 → 关注公众号 → 回复「复盘表」→ 自助使用周经营复盘工具；可公开订阅，无一对一/加微信/访谈`
 - Professional boundaries: declared in packet compliance
-- Truthfulness: WeChat autoreply `configured`/`enabled`; 缺货贴图计划 `canceled` (`same_channel_topic_overlap_with_2026-08-15_article`；草稿/5图/provenance 保留)；单点贡献稿 `production_ready_revision` / `external_sync_pending`；Zhihu external draft accepted (`draft_saved`, `revision_pending=false`, `publish_blocked=false`, `employment_boundary_synced=true`); `legacy_interview_cta_status=deleted`; historical `antigravity_quota_temporarily_exhausted` resolved
+- Truthfulness: WeChat autoreply `configured`/`enabled`; 缺货贴图计划 `canceled` (`same_channel_topic_overlap_with_2026-08-15_article`；草稿/5图/provenance 保留)；单点贡献稿 `production_ready_revision` / `external_sync_completed` / `draft_saved`（synced=true；scheduled=false；published=false）；Zhihu external draft accepted (`draft_saved`, `revision_pending=false`, `publish_blocked=false`, `employment_boundary_synced=true`); `legacy_interview_cta_status=deleted`; historical `antigravity_quota_temporarily_exhausted` resolved
 
 ## Packets
 
 1. **WeChat 单点贡献修订** `2026-08-15` 《点位有销量却不赚钱？用一张周表算清单点贡献》
    - piece_id: `o1-wechat-point-contribution`
    - status: `production_ready_revision`
-   - external_sync_status: `external_sync_pending`（不得标已同步/已发布/已定时）
+   - external_sync_status: `external_sync_completed`
+   - draft_status: `draft_saved`
+   - synced: `true`（草稿同步≠发布）
+   - scheduled / published / auto_publish: `false`
+   - Agy model: `gemini-3.7-flash-high`；acceptance: `PASS`
+   - app_id: `100000152`；data_seq: `4650782630374998016`
+   - updated_at: `2026-08-15T21:28:37+08:00`
    - packet: `data/growth/content-packet-o1-wechat-point-contribution-2026-08-15.json`
    - agy handoff: `docs/reports/wechat-point-contribution-revision-2026-08-15.md`
    - CTA: 回复「复盘表」打开周经营复盘工具
+   - privacy: no CDN / file_id / token / cookie / asset address
 
 2. **WeChat 贴图（已取消发布计划）** `2026-08-17` 《柜机缺货先查这7步》
    - piece_id: `o1-wechat-stockout-tieku`
@@ -81,12 +88,12 @@
 
 1. (wechat_oa_backend) 公众号欢迎语与关键词「复盘表」已 configured/enabled；employment_boundary_synced=true。不得用 deleted 描述自动回复规则。
 2. (wechat_oa_image_post) 微信贴图《柜机缺货先查这7步》发布计划已 canceled；原因 same_channel_topic_overlap_with_2026-08-15_article；草稿仍为 draft_saved（5 图顺序完整与 provenance 保留）；scheduled=false；published=false；不删除外部草稿或素材文件；employment_boundary_synced=true。历史 admin_qr_verification_required 仍记录为已安全退出的定时尝试，不再作为活跃发布计划。不得用 deleted 描述贴图草稿。
-3. (wechat_oa_article_revision) 《点位有销量却不赚钱？用一张周表算清单点贡献》本地状态为 production_ready_revision / external_sync_pending；供 Agy 浏览器同步既有草稿；不得标已同步/已发布/已定时；不得操作公众号后台发表。
+3. (wechat_oa_article_revision) Agy（gemini-3.7-flash-high）已浏览器同步并验收 PASS：《点位有销量却不赚钱？用一张周表算清单点贡献》app_id=100000152，data_seq=4650782630374998016（previous 4649592826320846849）；platform_state=draft；draft_saved / external_sync_completed；synced=true；scheduled=false；published=false；auto_publish=false；updated_at=2026-08-15T21:28:37+08:00。草稿同步≠发布；不记录 CDN/file_id/token/cookie/素材地址。
 4. (zhihu_editor) Agy 新账号已核验知乎草稿 2072013992894149965：文末为「打开智能柜周经营复盘工具页，在浏览器本地完成本周复盘：」；原唯一锚文本与 UTM 不变；访谈/人工跟进/加微信/一对一联系/身份征集均为 0；platform_draft_state=draft；draft_saved；revision_pending=false；employment_boundary_synced=true；publish_blocked=false；scheduled=false；published=false。历史临时配额阻塞（antigravity_quota_temporarily_exhausted）已 resolved；legacy_interview_cta_status=deleted（仅表示旧访谈文案已删，不表示草稿本身被删）。
-5. (ledger) 已回写 organic-only 排期与实验台账：WeChat autoreply configured/enabled；贴图计划 canceled（same_channel_topic_overlap_with_2026-08-15_article）；草稿/5 图/provenance 保留为 draft_saved；单点贡献稿 production_ready_revision / external_sync_pending；Zhihu draft_saved / publish_blocked=false / employment_boundary_synced=true；legacy_interview_cta_status=deleted；历史 antigravity_quota_temporarily_exhausted 已 resolved；草稿≠scheduled/published。
+5. (ledger) 已回写 organic-only 排期与实验台账：WeChat autoreply configured/enabled；贴图计划 canceled（same_channel_topic_overlap_with_2026-08-15_article）；草稿/5 图/provenance 保留为 draft_saved；单点贡献稿 production_ready_revision / external_sync_completed / draft_saved；synced=true；scheduled=false；published=false；Zhihu draft_saved / publish_blocked=false / employment_boundary_synced=true；legacy_interview_cta_status=deleted；历史 antigravity_quota_temporarily_exhausted 已 resolved；草稿同步≠scheduled/published。
 
 ## Antigravity
 
 - Bitmap images: **images_ready**（缺货贴图 5 张保留；发布计划 canceled）
 - Cursor prepared revision + briefs only; do not generate bitmaps here.
-- Point-contribution: Agy browser sync only; no WeChat backend publish.
+- Point-contribution: Agy draft sync accepted (external_sync_completed); not published/scheduled.

@@ -765,7 +765,13 @@ def test_manifest_builder_wires_tracking_and_handoff():
     assert manifest["tracking_ids"]["campaign"] == CAMPAIGN
     assert manifest["packets"][0]["external_status"] == STATUS_CANCELED
     assert manifest["packets"][1]["external_status"] == "production_ready_revision"
-    assert manifest["packets"][1]["external_sync_status"] == "external_sync_pending"
+    assert manifest["packets"][1]["external_sync_status"] == "external_sync_completed"
+    assert manifest["packets"][1]["draft_status"] == STATUS_DRAFT_SAVED
+    assert manifest["packets"][1]["synced"] is True
+    assert manifest["packets"][1]["scheduled"] is False
+    assert manifest["packets"][1]["published"] is False
+    assert manifest["packets"][1]["auto_publish"] is False
+    assert manifest["packets"][1]["agy_acceptance"] == "PASS"
     assert manifest["packets"][2]["external_status"] == STATUS_DRAFT_SAVED
     assert manifest["packets"][3]["external_status"] == STATUS_CONFIGURED
     assert manifest["packets"][0]["employment_boundary_synced"] is True
@@ -787,10 +793,19 @@ def test_manifest_builder_wires_tracking_and_handoff():
     assert by_piece[ZHIHU_SCENARIO_PIECE_ID]["block_reason"] is None
     assert by_piece[POINT_CONTRIBUTION_PIECE_ID]["status"] == "production_ready_revision"
     assert by_piece[POINT_CONTRIBUTION_PIECE_ID]["external_sync_status"] == (
-        "external_sync_pending"
+        "external_sync_completed"
     )
+    assert by_piece[POINT_CONTRIBUTION_PIECE_ID]["synced"] is True
+    assert by_piece[POINT_CONTRIBUTION_PIECE_ID]["published"] is False
+    assert by_piece[POINT_CONTRIBUTION_PIECE_ID]["scheduled"] is False
     assert schedule["anti_duplication"]["cancel_reason_code"] == WECHAT_TIEKU_CANCEL_REASON
     assert manifest["browser_handoff"]["remaining_blockers"] == []
     assert manifest["browser_handoff"]["canceled_plans"][0]["reason"] == (
         WECHAT_TIEKU_CANCEL_REASON
     )
+    assert POINT_CONTRIBUTION_PIECE_ID in manifest["external_ops"]["pieces"]
+    assert manifest["external_ops"]["privacy"]["file_ids_recorded"] is False
+    assert manifest["external_ops"]["privacy"]["asset_addresses_recorded"] is False
+    assert manifest["external_ops"]["pieces"][POINT_CONTRIBUTION_PIECE_ID][
+        "agy_acceptance"
+    ] == "PASS"

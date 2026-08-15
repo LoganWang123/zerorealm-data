@@ -18,7 +18,9 @@
     "browser_manual_ops": true,
     "cdn_urls_recorded": false,
     "tokens_recorded": false,
-    "cookies_recorded": false
+    "cookies_recorded": false,
+    "file_ids_recorded": false,
+    "asset_addresses_recorded": false
   },
   "packets": [
     {
@@ -70,15 +72,22 @@
       "title": "点位有销量却不赚钱？用一张周表算清单点贡献",
       "publish_date": "2026-08-15",
       "external_status": "production_ready_revision",
-      "external_sync_status": "external_sync_pending",
+      "external_sync_status": "external_sync_completed",
+      "draft_status": "draft_saved",
       "scheduled": false,
       "published": false,
-      "synced": false,
+      "synced": true,
+      "auto_publish": false,
       "app_id": "100000152",
-      "data_seq": "4649592826320846849",
+      "data_seq": "4650782630374998016",
+      "data_seq_previous": "4649592826320846849",
+      "updated_at": "2026-08-15T21:28:37+08:00",
+      "agy_model": "gemini-3.7-flash-high",
+      "agy_acceptance": "PASS",
       "packet_json": "data/growth/content-packet-o1-wechat-point-contribution-2026-08-15.json",
       "article_source": "content/organic_packets/2026-08-15/o1-wechat-point-contribution.md",
-      "agy_handoff": "docs/reports/wechat-point-contribution-revision-2026-08-15.md"
+      "agy_handoff": "docs/reports/wechat-point-contribution-revision-2026-08-15.md",
+      "note": "Agy（gemini-3.7-flash-high）已浏览器同步并验收 PASS：《点位有销量却不赚钱？用一张周表算清单点贡献》app_id=100000152，data_seq=4650782630374998016（previous 4649592826320846849）；platform_state=draft；draft_saved / external_sync_completed；synced=true；scheduled=false；published=false；auto_publish=false；updated_at=2026-08-15T21:28:37+08:00。草稿同步≠发布；不记录 CDN/file_id/token/cookie/素材地址。"
     },
     {
       "piece_id": "o1-zhihu-inventory-stockout",
@@ -268,8 +277,8 @@
       {
         "order": 3,
         "surface": "wechat_oa_article_revision",
-        "status": "external_sync_pending",
-        "action": "《点位有销量却不赚钱？用一张周表算清单点贡献》本地状态为 production_ready_revision / external_sync_pending；供 Agy 浏览器同步既有草稿；不得标已同步/已发布/已定时；不得操作公众号后台发表。"
+        "status": "external_sync_completed",
+        "action": "Agy（gemini-3.7-flash-high）已浏览器同步并验收 PASS：《点位有销量却不赚钱？用一张周表算清单点贡献》app_id=100000152，data_seq=4650782630374998016（previous 4649592826320846849）；platform_state=draft；draft_saved / external_sync_completed；synced=true；scheduled=false；published=false；auto_publish=false；updated_at=2026-08-15T21:28:37+08:00。草稿同步≠发布；不记录 CDN/file_id/token/cookie/素材地址。"
       },
       {
         "order": 4,
@@ -280,7 +289,7 @@
       {
         "order": 5,
         "surface": "ledger",
-        "action": "已回写 organic-only 排期与实验台账：WeChat autoreply configured/enabled；贴图计划 canceled（same_channel_topic_overlap_with_2026-08-15_article）；草稿/5 图/provenance 保留为 draft_saved；单点贡献稿 production_ready_revision / external_sync_pending；Zhihu draft_saved / publish_blocked=false / employment_boundary_synced=true；legacy_interview_cta_status=deleted；历史 antigravity_quota_temporarily_exhausted 已 resolved；草稿≠scheduled/published。"
+        "action": "已回写 organic-only 排期与实验台账：WeChat autoreply configured/enabled；贴图计划 canceled（same_channel_topic_overlap_with_2026-08-15_article）；草稿/5 图/provenance 保留为 draft_saved；单点贡献稿 production_ready_revision / external_sync_completed / draft_saved；synced=true；scheduled=false；published=false；Zhihu draft_saved / publish_blocked=false / employment_boundary_synced=true；legacy_interview_cta_status=deleted；历史 antigravity_quota_temporarily_exhausted 已 resolved；草稿同步≠scheduled/published。"
       }
     ],
     "antigravity": {
@@ -322,6 +331,8 @@
       "cdn_urls_recorded": false,
       "login_tokens_recorded": false,
       "cookies_recorded": false,
+      "file_ids_recorded": false,
+      "asset_addresses_recorded": false,
       "raw_visible_urls_on_wechat": false,
       "antigravity_account_recorded": false,
       "antigravity_email_recorded": false,
@@ -381,6 +392,28 @@
           "cancel_reason": "same_channel_topic_overlap_with_2026-08-15_article",
           "exited_safely": true
         }
+      },
+      "o1-wechat-point-contribution": {
+        "status": "production_ready_revision",
+        "external_sync_status": "external_sync_completed",
+        "draft_status": "draft_saved",
+        "synced": true,
+        "scheduled": false,
+        "published": false,
+        "auto_publish": false,
+        "employment_boundary_synced": true,
+        "account": "ZeroRealm零域AI",
+        "title": "点位有销量却不赚钱？用一张周表算清单点贡献",
+        "app_id": "100000152",
+        "data_seq": "4650782630374998016",
+        "data_seq_previous": "4649592826320846849",
+        "platform_state": "draft",
+        "updated_at": "2026-08-15T21:28:37+08:00",
+        "agy_model": "gemini-3.7-flash-high",
+        "agy_acceptance": "PASS",
+        "body_image_count": 3,
+        "cover_variants_retained": 2,
+        "note": "Agy（gemini-3.7-flash-high）已浏览器同步并验收 PASS：《点位有销量却不赚钱？用一张周表算清单点贡献》app_id=100000152，data_seq=4650782630374998016（previous 4649592826320846849）；platform_state=draft；draft_saved / external_sync_completed；synced=true；scheduled=false；published=false；auto_publish=false；updated_at=2026-08-15T21:28:37+08:00。草稿同步≠发布；不记录 CDN/file_id/token/cookie/素材地址。"
       },
       "o1-zhihu-inventory-stockout": {
         "status": "draft_saved",
@@ -477,5 +510,5 @@
     "max_cta_per_piece": 1
   },
   "image_status": "images_ready",
-  "generated_at": "2026-08-15T13:13:59+00:00"
+  "generated_at": "2026-08-15T13:36:51+00:00"
 }
