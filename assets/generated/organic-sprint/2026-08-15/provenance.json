@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "ops_date": "2026-08-15",
+  "phase": 1,
+  "model": "gemini-3.7-flash-high",
+  "generated_at": "2026-08-15T07:35:46Z",
+  "generator_agent": "antigravity",
+  "brand_style": "premium Chinese B2B operational intelligence, restrained dark navy/cyan, clean data-card compositions, no fake logos, minimal legible Chinese text",
+  "safety_policy": {
+    "no_stock_images": true,
+    "no_placeholders": true,
+    "no_project_llm_apis": true,
+    "no_cursor_generation": true,
+    "no_invented_metrics": true,
+    "no_cyberpunk_neon": true,
+    "no_robot_hands": true,
+    "no_watermark": true
+  },
+  "images": [
+    {
+      "content_id": "o1-zhihu-inventory-stockout",
+      "piece_id": "o1-zhihu-inventory-stockout",
+      "channel": "zhihu",
+      "purpose": "cover",
+      "asset_path": "assets/generated/organic-sprint/2026-08-15/o1-zhihu-inventory-stockout/cover.png",
+      "aspect_ratio": "16:9",
+      "dimensions": {
+        "width": 1200,
+        "height": 675
+      },
+      "file_size_bytes": 1078046,
+      "sha256": "214bbb7f6cc79233b2fbec519e9b9105e50c150202dd5b12067d0d26375aa24d",
+      "prompt": "A premium B2B editorial visual for smart retail operations research. In a modern corporate office corridor with realistic architectural lighting and deep navy blue walls, a sleek glass-front smart retail vending cabinet stands during an operations check. On the dark navy panel next to the cabinet, an elegant, clean data card framed with subtle cyan borders displays legible Chinese typography: header '库存有货 ≠ 柜机可买' with subtitle '账实 · 同步 · 应售 · 补货时效' and subtle note '浏览器本地计算 · 不上传'. Photorealistic commercial photography, documentary aesthetic, restrained dark navy and cool blue palette, crisp clean hierarchy, no fake percentage numbers, no cyberpunk neon, no robot hands, no watermark, no fake logos.",
+      "prompt_zh": "为「库存显示有货，为什么柜机还是缺货？」生成克制的智能柜运营贴图。场景围绕柜机补货、点位巡检或账实核对；专业真实，无科幻机器人，无霓虹科技风；若叠字仅用 brief 中文，勿虚构排名或行业均值。",
+      "visual_inspection": {
+        "result": "PASS",
+        "reviewed_at": "2026-08-15T07:36:00Z",
+        "reviewer": "antigravity",
+        "aspect_ratio_verified": "16:9 (1200x675)",
+        "composition_check": "Realistic corporate office corridor with smart retail vending cabinet and two operators reviewing operations on tablet. Clean dark navy digital card with legible Chinese typography '库存有货 ≠ 柜机可买' and subtitle '账实 · 同步 · 应售 · 补货时效', restrained dark navy/cyan style, no fake percentages, no fake logos, no watermarks."
+      }
+    }
+  ],
+  "status": "images_ready"
+}

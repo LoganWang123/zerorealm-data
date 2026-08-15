@@ -1036,8 +1036,8 @@ def validate_zhihu_packet(packet: dict[str, Any]) -> None:
             raise ValueError("Zhihu body must not show a raw URL as its own line")
     if body.count(packet["cta"]["url"]) != 1:
         raise ValueError("Zhihu body must contain exactly one CTA URL")
-    if packet["image_status"] != IMAGE_STATUS:
-        raise ValueError("image status must be awaiting_antigravity_images")
+    if packet["image_status"] not in (IMAGE_STATUS, "images_ready"):
+        raise ValueError("image status must be awaiting_antigravity_images or images_ready")
 
 
 def validate_autoreply_packet(packet: dict[str, Any]) -> None:

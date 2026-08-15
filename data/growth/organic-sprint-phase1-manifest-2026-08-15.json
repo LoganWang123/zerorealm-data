@@ -45,7 +45,10 @@
       "publish_date": "2026-08-18",
       "cta_url": "https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=zhihu&utm_medium=article&utm_campaign=founder14d_20260813&utm_content=inventory_vs_stockout_qa",
       "tracking_id": "organic_20260818_zhihu_inventory_stockout",
-      "image_status": "awaiting_antigravity_images",
+      "image_status": "images_ready",
+      "assets": {
+        "cover": "assets/generated/organic-sprint/2026-08-15/o1-zhihu-inventory-stockout/cover.png"
+      },
       "packet_json": "data/growth/content-packet-o1-zhihu-inventory-stockout-2026-08-15.json",
       "article_source": "content/organic_packets/2026-08-15/o1-zhihu-inventory-stockout.md"
     },
@@ -174,6 +177,7 @@
       "note": "Cursor 只准备 image briefs；位图由 Antigravity 生成并回写约定路径。"
     }
   },
+  "image_provenance": "assets/generated/organic-sprint/2026-08-15/provenance.json",
   "single_cta_rule": {
     "tool_page": "https://zerorealm.tech/tools/smart-cabinet-weekly-review",
     "campaign": "founder14d_20260813",

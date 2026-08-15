@@ -21,7 +21,7 @@
     "auto_publish": false,
     "reuse_of": "o1-wechat-stockout-tieku"
   },
-  "status": "production_ready_awaiting_images",
+  "status": "images_ready",
   "title": "库存显示有货，为什么柜机还是缺货？",
   "excerpt": "后台库存显示有货，柜机却买不到，通常不是单一缺货问题。本文用场景拆解账实、同步、应售状态与补货时效，并给出最小动作。",
   "tags": [
@@ -87,10 +87,14 @@
       "content_id": "o1-zhihu-inventory-stockout",
       "channel": "zhihu",
       "purpose": "cover",
-      "status": "awaiting_antigravity_images",
+      "status": "images_ready",
+      "asset_path": "assets/generated/organic-sprint/2026-08-15/o1-zhihu-inventory-stockout/cover.png",
       "aspect_ratio": "16:9",
       "width": 1200,
       "height": 675,
+      "sha256": "214bbb7f6cc79233b2fbec519e9b9105e50c150202dd5b12067d0d26375aa24d",
+      "model": "gemini-3.7-flash-high",
+      "review_result": "PASS",
       "subject": "零域研究贴图视觉：库存显示有货，为什么柜机还是缺货？",
       "must_include": [
         "智能柜 / 终端履约现场",
@@ -117,7 +121,7 @@
       "note": "Cursor 只准备 briefs；Antigravity 生成位图。"
     }
   ],
-  "image_status": "awaiting_antigravity_images",
+  "image_status": "images_ready",
   "sources": [
     {
       "type": "organic_sprint",
