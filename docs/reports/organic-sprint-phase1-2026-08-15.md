@@ -1,7 +1,7 @@
 # Organic sprint phase 1 packets · 2026-08-15
 
 - Status: `phase1_packets_ready`
-- Image status: `awaiting_antigravity_images`
+- Image status: `images_ready`
 - External mutation: `False`
 - LLM API: `False`
 - Friends circle / groups / private: forbidden
@@ -13,6 +13,8 @@
    - tracking: `organic_20260817_wechat_tieku_stockout7`
    - packet: `data/growth/content-packet-o1-wechat-stockout-tieku-2026-08-15.json`
    - image briefs: 5（1:1 方封面 + 4×4:5 竖屏合步：1-2 / 3-4 / 5-6 / 7）
+   - assets: `assets/generated/organic-sprint/2026-08-15/o1-wechat-stockout-tieku/`（cover + panel-1..4）
+   - image_status: `images_ready`
 
 2. **Zhihu 场景改写** `2026-08-18` 《库存显示有货，为什么柜机还是缺货？》
    - piece_id: `o1-zhihu-inventory-stockout`
@@ -44,11 +46,13 @@
 ## Browser handoff
 
 1. (wechat_oa_backend) 浏览器打开公众号后台 → 自动回复：粘贴欢迎语与关键词「复盘表」配置包；链接用后台超链接/菜单，勿把完整网址写成可见纯文本；保存后自测关注与关键词，勿调用本仓发布接口。
-2. (wechat_oa_image_post) 待 Antigravity 贴图位图就绪后，于 2026-08-17 人工发布《柜机缺货先查这7步》；仅公众号公开面；禁止朋友圈/群/私发。
+2. (wechat_oa_image_post) 位图已就绪（images_ready）；于 2026-08-17 人工发布《柜机缺货先查这7步》；仅公众号公开面；禁止朋友圈/群/私发。
 3. (zhihu_editor) 于 2026-08-18 在知乎编辑器粘贴场景改写稿；文末仅保留一个指向周复盘工具的中文锚点链接；人工发布。
 4. (ledger) 发布日记入 organic-only 排期与实验台账：是否单行动入口、是否禁用私域分发、图片状态。
 
 ## Antigravity
 
-- Bitmap images: **awaiting_antigravity_images**
-- Cursor prepared image briefs only; do not generate bitmaps in this phase.
+- Bitmap images: **images_ready**
+- Generator / reviewer: Antigravity · model `gemini-3.7-flash-high`
+- Provenance: `assets/generated/organic-sprint/2026-08-15/provenance.json`
+- Cursor only rewrites paths / hashes / status; does not generate bitmaps.

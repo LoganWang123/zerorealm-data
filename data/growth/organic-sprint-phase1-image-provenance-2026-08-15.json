@@ -39,6 +39,125 @@
         "aspect_ratio_verified": "16:9 (1200x675)",
         "composition_check": "Realistic corporate office corridor with smart retail vending cabinet and two operators reviewing operations on tablet. Clean dark navy digital card with legible Chinese typography '库存有货 ≠ 柜机可买' and subtitle '账实 · 同步 · 应售 · 补货时效', restrained dark navy/cyan style, no fake percentages, no fake logos, no watermarks."
       }
+    },
+    {
+      "content_id": "o1-wechat-stockout-tieku",
+      "piece_id": "o1-wechat-stockout-tieku",
+      "channel": "wechat",
+      "purpose": "cover",
+      "asset_path": "assets/generated/organic-sprint/2026-08-15/o1-wechat-stockout-tieku/cover.png",
+      "aspect_ratio": "1:1",
+      "dimensions": {
+        "width": 1080,
+        "height": 1080
+      },
+      "file_size_bytes": 1768503,
+      "sha256": "ae31a77638a5489a139cce7614f0962be784a23be428435738bff19c7584b463",
+      "prompt": "Generation requirements taken from organic-sprint task image brief (no separate English generation prompt was recorded in-repo). purpose=cover; aspect=1:1; target=1080x1080; overlay primary「柜机缺货先查这7步」 secondary「公开号贴图 · 七步排查」 privacy「浏览器本地计算 · 不上传」; must include smart-cabinet fulfillment scene, realistic lighting, documentary commercial feel; must avoid fake dashboard percentages, cyberpunk neon, robot hands, watermarks, fake logos, emoji, moments-grid cues.",
+      "prompt_zh": "为「柜机缺货先查这7步」生成克制的智能柜运营贴图。场景围绕柜机补货、点位巡检或账实核对；专业真实，无科幻机器人，无霓虹科技风；若叠字仅用 brief 中文，勿虚构排名或行业均值。",
+      "visual_inspection": {
+        "result": "PASS",
+        "reviewed_at": "2026-08-15T08:34:00Z",
+        "reviewer": "antigravity",
+        "aspect_ratio_verified": "1:1 (1080x1080)",
+        "composition_check": "Square cover: operator with clipboard inspecting open smart cabinet in bright lobby; legible Chinese overlay primary「柜机缺货先查这7步」 with secondary「七步排查」; privacy note「浏览器本地计算 · 不上传」; documentary commercial lighting; no fake % or brand logos."
+      }
+    },
+    {
+      "content_id": "o1-wechat-stockout-tieku",
+      "piece_id": "o1-wechat-stockout-tieku",
+      "channel": "wechat",
+      "purpose": "tieku_panel",
+      "asset_path": "assets/generated/organic-sprint/2026-08-15/o1-wechat-stockout-tieku/panel-1.png",
+      "aspect_ratio": "4:5",
+      "dimensions": {
+        "width": 1080,
+        "height": 1350
+      },
+      "file_size_bytes": 2017120,
+      "sha256": "132511863077f3ff8a4147ab14534e2315ad12963a6f90e2b1c797351a66343c",
+      "prompt": "Generation requirements taken from organic-sprint task image brief (no separate English generation prompt was recorded in-repo). purpose=tieku_panel; aspect=4:5; target=1080x1350; overlay primary「第1至2步」 secondary「先定性信号；核对账实再加补」 privacy「浏览器本地计算 · 不上传」; must include smart-cabinet fulfillment scene, realistic lighting, documentary commercial feel; must avoid fake dashboard percentages, cyberpunk neon, robot hands, watermarks, fake logos, emoji, moments-grid cues.",
+      "prompt_zh": "为「柜机缺货先查这7步」生成克制的智能柜运营贴图。场景围绕柜机补货、点位巡检或账实核对；专业真实，无科幻机器人，无霓虹科技风；若叠字仅用 brief 中文，勿虚构排名或行业均值。",
+      "visual_inspection": {
+        "result": "PASS",
+        "reviewed_at": "2026-08-15T08:34:00Z",
+        "reviewer": "antigravity",
+        "aspect_ratio_verified": "4:5 (1080x1350)",
+        "composition_check": "Vertical panel: technician with tablet pointing into open refrigerated cabinet; overlay「第1至2步」/「先定性信号；核对账实再加补」; privacy note present; Chinese-only visible overlay."
+      },
+      "panel_index": 1
+    },
+    {
+      "content_id": "o1-wechat-stockout-tieku",
+      "piece_id": "o1-wechat-stockout-tieku",
+      "channel": "wechat",
+      "purpose": "tieku_panel",
+      "asset_path": "assets/generated/organic-sprint/2026-08-15/o1-wechat-stockout-tieku/panel-2.png",
+      "aspect_ratio": "4:5",
+      "dimensions": {
+        "width": 1080,
+        "height": 1350
+      },
+      "file_size_bytes": 1955831,
+      "sha256": "7289d78f42087818959219a1afc085a83e12ba369bd65d1fc0cff83cdb00b436",
+      "prompt": "Generation requirements taken from organic-sprint task image brief (no separate English generation prompt was recorded in-repo). purpose=tieku_panel; aspect=4:5; target=1080x1350; overlay primary「第3至4步」 secondary「畅销反复断货；补货是否超时」 privacy「浏览器本地计算 · 不上传」; must include smart-cabinet fulfillment scene, realistic lighting, documentary commercial feel; must avoid fake dashboard percentages, cyberpunk neon, robot hands, watermarks, fake logos, emoji, moments-grid cues.",
+      "prompt_zh": "为「柜机缺货先查这7步」生成克制的智能柜运营贴图。场景围绕柜机补货、点位巡检或账实核对；专业真实，无科幻机器人，无霓虹科技风；若叠字仅用 brief 中文，勿虚构排名或行业均值。",
+      "visual_inspection": {
+        "result": "PASS",
+        "reviewed_at": "2026-08-15T08:34:00Z",
+        "reviewer": "antigravity",
+        "aspect_ratio_verified": "4:5 (1080x1350)",
+        "composition_check": "Vertical panel: operator restocking glass-door beverage cabinet with handheld scanner; overlay「第3至4步」/「畅销反复断货；补货是否超时」; privacy note「浏览器本地计算 · 不上传」; Chinese-only overlay."
+      },
+      "panel_index": 2
+    },
+    {
+      "content_id": "o1-wechat-stockout-tieku",
+      "piece_id": "o1-wechat-stockout-tieku",
+      "channel": "wechat",
+      "purpose": "tieku_panel",
+      "asset_path": "assets/generated/organic-sprint/2026-08-15/o1-wechat-stockout-tieku/panel-3.png",
+      "aspect_ratio": "4:5",
+      "dimensions": {
+        "width": 1080,
+        "height": 1350
+      },
+      "file_size_bytes": 1837770,
+      "sha256": "6caed6695b90132e0a8178be9e777c5c087f33ab3c536b5a076e37a17ea769db",
+      "prompt": "Generation requirements taken from organic-sprint task image brief (no separate English generation prompt was recorded in-repo). purpose=tieku_panel; aspect=4:5; target=1080x1350; overlay primary「第5至6步」 secondary「设备在线可售；点位货品错配」 privacy「浏览器本地计算 · 不上传」; must include smart-cabinet fulfillment scene, realistic lighting, documentary commercial feel; must avoid fake dashboard percentages, cyberpunk neon, robot hands, watermarks, fake logos, emoji, moments-grid cues.",
+      "prompt_zh": "为「柜机缺货先查这7步」生成克制的智能柜运营贴图。场景围绕柜机补货、点位巡检或账实核对；专业真实，无科幻机器人，无霓虹科技风；若叠字仅用 brief 中文，勿虚构排名或行业均值。",
+      "visual_inspection": {
+        "result": "PASS",
+        "reviewed_at": "2026-08-15T08:34:00Z",
+        "reviewer": "antigravity",
+        "aspect_ratio_verified": "4:5 (1080x1350)",
+        "composition_check": "Vertical panel: technician with tablet and barcode scanner at open snack/drink cabinet in office corridor; overlay「第5至6步」/「设备在线可售；点位货品错配」; privacy note present; Chinese-only overlay."
+      },
+      "panel_index": 3
+    },
+    {
+      "content_id": "o1-wechat-stockout-tieku",
+      "piece_id": "o1-wechat-stockout-tieku",
+      "channel": "wechat",
+      "purpose": "tieku_panel",
+      "asset_path": "assets/generated/organic-sprint/2026-08-15/o1-wechat-stockout-tieku/panel-4.png",
+      "aspect_ratio": "4:5",
+      "dimensions": {
+        "width": 1080,
+        "height": 1350
+      },
+      "file_size_bytes": 1568399,
+      "sha256": "bf4fa4b68bd76ff07413c8708c30c485408228a6240e600564815a90a92b80a2",
+      "prompt": "Generation requirements taken from organic-sprint task image brief (no separate English generation prompt was recorded in-repo). purpose=tieku_panel; aspect=4:5; target=1080x1350; overlay primary「第7步」 secondary「选定主动作，写下停止规则」 privacy「浏览器本地计算 · 不上传」; must include smart-cabinet fulfillment scene, realistic lighting, documentary commercial feel; must avoid fake dashboard percentages, cyberpunk neon, robot hands, watermarks, fake logos, emoji, moments-grid cues.",
+      "prompt_zh": "为「柜机缺货先查这7步」生成克制的智能柜运营贴图。场景围绕柜机补货、点位巡检或账实核对；专业真实，无科幻机器人，无霓虹科技风；若叠字仅用 brief 中文，勿虚构排名或行业均值。",
+      "visual_inspection": {
+        "result": "PASS",
+        "reviewed_at": "2026-08-15T08:34:00Z",
+        "reviewer": "antigravity",
+        "aspect_ratio_verified": "4:5 (1080x1350)",
+        "composition_check": "Vertical panel: professional reviewing tablet beside smart cabinet/locker UI in bright office; overlay「第7步」 with stop-rule secondary from brief; privacy note「浏览器本地计算 · 不上传」; Chinese-only overlay."
+      },
+      "panel_index": 4
     }
   ],
   "status": "images_ready"

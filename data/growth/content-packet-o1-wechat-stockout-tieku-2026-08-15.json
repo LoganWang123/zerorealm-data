@@ -20,7 +20,7 @@
     ],
     "auto_publish": false
   },
-  "status": "production_ready_awaiting_images",
+  "status": "images_ready",
   "title": "柜机缺货先查这7步",
   "excerpt": "柜机缺货先别盲目加补。用七步分清信号与真实缺货，再决定补货、调货或进入选品复盘。",
   "digest": "柜机缺货先别盲目加补。用七步分清信号与真实缺货，再决定补货、调货或进入选品复盘。",
@@ -57,7 +57,7 @@
       "人工审核后发布；本阶段不调用外部接口改状态"
     ]
   },
-  "body_markdown": "# 柜机缺货先查这7步\n\n> 公开号贴图稿 · 计划发布日 2026-08-17（亚洲/上海）\n> 仅公众号公开面；禁止朋友圈、微信群/社群、个人号私发。\n> 口径：零域参考 / 企业内部实验口径，非行业统一标准。\n> 本包为生产就绪文案；位图状态：等待 Antigravity 出图。禁止本阶段调用外部接口改状态。\n\n## 贴图主旨\n\n柜机报警缺货，不等于立刻该补同一货品。先按七步排查，再决定补货、调货或复盘选品。\n\n## 五图叠字（按序）\n\n封面（方图）：柜机缺货先查这7步\n\n1. 竖屏合步：第1至2步 — 先定性信号；核对账实再加补\n2. 竖屏合步：第3至4步 — 畅销反复断货；补货是否超时\n3. 竖屏合步：第5至6步 — 设备在线可售；点位货品错配\n4. 竖屏合步：第7步 — 选定主动作，写下停止规则\n\n## 七步清单（文案口径）\n\n1. 先定性：是信号噪声，还是真实缺货\n2. 核对库存口径与账实，先校正再加补\n3. 确认是否畅销货品反复断货\n4. 检查补货任务是否超时\n5. 确认设备在线可售\n6. 检查点位与货品是否错配\n7. 选定主动作，并写下停止规则\n\n## 停止规则（写入周复盘）\n\n若同一货品连续两周出现真实缺货，仍不调货、不换品、不改安全库存，则本周强制进入选品与结构复盘，而不是第三次原样加补。\n\n## 唯一行动入口\n\n打开智能柜周经营复盘工具页；订阅经营清单与预约运营商访谈入口在工具页内（人工跟进，不自动群发）。\n\n可见文案只保留中文按钮「打开智能柜周复盘工具页」；追踪参数写在链接属性中，不把完整网址写成可见纯文本。\n",
+  "body_markdown": "# 柜机缺货先查这7步\n\n> 公开号贴图稿 · 计划发布日 2026-08-17（亚洲/上海）\n> 仅公众号公开面；禁止朋友圈、微信群/社群、个人号私发。\n> 口径：零域参考 / 企业内部实验口径，非行业统一标准。\n> 本包为生产就绪文案；位图状态：images_ready（Antigravity / gemini-3.7-flash-high 已生成并验收）。禁止本阶段调用外部接口改状态。\n\n## 贴图主旨\n\n柜机报警缺货，不等于立刻该补同一货品。先按七步排查，再决定补货、调货或复盘选品。\n\n## 五图叠字（按序）\n\n封面（方图）：柜机缺货先查这7步\n\n1. 竖屏合步：第1至2步 — 先定性信号；核对账实再加补\n2. 竖屏合步：第3至4步 — 畅销反复断货；补货是否超时\n3. 竖屏合步：第5至6步 — 设备在线可售；点位货品错配\n4. 竖屏合步：第7步 — 选定主动作，写下停止规则\n\n## 七步清单（文案口径）\n\n1. 先定性：是信号噪声，还是真实缺货\n2. 核对库存口径与账实，先校正再加补\n3. 确认是否畅销货品反复断货\n4. 检查补货任务是否超时\n5. 确认设备在线可售\n6. 检查点位与货品是否错配\n7. 选定主动作，并写下停止规则\n\n## 停止规则（写入周复盘）\n\n若同一货品连续两周出现真实缺货，仍不调货、不换品、不改安全库存，则本周强制进入选品与结构复盘，而不是第三次原样加补。\n\n## 唯一行动入口\n\n打开智能柜周经营复盘工具页；订阅经营清单与预约运营商访谈入口在工具页内（人工跟进，不自动群发）。\n\n可见文案只保留中文按钮「打开智能柜周复盘工具页」；追踪参数写在链接属性中，不把完整网址写成可见纯文本。\n",
   "visible_caption_zh": "【柜机缺货先查这7步】\n柜机报警缺货，不等于立刻该补同一货品。先按七步排查，再决定补货、调货或复盘选品。\n1）先定性：是信号噪声，还是真实缺货；2）核对库存口径与账实，先校正再加补；3）确认是否畅销货品反复断货；4）检查补货任务是否超时；5）确认设备在线可售；6）检查点位与货品是否错配；7）选定主动作，并写下停止规则。\n打开智能柜周经营复盘工具页；订阅经营清单与预约运营商访谈入口在工具页内（人工跟进，不自动群发）。\n点这里：打开智能柜周复盘工具页",
   "html_caption": "<p>【柜机缺货先查这7步】<br/>柜机报警缺货，不等于立刻该补同一货品。先按七步排查，再决定补货、调货或复盘选品。<br/>1）先定性：是信号噪声，还是真实缺货；2）核对库存口径与账实，先校正再加补；3）确认是否畅销货品反复断货；4）检查补货任务是否超时；5）确认设备在线可售；6）检查点位与货品是否错配；7）选定主动作，并写下停止规则。<br/>打开智能柜周经营复盘工具页；订阅经营清单与预约运营商访谈入口在工具页内（人工跟进，不自动群发）。<br/>点这里：<a href=\"https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=wechat&utm_medium=image_post&utm_campaign=founder14d_20260813&utm_content=stockout_7steps_tieku\">打开智能柜周复盘工具页</a></p>",
   "cta": {
@@ -94,7 +94,7 @@
       "content_id": "o1-wechat-stockout-tieku",
       "channel": "wechat",
       "purpose": "cover",
-      "status": "awaiting_antigravity_images",
+      "status": "images_ready",
       "aspect_ratio": "1:1",
       "width": 1080,
       "height": 1080,
@@ -121,13 +121,18 @@
       "prompt_zh": "为「柜机缺货先查这7步」生成克制的智能柜运营贴图。场景围绕柜机补货、点位巡检或账实核对；专业真实，无科幻机器人，无霓虹科技风；若叠字仅用 brief 中文，勿虚构排名或行业均值。",
       "color_hint": "#2563EB 冷蓝白",
       "owner": "antigravity",
-      "note": "Cursor 只准备 briefs；Antigravity 生成位图。"
+      "note": "Cursor 只准备 briefs；Antigravity 生成位图。",
+      "asset_path": "assets/generated/organic-sprint/2026-08-15/o1-wechat-stockout-tieku/cover.png",
+      "sha256": "ae31a77638a5489a139cce7614f0962be784a23be428435738bff19c7584b463",
+      "file_size_bytes": 1768503,
+      "model": "gemini-3.7-flash-high",
+      "review_result": "PASS"
     },
     {
       "content_id": "o1-wechat-stockout-tieku",
       "channel": "wechat",
       "purpose": "tieku_panel",
-      "status": "awaiting_antigravity_images",
+      "status": "images_ready",
       "aspect_ratio": "4:5",
       "width": 1080,
       "height": 1350,
@@ -155,13 +160,18 @@
       "color_hint": "#2563EB 冷蓝白",
       "owner": "antigravity",
       "note": "Cursor 只准备 briefs；Antigravity 生成位图。",
-      "panel_index": 1
+      "panel_index": 1,
+      "asset_path": "assets/generated/organic-sprint/2026-08-15/o1-wechat-stockout-tieku/panel-1.png",
+      "sha256": "132511863077f3ff8a4147ab14534e2315ad12963a6f90e2b1c797351a66343c",
+      "file_size_bytes": 2017120,
+      "model": "gemini-3.7-flash-high",
+      "review_result": "PASS"
     },
     {
       "content_id": "o1-wechat-stockout-tieku",
       "channel": "wechat",
       "purpose": "tieku_panel",
-      "status": "awaiting_antigravity_images",
+      "status": "images_ready",
       "aspect_ratio": "4:5",
       "width": 1080,
       "height": 1350,
@@ -189,13 +199,18 @@
       "color_hint": "#2563EB 冷蓝白",
       "owner": "antigravity",
       "note": "Cursor 只准备 briefs；Antigravity 生成位图。",
-      "panel_index": 2
+      "panel_index": 2,
+      "asset_path": "assets/generated/organic-sprint/2026-08-15/o1-wechat-stockout-tieku/panel-2.png",
+      "sha256": "7289d78f42087818959219a1afc085a83e12ba369bd65d1fc0cff83cdb00b436",
+      "file_size_bytes": 1955831,
+      "model": "gemini-3.7-flash-high",
+      "review_result": "PASS"
     },
     {
       "content_id": "o1-wechat-stockout-tieku",
       "channel": "wechat",
       "purpose": "tieku_panel",
-      "status": "awaiting_antigravity_images",
+      "status": "images_ready",
       "aspect_ratio": "4:5",
       "width": 1080,
       "height": 1350,
@@ -223,13 +238,18 @@
       "color_hint": "#2563EB 冷蓝白",
       "owner": "antigravity",
       "note": "Cursor 只准备 briefs；Antigravity 生成位图。",
-      "panel_index": 3
+      "panel_index": 3,
+      "asset_path": "assets/generated/organic-sprint/2026-08-15/o1-wechat-stockout-tieku/panel-3.png",
+      "sha256": "6caed6695b90132e0a8178be9e777c5c087f33ab3c536b5a076e37a17ea769db",
+      "file_size_bytes": 1837770,
+      "model": "gemini-3.7-flash-high",
+      "review_result": "PASS"
     },
     {
       "content_id": "o1-wechat-stockout-tieku",
       "channel": "wechat",
       "purpose": "tieku_panel",
-      "status": "awaiting_antigravity_images",
+      "status": "images_ready",
       "aspect_ratio": "4:5",
       "width": 1080,
       "height": 1350,
@@ -257,10 +277,15 @@
       "color_hint": "#2563EB 冷蓝白",
       "owner": "antigravity",
       "note": "Cursor 只准备 briefs；Antigravity 生成位图。",
-      "panel_index": 4
+      "panel_index": 4,
+      "asset_path": "assets/generated/organic-sprint/2026-08-15/o1-wechat-stockout-tieku/panel-4.png",
+      "sha256": "bf4fa4b68bd76ff07413c8708c30c485408228a6240e600564815a90a92b80a2",
+      "file_size_bytes": 1568399,
+      "model": "gemini-3.7-flash-high",
+      "review_result": "PASS"
     }
   ],
-  "image_status": "awaiting_antigravity_images",
+  "image_status": "images_ready",
   "continue_stop_metrics_ref": "manifest.continue_stop_metrics",
   "browser_handoff_ref": "manifest.browser_handoff",
   "sources": [

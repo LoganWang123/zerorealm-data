@@ -25,7 +25,7 @@
       "publish_date": "2026-08-17",
       "cta_url": "https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=wechat&utm_medium=image_post&utm_campaign=founder14d_20260813&utm_content=stockout_7steps_tieku",
       "tracking_id": "organic_20260817_wechat_tieku_stockout7",
-      "image_status": "awaiting_antigravity_images",
+      "image_status": "images_ready",
       "image_brief_count": 5,
       "panel_count": 4,
       "panel_step_groups": [
@@ -35,7 +35,14 @@
         "7"
       ],
       "packet_json": "data/growth/content-packet-o1-wechat-stockout-tieku-2026-08-15.json",
-      "article_source": "content/organic_packets/2026-08-15/o1-wechat-stockout-tieku.md"
+      "article_source": "content/organic_packets/2026-08-15/o1-wechat-stockout-tieku.md",
+      "assets": {
+        "cover": "assets/generated/organic-sprint/2026-08-15/o1-wechat-stockout-tieku/cover.png",
+        "panel_1": "assets/generated/organic-sprint/2026-08-15/o1-wechat-stockout-tieku/panel-1.png",
+        "panel_2": "assets/generated/organic-sprint/2026-08-15/o1-wechat-stockout-tieku/panel-2.png",
+        "panel_3": "assets/generated/organic-sprint/2026-08-15/o1-wechat-stockout-tieku/panel-3.png",
+        "panel_4": "assets/generated/organic-sprint/2026-08-15/o1-wechat-stockout-tieku/panel-4.png"
+      }
     },
     {
       "piece_id": "o1-zhihu-inventory-stockout",
@@ -159,7 +166,7 @@
       {
         "order": 2,
         "surface": "wechat_oa_image_post",
-        "action": "待 Antigravity 贴图位图就绪后，于 2026-08-17 人工发布《柜机缺货先查这7步》；仅公众号公开面；禁止朋友圈/群/私发。"
+        "action": "位图已就绪（images_ready）；于 2026-08-17 人工发布《柜机缺货先查这7步》；仅公众号公开面；禁止朋友圈/群/私发。"
       },
       {
         "order": 3,
@@ -173,8 +180,8 @@
       }
     ],
     "antigravity": {
-      "image_status": "awaiting_antigravity_images",
-      "note": "Cursor 只准备 image briefs；位图由 Antigravity 生成并回写约定路径。"
+      "image_status": "images_ready",
+      "note": "公众号贴图 5 张与知乎封面已由 Antigravity（gemini-3.7-flash-high）生成并验收 PASS；Cursor 仅回写路径/哈希/状态，不生成位图。"
     }
   },
   "image_provenance": "assets/generated/organic-sprint/2026-08-15/provenance.json",
@@ -183,6 +190,6 @@
     "campaign": "founder14d_20260813",
     "max_cta_per_piece": 1
   },
-  "image_status": "awaiting_antigravity_images",
+  "image_status": "images_ready",
   "generated_at": "2026-08-15T07:28:00+00:00"
 }

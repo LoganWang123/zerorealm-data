@@ -990,8 +990,10 @@ def validate_wechat_tieku_packet(packet: dict[str, Any]) -> None:
         cta_url=packet["cta"]["url"],
     )
     assert_no_forbidden_distribution(packet["visible_caption_zh"])
-    if packet["image_status"] != IMAGE_STATUS:
-        raise ValueError("image status must be awaiting_antigravity_images")
+    if packet["image_status"] not in (IMAGE_STATUS, "images_ready"):
+        raise ValueError(
+            "image status must be awaiting_antigravity_images or images_ready"
+        )
     briefs = packet.get("image_briefs") or []
     if len(briefs) != 5:
         raise ValueError("WeChat 贴图 must have exactly 5 image briefs")
@@ -1005,10 +1007,14 @@ def validate_wechat_tieku_packet(packet: dict[str, Any]) -> None:
             raise ValueError("non-cover briefs must be tieku_panel")
         if panel.get("aspect_ratio") != "4:5":
             raise ValueError("tieku panels must be vertical 4:5")
-        if panel.get("status") != IMAGE_STATUS:
-            raise ValueError("panel status must be awaiting_antigravity_images")
-    if cover.get("status") != IMAGE_STATUS:
-        raise ValueError("cover status must be awaiting_antigravity_images")
+        if panel.get("status") not in (IMAGE_STATUS, "images_ready"):
+            raise ValueError(
+                "panel status must be awaiting_antigravity_images or images_ready"
+            )
+    if cover.get("status") not in (IMAGE_STATUS, "images_ready"):
+        raise ValueError(
+            "cover status must be awaiting_antigravity_images or images_ready"
+        )
     formatting = packet.get("platform_formatting") or {}
     if formatting.get("panel_count") != 4 or formatting.get("image_brief_count") != 5:
         raise ValueError("platform_formatting must declare 5 briefs / 4 panels")
