@@ -9,7 +9,7 @@
 - Secrets policy: no CDN URLs / login tokens / cookies recorded; no Antigravity account/email or quota recovery clock
 - Conversion: `公开内容 → 关注公众号 → 回复「复盘表」→ 自助使用周经营复盘工具；可公开订阅，无一对一/加微信/访谈`
 - Professional boundaries: declared in packet compliance
-- Truthfulness correction: WeChat external configs/drafts deleted (`employment_boundary_synced=true`); Zhihu external draft `revision_pending` / `publish_blocked=true` (`antigravity_quota_temporarily_exhausted`)
+- Truthfulness: WeChat autoreply `configured`/`enabled`; 贴图 `draft_saved` + publish blocked by `admin_qr_verification_required` (`employment_boundary_synced=true`); Zhihu external draft accepted (`draft_saved`, `revision_pending=false`, `publish_blocked=false`, `employment_boundary_synced=true`); `legacy_interview_cta_status=deleted`; historical `antigravity_quota_temporarily_exhausted` resolved
 
 ## Packets
 
@@ -20,8 +20,10 @@
    - image briefs: 5（1:1 方封面 + 4×4:5 竖屏合步：1-2 / 3-4 / 5-6 / 7）
    - assets: `assets/generated/organic-sprint/2026-08-15/o1-wechat-stockout-tieku/`（cover + panel-1..4）
    - image_status: `images_ready`
-   - external_status: `deleted`
+   - external_status: `blocked`
+   - draft_status: `draft_saved`
    - employment_boundary_synced: `true`
+   - publish_blocked: `true` (`admin_qr_verification_required`)
    - CTA: 关注公众号后回复「复盘表」，自助打开智能柜周经营复盘工具；可在工具页公开订阅经营清单
 
 2. **Zhihu 场景改写** `2026-08-18` 《库存显示有货，为什么柜机还是缺货？》
@@ -30,27 +32,31 @@
    - packet: `data/growth/content-packet-o1-zhihu-inventory-stockout-2026-08-15.json`
    - local packet: corrected (self-serve「复盘表」CTA)
    - external draft id: `2072013992894149965`
-   - external_status: `revision_pending`
-   - employment_boundary_synced: `false`
-   - publish_blocked: `true`
-   - block_reason: `antigravity_quota_temporarily_exhausted`
-   - gate: 恢复后必须删除旧访谈/人工跟进 CTA，并重新验收后才可发布
+   - external_status: `draft_saved`
+   - revision_pending: `false`
+   - employment_boundary_synced: `true`
+   - publish_blocked: `false`
+   - legacy_interview_cta_status: `deleted`
+   - CTA lead-in verified: `打开智能柜周经营复盘工具页，在浏览器本地完成本周复盘：`
+   - outreach counts: interview/manual_followup/add_wechat/one_to_one/identity = 0
+   - historical quota `antigravity_quota_temporarily_exhausted`: resolved
    - CTA: 关注公众号后回复「复盘表」，自助打开智能柜周经营复盘工具；可在工具页公开订阅经营清单
 
 3. **公众号欢迎语 + 关键词「复盘表」**
    - piece_id: `o1-wechat-autoreply-fupan`
    - packet: `data/growth/config-packet-o1-wechat-autoreply-2026-08-15.json`
-   - external_status: `deleted`
+   - external_status: `configured` (enabled)
    - employment_boundary_synced: `true`
    - false Excel download claim: **no**
    - interview CTA: **removed**
+   - note: `deleted` 不得用于自动回复规则
 
 ## Schedule / ledger
 
 - Approved organic-only schedule: `data/growth/organic-only-schedule-2026-08-15.json` (approved=True)
 - Experiment ledger overlay: `data/growth/organic-experiment-ledger-2026-08-15.json`
 - Manifest: `data/growth/organic-sprint-phase1-manifest-2026-08-15.json`
-- Rule: `revision_pending` 内容不得 `scheduled` / `published`
+- Rule: draft ≠ scheduled/published; `deleted` only for `legacy_interview_cta_status`
 
 ## Anonymous 14d metrics
 
@@ -77,10 +83,10 @@
 
 ## Browser handoff
 
-1. (wechat_oa_backend · deleted) 公众号欢迎语与关键词「复盘表」线上配置已删除；employment_boundary_synced=true。
-2. (wechat_oa_image_post · deleted) 微信贴图草稿《柜机缺货先查这7步》已线上删除；employment_boundary_synced=true；勿记为 scheduled/published。此前定时曾因 admin_qr_verification_required 阻塞，现草稿已不存在。
-3. (zhihu_editor · revision_pending) 本地 packet 已改为自助「复盘表」/工具页 CTA；外部草稿 2072013992894149965 文末仍含旧「预约运营商访谈/人工跟进」表述，状态 revision_pending，原因 antigravity_quota_temporarily_exhausted。恢复后必须经浏览器删除旧访谈 CTA、重新验收后才可发布；不得记录 Antigravity 登录账号、邮箱或配额恢复的动态精确时间。
-4. (ledger) 已回写 organic-only 排期与实验台账：WeChat deleted + employment_boundary_synced；Zhihu revision_pending / publish_blocked；revision_pending ≠ scheduled/published。
+1. (wechat_oa_backend · configured) 公众号欢迎语与关键词「复盘表」已 configured/enabled；employment_boundary_synced=true。不得用 deleted 描述自动回复规则。
+2. (wechat_oa_image_post · blocked) 微信贴图草稿仍为 draft_saved（5 图）；未定时未发布；发布仍被 admin_qr_verification_required 阻塞；employment_boundary_synced=true。不得用 deleted 描述贴图草稿。
+3. (zhihu_editor · draft_saved) Agy 新账号已核验知乎草稿 2072013992894149965：文末为「打开智能柜周经营复盘工具页，在浏览器本地完成本周复盘：」；原唯一锚文本与 UTM 不变；访谈/人工跟进/加微信/一对一联系/身份征集均为 0；revision_pending=false；employment_boundary_synced=true；publish_blocked=false；legacy_interview_cta_status=deleted；历史 antigravity_quota_temporarily_exhausted 已 resolved。
+4. (ledger) 已回写 organic-only 排期与实验台账：configured / draft_saved / blocked；deleted 仅用于 legacy_interview_cta_status；草稿≠scheduled/published。
 
 ## Antigravity
 
@@ -88,4 +94,4 @@
 - Generator / reviewer: Antigravity · model `gemini-3.7-flash-high`
 - Provenance: `assets/generated/organic-sprint/2026-08-15/provenance.json`
 - Cursor only rewrites paths / hashes / status; does not generate bitmaps.
-- Zhihu external draft revision blocked by `antigravity_quota_temporarily_exhausted` (no account/email/recovery clock recorded).
+- Zhihu external draft accepted after Agy new-account verification; historical `antigravity_quota_temporarily_exhausted` resolved (no account/email/recovery clock recorded).

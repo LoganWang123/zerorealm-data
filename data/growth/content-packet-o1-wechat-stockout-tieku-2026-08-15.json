@@ -312,10 +312,12 @@
   "auto_publish": false,
   "llm_api_used": false,
   "external_state_mutated": false,
-  "external_status": "deleted",
-  "draft_status": "deleted",
+  "external_status": "blocked",
+  "draft_status": "draft_saved",
   "assets_status": "assets_ready",
   "scheduled": false,
   "published": false,
-  "employment_boundary_synced": true
+  "employment_boundary_synced": true,
+  "publish_blocked": true,
+  "block_reason": "admin_qr_verification_required"
 }

@@ -15,6 +15,8 @@ from growth.organic_sprint_phase1 import (
     KEYWORD_FUPAN,
     OPS_DATE,
     STATUS_ASSETS_READY,
+    STATUS_BLOCKED,
+    STATUS_CONFIGURED,
     STATUS_DELETED,
     STATUS_DRAFT_SAVED,
     STATUS_PUBLISHED,
@@ -29,12 +31,14 @@ from growth.organic_sprint_phase1 import (
     WECHAT_TIEKU_PIECE_ID,
     WECHAT_TIEKU_TITLE,
     WECHAT_WELCOME_RULE_ID,
+    ZHIHU_CTA_LEAD_IN_ZH,
     ZHIHU_DATE,
     ZHIHU_DRAFT_ID,
     ZHIHU_PLANNED_WINDOW,
     ZHIHU_REVISION_REASON,
     ZHIHU_SCENARIO_PIECE_ID,
     ZHIHU_TITLE,
+    assert_deleted_only_for_legacy_interview_cta,
     assert_revision_pending_not_publishable,
     build_external_ops_verification,
     build_organic_experiment_ledger_update,
@@ -277,19 +281,23 @@ def test_committed_artifacts_match_phase1_contract():
     assert zhihu["title"] == "库存显示有货，为什么柜机还是缺货？"
     assert wechat["image_status"] == IMAGES_READY
     assert zhihu["image_status"] == IMAGES_READY
-    assert wechat["external_status"] == STATUS_DELETED
-    assert wechat["draft_status"] == STATUS_DELETED
+    assert wechat["external_status"] == STATUS_BLOCKED
+    assert wechat["draft_status"] == STATUS_DRAFT_SAVED
     assert wechat["employment_boundary_synced"] is True
+    assert wechat["publish_blocked"] is True
+    assert wechat["block_reason"] == WECHAT_BLOCK_REASON
     assert wechat["scheduled"] is False
     assert wechat["published"] is False
-    assert zhihu["external_status"] == STATUS_REVISION_PENDING
-    assert zhihu["employment_boundary_synced"] is False
-    assert zhihu["publish_blocked"] is True
-    assert zhihu["block_reason"] == ZHIHU_REVISION_REASON
+    assert zhihu["external_status"] == STATUS_DRAFT_SAVED
+    assert zhihu["employment_boundary_synced"] is True
+    assert zhihu["publish_blocked"] is False
+    assert zhihu.get("revision_pending") is False
+    assert zhihu.get("block_reason") in (None, "")
     assert zhihu["local_packet_corrected"] is True
+    assert zhihu["legacy_interview_cta_status"] == STATUS_DELETED
     assert zhihu["scheduled"] is False
     assert zhihu["published"] is False
-    assert autoreply["external_status"] == STATUS_DELETED
+    assert autoreply["external_status"] == STATUS_CONFIGURED
     assert autoreply["employment_boundary_synced"] is True
     assert len(wechat["image_briefs"]) == 5
     assert wechat["platform_formatting"]["panel_step_groups"] == [
@@ -312,23 +320,26 @@ def test_committed_artifacts_match_phase1_contract():
     )
     assert wechat_entry["image_status"] == IMAGES_READY
     assert zhihu_entry["image_status"] == IMAGES_READY
-    assert wechat_entry["external_status"] == STATUS_DELETED
-    assert wechat_entry["draft_status"] == STATUS_DELETED
+    assert wechat_entry["external_status"] == STATUS_BLOCKED
+    assert wechat_entry["draft_status"] == STATUS_DRAFT_SAVED
     assert wechat_entry["assets_status"] == STATUS_ASSETS_READY
     assert wechat_entry["employment_boundary_synced"] is True
+    assert wechat_entry["publish_blocked"] is True
+    assert wechat_entry["block_reason"] == WECHAT_BLOCK_REASON
     assert wechat_entry["scheduled"] is False
     assert wechat_entry["published"] is False
     assert wechat_entry["app_id"] == WECHAT_TIEKU_APP_ID
     assert wechat_entry["data_seq"] == WECHAT_TIEKU_DATA_SEQ
-    assert zhihu_entry["external_status"] == STATUS_REVISION_PENDING
-    assert zhihu_entry["employment_boundary_synced"] is False
-    assert zhihu_entry["publish_blocked"] is True
-    assert zhihu_entry["block_reason"] == ZHIHU_REVISION_REASON
+    assert zhihu_entry["external_status"] == STATUS_DRAFT_SAVED
+    assert zhihu_entry["employment_boundary_synced"] is True
+    assert zhihu_entry["publish_blocked"] is False
+    assert zhihu_entry["revision_pending"] is False
+    assert zhihu_entry["legacy_interview_cta_status"] == STATUS_DELETED
     assert zhihu_entry["draft_id"] == ZHIHU_DRAFT_ID
     assert zhihu_entry["planned_publish_window"] == ZHIHU_PLANNED_WINDOW
     assert zhihu_entry["scheduled"] is False
     assert zhihu_entry["published"] is False
-    assert autoreply_entry["external_status"] == STATUS_DELETED
+    assert autoreply_entry["external_status"] == STATUS_CONFIGURED
     assert autoreply_entry["employment_boundary_synced"] is True
     assert autoreply_entry["welcome_rule_id"] == WECHAT_WELCOME_RULE_ID
     assert autoreply_entry["keyword_rule_id"] == WECHAT_KEYWORD_RULE_ID
@@ -338,7 +349,6 @@ def test_committed_artifacts_match_phase1_contract():
 
     template = _load("data/growth/experiment-ledger.template.json")
     assert "organic sprint phase 1" in template["notes"]
-    assert STATUS_REVISION_PENDING in template["notes"]
     assert STATUS_SCHEDULED not in (
         wechat_entry["external_status"],
         zhihu_entry["external_status"],
@@ -349,6 +359,12 @@ def test_committed_artifacts_match_phase1_contract():
         zhihu_entry["external_status"],
         autoreply_entry["external_status"],
     )
+    assert STATUS_DELETED not in (
+        wechat_entry["external_status"],
+        zhihu_entry["external_status"],
+        autoreply_entry["external_status"],
+        wechat_entry["draft_status"],
+    )
 
     report = (
         ROOT / "docs/reports/organic-sprint-phase1-2026-08-15.md"
@@ -356,10 +372,16 @@ def test_committed_artifacts_match_phase1_contract():
     assert IMAGES_READY in report
     assert "2026-08-17" in report
     assert "2026-08-18" in report
+    assert STATUS_CONFIGURED in report
+    assert STATUS_DRAFT_SAVED in report
+    assert STATUS_BLOCKED in report
+    assert WECHAT_BLOCK_REASON in report
+    assert "legacy_interview_cta_status" in report
     assert STATUS_DELETED in report
-    assert STATUS_REVISION_PENDING in report
+    assert "resolved" in report.lower()
     assert ZHIHU_REVISION_REASON in report
     assert "employment_boundary_synced" in report
+    assert ZHIHU_CTA_LEAD_IN_ZH in report
     assert "cdn" not in report.lower() or "no CDN" in report
     assert "cookie" not in report.lower() or "cookies recorded" in report.lower()
     assert "约 58" not in report
@@ -370,92 +392,123 @@ def test_committed_artifacts_match_phase1_contract():
 def test_external_ops_lifecycle_distinguishes_draft_from_scheduled_published():
     ops = build_external_ops_verification()
     validate_external_ops(ops)
+    assert_deleted_only_for_legacy_interview_cta(ops)
     assert ops["privacy"]["cdn_urls_recorded"] is False
     assert ops["privacy"]["login_tokens_recorded"] is False
     assert ops["privacy"]["cookies_recorded"] is False
     assert ops["privacy"]["antigravity_account_recorded"] is False
     assert ops["privacy"]["antigravity_email_recorded"] is False
     assert ops["privacy"]["quota_recovery_clock_recorded"] is False
+    assert ops["truthfulness_correction"]["external_wechat_deleted"] is False
+    assert ops["truthfulness_correction"]["external_zhihu_revision_pending"] is False
 
     autoreply = ops["pieces"][WECHAT_AUTOREPLY_PIECE_ID]
     wechat = ops["pieces"][WECHAT_TIEKU_PIECE_ID]
     zhihu = ops["pieces"][ZHIHU_SCENARIO_PIECE_ID]
 
-    assert autoreply["status"] == STATUS_DELETED
+    assert autoreply["status"] == STATUS_CONFIGURED
     assert autoreply["employment_boundary_synced"] is True
     assert autoreply["welcome"]["rule_id"] == WECHAT_WELCOME_RULE_ID
     assert autoreply["keyword"]["rule_id"] == WECHAT_KEYWORD_RULE_ID
     assert autoreply["keyword"]["match"] == "exact"
-    assert autoreply["welcome"]["enabled"] is False
-    assert autoreply["keyword"]["enabled"] is False
+    assert autoreply["welcome"]["enabled"] is True
+    assert autoreply["keyword"]["enabled"] is True
+    assert autoreply["welcome"]["status"] == STATUS_CONFIGURED
+    assert autoreply["keyword"]["status"] == STATUS_CONFIGURED
 
-    assert wechat["status"] == STATUS_DELETED
-    assert wechat["draft_status"] == STATUS_DELETED
+    assert wechat["status"] == STATUS_BLOCKED
+    assert wechat["draft_status"] == STATUS_DRAFT_SAVED
     assert wechat["employment_boundary_synced"] is True
+    assert wechat["publish_blocked"] is True
+    assert wechat["block_reason"] == WECHAT_BLOCK_REASON
     assert wechat["assets_status"] == STATUS_ASSETS_READY
     assert wechat["scheduled"] is False
     assert wechat["published"] is False
-    assert wechat["status"] not in (STATUS_SCHEDULED, STATUS_PUBLISHED)
-    assert wechat["prior_schedule_attempt"]["block_reason"] == WECHAT_BLOCK_REASON
-    assert wechat["prior_schedule_attempt"]["exited_safely"] is True
+    assert wechat["status"] not in (STATUS_SCHEDULED, STATUS_PUBLISHED, STATUS_DELETED)
+    assert wechat["schedule_attempt"]["block_reason"] == WECHAT_BLOCK_REASON
+    assert wechat["schedule_attempt"]["exited_safely"] is True
     assert wechat["app_id"] == WECHAT_TIEKU_APP_ID
     assert wechat["data_seq"] == WECHAT_TIEKU_DATA_SEQ
     assert wechat["image_count"] == 5
 
-    assert zhihu["status"] == STATUS_REVISION_PENDING
-    assert zhihu["employment_boundary_synced"] is False
-    assert zhihu["publish_blocked"] is True
-    assert zhihu["block_reason"] == ZHIHU_REVISION_REASON
+    assert zhihu["status"] == STATUS_DRAFT_SAVED
+    assert zhihu["revision_pending"] is False
+    assert zhihu["employment_boundary_synced"] is True
+    assert zhihu["publish_blocked"] is False
+    assert zhihu["block_reason"] is None
     assert zhihu["local_packet_corrected"] is True
+    assert zhihu["external_draft_accepted"] is True
+    assert zhihu["legacy_interview_cta_status"] == STATUS_DELETED
+    assert zhihu["cta_verification"]["lead_in_zh"] == ZHIHU_CTA_LEAD_IN_ZH
     assert zhihu["scheduled"] is False
     assert zhihu["published"] is False
-    assert zhihu["status"] not in (STATUS_SCHEDULED, STATUS_PUBLISHED)
+    assert zhihu["status"] not in (
+        STATUS_SCHEDULED,
+        STATUS_PUBLISHED,
+        STATUS_REVISION_PENDING,
+    )
     assert zhihu["draft_id"] == ZHIHU_DRAFT_ID
     assert zhihu["planned_publish_window"] == ZHIHU_PLANNED_WINDOW
-    assert "single_cta" in zhihu["unverified_after_local_correction"]
-    assert ops["blockers"][0]["reason"] == ZHIHU_REVISION_REASON
+    assert ops["blockers"][0]["reason"] == WECHAT_BLOCK_REASON
+    assert all(e["resolved"] is True for e in ops["resolved_events"])
+    assert any(
+        e["id"] == "zhihu_revision_pending_quota" and e["reason"] == ZHIHU_REVISION_REASON
+        for e in ops["resolved_events"]
+    )
 
     ledger = build_organic_experiment_ledger_update()
-    assert ledger["alerts"][0]["reason"] == ZHIHU_REVISION_REASON
-    assert STATUS_REVISION_PENDING in ledger["notes"]
+    assert ledger["alerts"][0]["reason"] == WECHAT_BLOCK_REASON
+    assert ledger["alerts"][0]["resolved"] is False
+    quota_alert = next(a for a in ledger["alerts"] if a["id"] == "zhihu_revision_pending_quota")
+    assert quota_alert["resolved"] is True
     assert "employment_boundary_synced" in ledger["notes"]
     assert "antigravity_quota_temporarily_exhausted" in ledger["notes"]
+    assert "resolved" in ledger["notes"]
+    assert STATUS_CONFIGURED in ledger["notes"] or "configured" in ledger["notes"]
 
 
 def test_revision_pending_must_not_be_scheduled_or_published():
-    ops = build_external_ops_verification()
-    zhihu = ops["pieces"][ZHIHU_SCENARIO_PIECE_ID]
-    assert_revision_pending_not_publishable(zhihu)
+    synthetic = {
+        "status": STATUS_REVISION_PENDING,
+        "publish_blocked": True,
+        "scheduled": False,
+        "published": False,
+        "publish_status": "not_published",
+        "schedule_status": "unsupported_on_web",
+    }
+    assert_revision_pending_not_publishable(synthetic)
 
-    bad_scheduled = dict(zhihu, scheduled=True)
+    bad_scheduled = dict(synthetic, scheduled=True)
     try:
         assert_revision_pending_not_publishable(bad_scheduled)
         raise AssertionError("expected scheduled revision_pending to fail")
     except ValueError as exc:
         assert "scheduled/published" in str(exc)
 
-    bad_published = dict(zhihu, published=True)
+    bad_published = dict(synthetic, published=True)
     try:
         assert_revision_pending_not_publishable(bad_published)
         raise AssertionError("expected published revision_pending to fail")
     except ValueError as exc:
         assert "scheduled/published" in str(exc)
 
-    bad_unblocked = dict(zhihu, publish_blocked=False)
+    bad_unblocked = dict(synthetic, publish_blocked=False)
     try:
         assert_revision_pending_not_publishable(bad_unblocked)
         raise AssertionError("expected publish_blocked=false to fail")
     except ValueError as exc:
         assert "publish_blocked" in str(exc)
 
+    ops = build_external_ops_verification()
     schedule = _load("data/growth/organic-only-schedule-2026-08-15.json")
     zhihu_row = next(
         row
         for row in schedule["calendar"]
         if row["piece_id"] == ZHIHU_SCENARIO_PIECE_ID
     )
-    assert zhihu_row["status"] == STATUS_REVISION_PENDING
-    assert zhihu_row["publish_blocked"] is True
+    assert zhihu_row["status"] == STATUS_DRAFT_SAVED
+    assert zhihu_row["publish_blocked"] is False
+    assert zhihu_row["revision_pending"] is False
     assert zhihu_row["scheduled"] is False
     assert zhihu_row["published"] is False
     assert zhihu_row["status"] not in (STATUS_SCHEDULED, STATUS_PUBLISHED)
@@ -471,27 +524,35 @@ def test_revision_pending_must_not_be_scheduled_or_published():
     poisoned_row["scheduled"] = True
     try:
         validate_schedule(poisoned)
-        raise AssertionError("revision_pending scheduled calendar must be rejected")
+        raise AssertionError("scheduled Zhihu calendar must be rejected")
     except ValueError as exc:
-        assert "scheduled/published" in str(exc) or "revision_pending" in str(exc)
+        assert "scheduled/published" in str(exc) or "draft_saved" in str(exc)
 
     poisoned_row["status"] = STATUS_PUBLISHED
     poisoned_row["scheduled"] = False
     poisoned_row["published"] = True
     try:
         validate_schedule(poisoned)
-        raise AssertionError("revision_pending published calendar must be rejected")
+        raise AssertionError("published Zhihu calendar must be rejected")
     except ValueError as exc:
-        assert "scheduled/published" in str(exc) or "revision_pending" in str(exc)
+        assert "scheduled/published" in str(exc) or "draft_saved" in str(exc)
 
     ops_poisoned = json.loads(json.dumps(ops))
     ops_poisoned["pieces"][ZHIHU_SCENARIO_PIECE_ID]["status"] = STATUS_PUBLISHED
     ops_poisoned["pieces"][ZHIHU_SCENARIO_PIECE_ID]["published"] = True
     try:
         validate_external_ops(ops_poisoned)
-        raise AssertionError("published revision must be rejected by external_ops")
+        raise AssertionError("published Zhihu must be rejected by external_ops")
     except ValueError:
         pass
+
+    deleted_poison = json.loads(json.dumps(ops))
+    deleted_poison["pieces"][WECHAT_AUTOREPLY_PIECE_ID]["status"] = STATUS_DELETED
+    try:
+        validate_external_ops(deleted_poison)
+        raise AssertionError("deleted autoreply must be rejected")
+    except ValueError as exc:
+        assert "deleted" in str(exc).lower() or "configured" in str(exc)
 
     blob = json.dumps(ops, ensure_ascii=False).lower()
     assert "@gmail" not in blob
@@ -680,21 +741,24 @@ def test_manifest_builder_wires_tracking_and_handoff():
     assert manifest["browser_handoff"]["browser_manual_ops_recorded"] is True
     assert manifest["status"] == "phase1_external_ops_recorded"
     assert manifest["tracking_ids"]["campaign"] == CAMPAIGN
-    assert manifest["packets"][0]["external_status"] == STATUS_DELETED
-    assert manifest["packets"][1]["external_status"] == STATUS_REVISION_PENDING
-    assert manifest["packets"][2]["external_status"] == STATUS_DELETED
+    assert manifest["packets"][0]["external_status"] == STATUS_BLOCKED
+    assert manifest["packets"][1]["external_status"] == STATUS_DRAFT_SAVED
+    assert manifest["packets"][2]["external_status"] == STATUS_CONFIGURED
     assert manifest["packets"][0]["employment_boundary_synced"] is True
-    assert manifest["packets"][1]["employment_boundary_synced"] is False
-    assert manifest["packets"][1]["publish_blocked"] is True
+    assert manifest["packets"][1]["employment_boundary_synced"] is True
+    assert manifest["packets"][1]["publish_blocked"] is False
+    assert manifest["packets"][1]["revision_pending"] is False
+    assert manifest["packets"][1]["legacy_interview_cta_status"] == STATUS_DELETED
     assert manifest["packets"][2]["employment_boundary_synced"] is True
     validate_external_ops(manifest["external_ops"])
-    assert schedule["calendar"][0]["status"] == STATUS_DELETED
-    assert schedule["calendar"][1]["status"] == STATUS_DELETED
-    assert schedule["calendar"][2]["status"] == STATUS_REVISION_PENDING
+    assert schedule["calendar"][0]["status"] == STATUS_CONFIGURED
+    assert schedule["calendar"][1]["status"] == STATUS_BLOCKED
+    assert schedule["calendar"][1]["draft_status"] == STATUS_DRAFT_SAVED
+    assert schedule["calendar"][2]["status"] == STATUS_DRAFT_SAVED
     assert schedule["calendar"][1]["scheduled"] is False
     assert schedule["calendar"][2]["published"] is False
-    assert schedule["calendar"][2]["publish_blocked"] is True
-    assert schedule["calendar"][2]["block_reason"] == ZHIHU_REVISION_REASON
+    assert schedule["calendar"][2]["publish_blocked"] is False
+    assert schedule["calendar"][2]["block_reason"] is None
     assert manifest["browser_handoff"]["remaining_blockers"][0]["reason"] == (
-        ZHIHU_REVISION_REASON
+        WECHAT_BLOCK_REASON
     )

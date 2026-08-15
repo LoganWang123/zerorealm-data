@@ -42,6 +42,8 @@ ZHIHU_DATE = "2026-08-18"
 KEYWORD_FUPAN = "复盘表"
 
 # External platform lifecycle (draft ≠ scheduled/published).
+# STATUS_DELETED is ONLY for legacy_interview_cta_status / stale interview copy —
+# never for WeChat auto-reply rules or WeChat/Zhihu drafts themselves.
 STATUS_ASSETS_READY = "assets_ready"
 STATUS_DRAFT_SAVED = "draft_saved"
 STATUS_SCHEDULED = "scheduled"
@@ -75,16 +77,30 @@ WECHAT_BLOCK_REASON = "admin_qr_verification_required"
 ZHIHU_DRAFT_ID = "2072013992894149965"
 ZHIHU_PLANNED_WINDOW = "2026-08-18T20:30:00+08:00"
 ZHIHU_REVISION_REASON = "antigravity_quota_temporarily_exhausted"
-EMPLOYMENT_BOUNDARY_DELETION_NOTE = (
-    "线上配置/草稿已删除，与自助漏斗及雇佣边界口径对齐；"
-    "本地 packet 保留生产就绪文案，待边界同步后可重新配置/建稿。"
+ZHIHU_EXTERNAL_VERIFIED_AT = "2026-08-15T19:05:00+08:00"
+ZHIHU_CTA_LEAD_IN_ZH = (
+    "打开智能柜周经营复盘工具页，在浏览器本地完成本周复盘："
 )
-ZHIHU_REVISION_NOTE = (
-    "本地 packet 已改为自助「复盘表」/工具页 CTA；"
-    f"外部草稿 {ZHIHU_DRAFT_ID} 文末仍含旧「预约运营商访谈/人工跟进」表述，"
-    f"状态 {STATUS_REVISION_PENDING}，原因 {ZHIHU_REVISION_REASON}。"
-    "恢复后必须经浏览器删除旧访谈 CTA、重新验收后才可发布；"
-    "不得记录 Antigravity 登录账号、邮箱或配额恢复的动态精确时间。"
+ZHIHU_ACCEPTED_NOTE = (
+    f"Agy 新账号已核验知乎草稿 {ZHIHU_DRAFT_ID}：文末为「{ZHIHU_CTA_LEAD_IN_ZH}」；"
+    "原唯一锚文本与 UTM 不变；访谈/人工跟进/加微信/一对一联系/身份征集均为 0；"
+    f"platform_draft_state=draft；{STATUS_DRAFT_SAVED}；"
+    "revision_pending=false；employment_boundary_synced=true；"
+    "publish_blocked=false；scheduled=false；published=false。"
+    f"历史临时配额阻塞（{ZHIHU_REVISION_REASON}）已 resolved；"
+    f"legacy_interview_cta_status={STATUS_DELETED}（仅表示旧访谈文案已删，"
+    "不表示草稿本身被删）。"
+)
+WECHAT_AUTOREPLY_NOTE = (
+    "公众号欢迎语与关键词「复盘表」已 configured/enabled；"
+    "employment_boundary_synced=true。"
+    f"不得用 {STATUS_DELETED} 描述自动回复规则。"
+)
+WECHAT_TIEKU_NOTE = (
+    f"微信贴图草稿《{WECHAT_TIEKU_TITLE}》仍为 {STATUS_DRAFT_SAVED}（5 图顺序完整）；"
+    f"未定时未发布；发布仍被 {WECHAT_BLOCK_REASON} 阻塞；"
+    "employment_boundary_synced=true。"
+    f"不得用 {STATUS_DELETED} 描述贴图草稿。"
 )
 
 CTA_BUTTON_TEXT = "打开智能柜周复盘工具页"
@@ -286,36 +302,34 @@ def browser_handoff_instructions() -> dict[str, Any]:
             {
                 "order": 1,
                 "surface": "wechat_oa_backend",
-                "status": STATUS_DELETED,
-                "action": (
-                    "公众号欢迎语与关键词「复盘表」线上配置已删除；"
-                    f"employment_boundary_synced=true。{EMPLOYMENT_BOUNDARY_DELETION_NOTE}"
-                ),
+                "status": STATUS_CONFIGURED,
+                "action": WECHAT_AUTOREPLY_NOTE,
             },
             {
                 "order": 2,
                 "surface": "wechat_oa_image_post",
-                "status": STATUS_DELETED,
-                "action": (
-                    f"微信贴图草稿《{WECHAT_TIEKU_TITLE}》已线上删除；"
-                    "employment_boundary_synced=true；勿记为 scheduled/published。"
-                    f"此前定时曾因 {WECHAT_BLOCK_REASON} 阻塞，现草稿已不存在。"
-                ),
+                "status": STATUS_BLOCKED,
+                "action": WECHAT_TIEKU_NOTE,
             },
             {
                 "order": 3,
                 "surface": "zhihu_editor",
-                "status": STATUS_REVISION_PENDING,
-                "action": ZHIHU_REVISION_NOTE,
+                "status": STATUS_DRAFT_SAVED,
+                "action": ZHIHU_ACCEPTED_NOTE,
             },
             {
                 "order": 4,
                 "surface": "ledger",
                 "action": (
                     "已回写 organic-only 排期与实验台账："
-                    "WeChat deleted + employment_boundary_synced；"
-                    "Zhihu revision_pending / publish_blocked；"
-                    "revision_pending ≠ scheduled/published。"
+                    "WeChat autoreply configured/enabled；"
+                    f"贴图 {STATUS_DRAFT_SAVED} + publish blocked by "
+                    f"{WECHAT_BLOCK_REASON}；"
+                    f"Zhihu {STATUS_DRAFT_SAVED} / publish_blocked=false / "
+                    "employment_boundary_synced=true；"
+                    f"legacy_interview_cta_status={STATUS_DELETED}；"
+                    f"历史 {ZHIHU_REVISION_REASON} 已 resolved；"
+                    "草稿≠scheduled/published。"
                 ),
             },
         ],
@@ -324,17 +338,19 @@ def browser_handoff_instructions() -> dict[str, Any]:
             "note": (
                 "公众号贴图 5 张与知乎封面已由 Antigravity（gemini-3.7-flash-high）"
                 "生成并验收 PASS；Cursor 仅回写路径/哈希/状态，不生成位图。"
-                f"知乎外部草稿修订受阻原因：{ZHIHU_REVISION_REASON}；"
+                "知乎外部草稿已由 Agy 新账号修订并核验；"
+                f"历史临时配额阻塞（{ZHIHU_REVISION_REASON}）已 resolved；"
                 "不记录登录账号、邮箱或配额恢复时刻。"
             ),
         },
         "remaining_blockers": [
             {
-                "piece_id": ZHIHU_SCENARIO_PIECE_ID,
-                "reason": ZHIHU_REVISION_REASON,
-                "status": STATUS_REVISION_PENDING,
+                "piece_id": WECHAT_TIEKU_PIECE_ID,
+                "reason": WECHAT_BLOCK_REASON,
+                "status": STATUS_BLOCKED,
                 "publish_blocked": True,
-                "employment_boundary_synced": False,
+                "draft_status": STATUS_DRAFT_SAVED,
+                "employment_boundary_synced": True,
             }
         ],
     }
@@ -843,14 +859,22 @@ def build_wechat_autoreply_packet() -> dict[str, Any]:
 def build_external_ops_verification() -> dict[str, Any]:
     """Verified browser-ops facts only; never records CDN/token/cookie secrets."""
     return {
-        "verified_at": WECHAT_TIEKU_DRAFT_SAVED_AT,
+        "verified_at": ZHIHU_EXTERNAL_VERIFIED_AT,
         "via": "browser_manual",
         "repo_api_mutation": False,
         "truthfulness_correction": {
             "topic": "employment_boundary_self_serve_funnel",
             "local_packets_corrected": True,
-            "external_wechat_deleted": True,
-            "external_zhihu_revision_pending": True,
+            "external_wechat_deleted": False,
+            "external_zhihu_revision_pending": False,
+            "external_zhihu_accepted": True,
+            "wechat_autoreply_status": STATUS_CONFIGURED,
+            "wechat_tieku_draft_status": STATUS_DRAFT_SAVED,
+            "legacy_interview_cta_status": STATUS_DELETED,
+            "deleted_semantics": (
+                "STATUS_DELETED only for legacy_interview_cta_status / "
+                "stale interview copy; never for auto-reply rules or drafts."
+            ),
         },
         "privacy": {
             "cdn_urls_recorded": False,
@@ -863,35 +887,36 @@ def build_external_ops_verification() -> dict[str, Any]:
         },
         "pieces": {
             WECHAT_AUTOREPLY_PIECE_ID: {
-                "status": STATUS_DELETED,
+                "status": STATUS_CONFIGURED,
                 "employment_boundary_synced": True,
                 "publish_blocked": False,
                 "account": WECHAT_OA_ACCOUNT,
-                "note": EMPLOYMENT_BOUNDARY_DELETION_NOTE,
+                "note": WECHAT_AUTOREPLY_NOTE,
                 "welcome": {
-                    "status": STATUS_DELETED,
+                    "status": STATUS_CONFIGURED,
                     "rule_id": WECHAT_WELCOME_RULE_ID,
-                    "enabled": False,
-                    "saved": False,
+                    "enabled": True,
+                    "saved": True,
                     "link_style": "chinese_rich_text_no_raw_url",
                 },
                 "keyword": {
                     "keyword": KEYWORD_FUPAN,
                     "match": "exact",
-                    "status": STATUS_DELETED,
+                    "status": STATUS_CONFIGURED,
                     "rule_id": WECHAT_KEYWORD_RULE_ID,
-                    "enabled": False,
-                    "saved": False,
+                    "enabled": True,
+                    "saved": True,
                     "link_style": "chinese_rich_text_no_raw_url",
                 },
             },
             WECHAT_TIEKU_PIECE_ID: {
-                "status": STATUS_DELETED,
+                "status": STATUS_BLOCKED,
                 "employment_boundary_synced": True,
-                "publish_blocked": False,
+                "publish_blocked": True,
+                "block_reason": WECHAT_BLOCK_REASON,
                 "assets_status": STATUS_ASSETS_READY,
-                "draft_status": STATUS_DELETED,
-                "schedule_status": STATUS_DELETED,
+                "draft_status": STATUS_DRAFT_SAVED,
+                "schedule_status": STATUS_BLOCKED,
                 "publish_status": "not_published",
                 "account": WECHAT_OA_ACCOUNT,
                 "title": WECHAT_TIEKU_TITLE,
@@ -902,61 +927,96 @@ def build_external_ops_verification() -> dict[str, Any]:
                 "saved_at": WECHAT_TIEKU_DRAFT_SAVED_AT,
                 "scheduled": False,
                 "published": False,
-                "note": EMPLOYMENT_BOUNDARY_DELETION_NOTE,
-                "prior_schedule_attempt": {
+                "note": WECHAT_TIEKU_NOTE,
+                "schedule_attempt": {
                     "intended_at": WECHAT_TIEKU_SCHEDULE_ATTEMPT_AT,
                     "result": STATUS_BLOCKED,
                     "block_reason": WECHAT_BLOCK_REASON,
                     "exited_safely": True,
-                    "superseded_by": STATUS_DELETED,
                 },
             },
             ZHIHU_SCENARIO_PIECE_ID: {
-                "status": STATUS_REVISION_PENDING,
-                "employment_boundary_synced": False,
-                "publish_blocked": True,
+                "status": STATUS_DRAFT_SAVED,
+                "revision_pending": False,
+                "employment_boundary_synced": True,
+                "publish_blocked": False,
+                "block_reason": None,
                 "local_packet_corrected": True,
+                "external_draft_accepted": True,
                 "assets_status": STATUS_ASSETS_READY,
                 "draft_status": STATUS_DRAFT_SAVED,
                 "schedule_status": "unsupported_on_web",
                 "publish_status": "not_published",
+                "platform_draft_state": "draft",
                 "account": ZHIHU_ACCOUNT,
                 "title": ZHIHU_TITLE,
                 "draft_id": ZHIHU_DRAFT_ID,
-                "block_reason": ZHIHU_REVISION_REASON,
+                "legacy_interview_cta_status": STATUS_DELETED,
                 "verified_fields": [
                     "title",
                     "cover",
                     "body",
                     "table",
-                ],
-                "unverified_after_local_correction": [
                     "single_cta",
                     "interview_cta_removed",
+                    "cta_lead_in",
                 ],
-                "revision_required": [
-                    "delete_stale_interview_or_manual_followup_cta",
-                    "re_accept_external_draft",
-                ],
+                "cta_verification": {
+                    "lead_in_zh": ZHIHU_CTA_LEAD_IN_ZH,
+                    "anchor_text_unchanged": True,
+                    "utm_unchanged": True,
+                },
+                "forbidden_outreach_counts": {
+                    "interview": 0,
+                    "manual_followup": 0,
+                    "add_wechat": 0,
+                    "one_to_one_contact": 0,
+                    "identity_solicitation": 0,
+                },
                 "scheduled": False,
                 "published": False,
                 "planned_publish_window": ZHIHU_PLANNED_WINDOW,
-                "note": ZHIHU_REVISION_NOTE,
+                "note": ZHIHU_ACCEPTED_NOTE,
             },
         },
         "blockers": [
             {
-                "piece_id": ZHIHU_SCENARIO_PIECE_ID,
-                "reason": ZHIHU_REVISION_REASON,
-                "status": STATUS_REVISION_PENDING,
+                "piece_id": WECHAT_TIEKU_PIECE_ID,
+                "reason": WECHAT_BLOCK_REASON,
+                "status": STATUS_BLOCKED,
                 "publish_blocked": True,
-                "employment_boundary_synced": False,
+                "draft_status": STATUS_DRAFT_SAVED,
+                "employment_boundary_synced": True,
                 "detail": (
-                    "外部知乎草稿尚未删除旧访谈 CTA；"
-                    "revision_pending 内容不得 scheduled/published；"
-                    "恢复后须浏览器修订并重新验收。"
+                    f"尝试设置 {WECHAT_TIEKU_SCHEDULE_ATTEMPT_AT} 定时时触发管理员扫码验证，"
+                    f"已安全退出；草稿仍为 {STATUS_DRAFT_SAVED}，未 scheduled/published。"
                 ),
             }
+        ],
+        "resolved_events": [
+            {
+                "id": "zhihu_revision_pending_quota",
+                "piece_id": ZHIHU_SCENARIO_PIECE_ID,
+                "reason": ZHIHU_REVISION_REASON,
+                "prior_status": STATUS_REVISION_PENDING,
+                "resolved": True,
+                "resolution": "external_draft_cta_rewritten_and_accepted",
+                "detail": (
+                    "历史临时配额曾使知乎外部草稿 revision_pending/publish_blocked；"
+                    "现已由 Agy 新账号修订并核验；事件保留且必须注明 resolved。"
+                ),
+            },
+            {
+                "id": "legacy_interview_cta_deleted",
+                "piece_id": ZHIHU_SCENARIO_PIECE_ID,
+                "legacy_interview_cta_status": STATUS_DELETED,
+                "resolved": True,
+                "resolution": "stale_interview_copy_removed_from_external_draft",
+                "detail": (
+                    f"{STATUS_DELETED} 仅表示旧访谈/人工跟进文案已从外部草稿删除；"
+                    "不表示知乎草稿或微信自动回复/贴图草稿被删除。"
+                ),
+            },
         ],
     }
 
@@ -1019,6 +1079,8 @@ def build_organic_only_schedule(
                 "employment_boundary_synced": wechat_ext[
                     "employment_boundary_synced"
                 ],
+                "publish_blocked": wechat_ext["publish_blocked"],
+                "block_reason": wechat_ext["block_reason"],
                 "scheduled": False,
                 "published": False,
             },
@@ -1035,7 +1097,11 @@ def build_organic_only_schedule(
                     "employment_boundary_synced"
                 ],
                 "publish_blocked": zhihu_ext["publish_blocked"],
-                "block_reason": zhihu_ext["block_reason"],
+                "block_reason": zhihu_ext.get("block_reason"),
+                "revision_pending": zhihu_ext.get("revision_pending", False),
+                "legacy_interview_cta_status": zhihu_ext[
+                    "legacy_interview_cta_status"
+                ],
                 "scheduled": False,
                 "published": False,
                 "planned_publish_window": ZHIHU_PLANNED_WINDOW,
@@ -1120,28 +1186,33 @@ def build_organic_experiment_ledger_update() -> dict[str, Any]:
                     "piece_id": WECHAT_TIEKU_PIECE_ID,
                     "date": WECHAT_TIEKU_DATE,
                     "title": WECHAT_TIEKU_TITLE,
-                    "status": STATUS_DELETED,
+                    "status": STATUS_BLOCKED,
                     "assets_status": STATUS_ASSETS_READY,
-                    "draft_status": STATUS_DELETED,
+                    "draft_status": STATUS_DRAFT_SAVED,
                     "employment_boundary_synced": True,
+                    "publish_blocked": True,
+                    "block_reason": WECHAT_BLOCK_REASON,
                     "scheduled": False,
                     "published": False,
                     "app_id": WECHAT_TIEKU_APP_ID,
                     "data_seq": WECHAT_TIEKU_DATA_SEQ,
                     "saved_at": WECHAT_TIEKU_DRAFT_SAVED_AT,
-                    "note": EMPLOYMENT_BOUNDARY_DELETION_NOTE,
+                    "note": WECHAT_TIEKU_NOTE,
                 },
                 {
                     "piece_id": ZHIHU_SCENARIO_PIECE_ID,
                     "date": ZHIHU_DATE,
                     "title": ZHIHU_TITLE,
-                    "status": STATUS_REVISION_PENDING,
+                    "status": STATUS_DRAFT_SAVED,
+                    "revision_pending": False,
                     "assets_status": STATUS_ASSETS_READY,
                     "draft_status": STATUS_DRAFT_SAVED,
-                    "employment_boundary_synced": False,
-                    "publish_blocked": True,
-                    "block_reason": ZHIHU_REVISION_REASON,
+                    "employment_boundary_synced": True,
+                    "publish_blocked": False,
+                    "block_reason": None,
                     "local_packet_corrected": True,
+                    "external_draft_accepted": True,
+                    "legacy_interview_cta_status": STATUS_DELETED,
                     "scheduled": False,
                     "published": False,
                     "draft_id": ZHIHU_DRAFT_ID,
@@ -1152,52 +1223,57 @@ def build_organic_experiment_ledger_update() -> dict[str, Any]:
                     "piece_id": WECHAT_AUTOREPLY_PIECE_ID,
                     "keyword": KEYWORD_FUPAN,
                     "config_ready_date": OPS_DATE,
-                    "status": STATUS_DELETED,
+                    "status": STATUS_CONFIGURED,
                     "employment_boundary_synced": True,
                     "account": WECHAT_OA_ACCOUNT,
                     "welcome_rule_id": WECHAT_WELCOME_RULE_ID,
                     "keyword_rule_id": WECHAT_KEYWORD_RULE_ID,
-                    "note": EMPLOYMENT_BOUNDARY_DELETION_NOTE,
+                    "note": WECHAT_AUTOREPLY_NOTE,
                 },
             ],
         },
         "alerts": [
             {
+                "id": "wechat_tieku_admin_qr_block",
+                "severity": "ops",
+                "piece_id": WECHAT_TIEKU_PIECE_ID,
+                "reason": WECHAT_BLOCK_REASON,
+                "resolved": False,
+                "message": (
+                    f"微信贴图草稿已 {STATUS_DRAFT_SAVED} 但定时/发布被管理员扫码验证阻塞；"
+                    f"勿将 {STATUS_DRAFT_SAVED} 记为 scheduled/published；"
+                    f"勿用 {STATUS_DELETED} 描述贴图草稿。"
+                ),
+            },
+            {
                 "id": "zhihu_revision_pending_quota",
                 "severity": "ops",
                 "piece_id": ZHIHU_SCENARIO_PIECE_ID,
                 "reason": ZHIHU_REVISION_REASON,
+                "resolved": True,
                 "message": (
-                    "知乎外部草稿 revision_pending / publish_blocked；"
-                    "本地 packet 已修正但外部仍含旧访谈 CTA；"
-                    "不得 scheduled/published；恢复后须删除旧访谈 CTA 并重新验收。"
-                ),
-            },
-            {
-                "id": "wechat_employment_boundary_deleted",
-                "severity": "ops",
-                "piece_id": WECHAT_TIEKU_PIECE_ID,
-                "reason": "employment_boundary_synced_via_deletion",
-                "message": (
-                    "公众号自动回复与微信贴图草稿已线上删除；"
-                    "employment_boundary_synced=true；勿记为 scheduled/published。"
+                    "历史：知乎外部草稿曾 revision_pending / publish_blocked"
+                    f"（{ZHIHU_REVISION_REASON}）；现已修订验收，事件保留且 resolved=true。"
                 ),
             },
         ],
         "notes": (
-            "2026-08-15 organic sprint phase 1 truthfulness correction: "
+            "2026-08-15 organic sprint phase 1 external truthfulness: "
             "public WeChat OA 贴图 + Zhihu rewrite + welcome/keyword「复盘表」. "
             "Conversion: 公开内容 → 关注公众号 → 回复「复盘表」→ 自助周复盘工具. "
             "No interview / one-to-one / WeChat-add / company-site identity asks. "
             f"Professional boundaries: {PROFESSIONAL_BOUNDARIES_ZH} "
-            "WeChat autoreply + 贴图 external drafts deleted "
+            "WeChat autoreply configured/enabled "
             "(employment_boundary_synced=true). "
-            f"Zhihu local packet corrected; external draft {ZHIHU_DRAFT_ID} is "
-            f"{STATUS_REVISION_PENDING}, employment_boundary_synced=false, "
-            f"publish_blocked=true, reason={ZHIHU_REVISION_REASON}; "
-            "after recovery must delete stale interview CTA and re-accept "
-            "before publish. Do not record Antigravity account/email or quota "
-            "recovery clock. "
+            f"WeChat 贴图 {STATUS_DRAFT_SAVED} (5 images) but publish blocked by "
+            f"{WECHAT_BLOCK_REASON}; employment_boundary_synced=true; "
+            f"never mark autoreply/draft as {STATUS_DELETED}. "
+            f"Zhihu draft {ZHIHU_DRAFT_ID} accepted: {STATUS_DRAFT_SAVED}, "
+            "revision_pending=false, employment_boundary_synced=true, "
+            "publish_blocked=false, scheduled=false, published=false; "
+            f"legacy_interview_cta_status={STATUS_DELETED}; "
+            f"historical {ZHIHU_REVISION_REASON} resolved. "
+            "Do not record Antigravity account/email or quota recovery clock. "
             "No朋友圈, no groups, no personal/private distribution. "
             "No CDN/token/cookie recorded. "
             "Anonymous metrics only; keep channel deltas null until freshness gate passes. "
@@ -1277,6 +1353,8 @@ def build_phase1_manifest(
                 "employment_boundary_synced": wechat_ext[
                     "employment_boundary_synced"
                 ],
+                "publish_blocked": wechat_ext.get("publish_blocked", True),
+                "block_reason": wechat_ext.get("block_reason"),
                 "scheduled": False,
                 "published": False,
                 "app_id": wechat_ext["app_id"],
@@ -1306,9 +1384,16 @@ def build_phase1_manifest(
                 "employment_boundary_synced": zhihu_ext[
                     "employment_boundary_synced"
                 ],
+                "revision_pending": zhihu_ext.get("revision_pending", False),
                 "publish_blocked": zhihu_ext["publish_blocked"],
-                "block_reason": zhihu_ext["block_reason"],
+                "block_reason": zhihu_ext.get("block_reason"),
                 "local_packet_corrected": zhihu_ext["local_packet_corrected"],
+                "external_draft_accepted": zhihu_ext.get(
+                    "external_draft_accepted", False
+                ),
+                "legacy_interview_cta_status": zhihu_ext[
+                    "legacy_interview_cta_status"
+                ],
                 "scheduled": False,
                 "published": False,
                 "draft_id": zhihu_ext["draft_id"],
@@ -1561,9 +1646,10 @@ def validate_external_ops(ops: dict[str, Any]) -> None:
     ):
         if piece_id not in pieces:
             raise ValueError(f"external_ops missing piece {piece_id}")
+    assert_deleted_only_for_legacy_interview_cta(ops)
     autoreply = pieces[WECHAT_AUTOREPLY_PIECE_ID]
-    if autoreply.get("status") != STATUS_DELETED:
-        raise ValueError("autoreply external status must be deleted")
+    if autoreply.get("status") != STATUS_CONFIGURED:
+        raise ValueError("autoreply external status must be configured")
     if autoreply.get("employment_boundary_synced") is not True:
         raise ValueError("autoreply employment_boundary_synced must be true")
     if autoreply.get("welcome", {}).get("rule_id") != WECHAT_WELCOME_RULE_ID:
@@ -1572,13 +1658,25 @@ def validate_external_ops(ops: dict[str, Any]) -> None:
         raise ValueError("keyword rule_id mismatch")
     if autoreply.get("keyword", {}).get("match") != "exact":
         raise ValueError("keyword match must be exact")
+    if autoreply.get("welcome", {}).get("enabled") is not True:
+        raise ValueError("welcome must be enabled")
+    if autoreply.get("keyword", {}).get("enabled") is not True:
+        raise ValueError("keyword must be enabled")
+    if autoreply.get("welcome", {}).get("status") != STATUS_CONFIGURED:
+        raise ValueError("welcome status must be configured")
+    if autoreply.get("keyword", {}).get("status") != STATUS_CONFIGURED:
+        raise ValueError("keyword status must be configured")
     wechat = pieces[WECHAT_TIEKU_PIECE_ID]
-    if wechat.get("status") != STATUS_DELETED:
-        raise ValueError("WeChat 贴图 overall status must be deleted")
-    if wechat.get("draft_status") != STATUS_DELETED:
-        raise ValueError("WeChat 贴图 draft_status must be deleted")
+    if wechat.get("status") != STATUS_BLOCKED:
+        raise ValueError("WeChat 贴图 overall status must be blocked")
+    if wechat.get("draft_status") != STATUS_DRAFT_SAVED:
+        raise ValueError("WeChat 贴图 draft_status must be draft_saved")
     if wechat.get("employment_boundary_synced") is not True:
         raise ValueError("WeChat 贴图 employment_boundary_synced must be true")
+    if wechat.get("publish_blocked") is not True:
+        raise ValueError("WeChat 贴图 publish_blocked must be true")
+    if wechat.get("block_reason") != WECHAT_BLOCK_REASON:
+        raise ValueError("WeChat 贴图 block_reason mismatch")
     if wechat.get("assets_status") != STATUS_ASSETS_READY:
         raise ValueError("WeChat 贴图 assets_status must be assets_ready")
     if wechat.get("scheduled") or wechat.get("published"):
@@ -1591,34 +1689,86 @@ def validate_external_ops(ops: dict[str, Any]) -> None:
         raise ValueError("WeChat 贴图 data_seq mismatch")
     if wechat.get("image_count") != 5 or not wechat.get("image_order_complete"):
         raise ValueError("WeChat 贴图 must record 5 images in order")
-    prior = wechat.get("prior_schedule_attempt") or {}
-    if prior.get("block_reason") != WECHAT_BLOCK_REASON:
-        raise ValueError("WeChat prior schedule block_reason mismatch")
-    if not prior.get("exited_safely"):
-        raise ValueError("prior schedule attempt must record safe exit")
+    attempt = wechat.get("schedule_attempt") or {}
+    if attempt.get("block_reason") != WECHAT_BLOCK_REASON:
+        raise ValueError("WeChat schedule block_reason mismatch")
+    if not attempt.get("exited_safely"):
+        raise ValueError("schedule attempt must record safe exit")
     zhihu = pieces[ZHIHU_SCENARIO_PIECE_ID]
-    assert_revision_pending_not_publishable(zhihu)
-    if zhihu.get("status") != STATUS_REVISION_PENDING:
-        raise ValueError("Zhihu status must be revision_pending")
-    if zhihu.get("employment_boundary_synced") is not False:
-        raise ValueError("Zhihu employment_boundary_synced must be false")
-    if zhihu.get("publish_blocked") is not True:
-        raise ValueError("Zhihu publish_blocked must be true")
-    if zhihu.get("block_reason") != ZHIHU_REVISION_REASON:
-        raise ValueError("Zhihu block_reason mismatch")
+    if zhihu.get("status") != STATUS_DRAFT_SAVED:
+        raise ValueError("Zhihu status must be draft_saved")
+    if zhihu.get("revision_pending") is not False:
+        raise ValueError("Zhihu revision_pending must be false")
+    if zhihu.get("employment_boundary_synced") is not True:
+        raise ValueError("Zhihu employment_boundary_synced must be true")
+    if zhihu.get("publish_blocked") is not False:
+        raise ValueError("Zhihu publish_blocked must be false")
+    if zhihu.get("block_reason") not in (None, ""):
+        raise ValueError("Zhihu active block_reason must be cleared")
     if zhihu.get("local_packet_corrected") is not True:
         raise ValueError("Zhihu local_packet_corrected must be true")
+    if zhihu.get("external_draft_accepted") is not True:
+        raise ValueError("Zhihu external_draft_accepted must be true")
+    if zhihu.get("legacy_interview_cta_status") != STATUS_DELETED:
+        raise ValueError("Zhihu legacy_interview_cta_status must be deleted")
+    if zhihu.get("draft_status") != STATUS_DRAFT_SAVED:
+        raise ValueError("Zhihu draft_status must be draft_saved")
+    if zhihu.get("platform_draft_state") != "draft":
+        raise ValueError("Zhihu platform_draft_state must be draft")
+    if zhihu.get("scheduled") or zhihu.get("published"):
+        raise ValueError("Zhihu must not be marked scheduled/published")
+    if zhihu.get("status") in (STATUS_SCHEDULED, STATUS_PUBLISHED, STATUS_REVISION_PENDING):
+        raise ValueError("Zhihu must not use scheduled/published/revision_pending status")
     if zhihu.get("draft_id") != ZHIHU_DRAFT_ID:
         raise ValueError("Zhihu draft_id mismatch")
     if zhihu.get("planned_publish_window") != ZHIHU_PLANNED_WINDOW:
         raise ValueError("Zhihu planned window mismatch")
-    required = set(zhihu.get("revision_required") or [])
-    for needle in (
-        "delete_stale_interview_or_manual_followup_cta",
-        "re_accept_external_draft",
+    cta_v = zhihu.get("cta_verification") or {}
+    if cta_v.get("lead_in_zh") != ZHIHU_CTA_LEAD_IN_ZH:
+        raise ValueError("Zhihu CTA lead-in mismatch")
+    if cta_v.get("anchor_text_unchanged") is not True:
+        raise ValueError("Zhihu anchor_text_unchanged must be true")
+    if cta_v.get("utm_unchanged") is not True:
+        raise ValueError("Zhihu utm_unchanged must be true")
+    counts = zhihu.get("forbidden_outreach_counts") or {}
+    for key in (
+        "interview",
+        "manual_followup",
+        "add_wechat",
+        "one_to_one_contact",
+        "identity_solicitation",
     ):
-        if needle not in required:
-            raise ValueError(f"Zhihu revision_required missing {needle}")
+        if counts.get(key) != 0:
+            raise ValueError(f"Zhihu forbidden outreach count {key} must be 0")
+    blockers = ops.get("blockers") or []
+    if not blockers or blockers[0].get("reason") != WECHAT_BLOCK_REASON:
+        raise ValueError("active blocker must be WeChat admin_qr_verification_required")
+    if any(b.get("reason") == ZHIHU_REVISION_REASON for b in blockers):
+        raise ValueError("quota reason must not remain an active blocker")
+    resolved = ops.get("resolved_events") or []
+    quota_resolved = next(
+        (e for e in resolved if e.get("id") == "zhihu_revision_pending_quota"),
+        None,
+    )
+    if not quota_resolved or quota_resolved.get("resolved") is not True:
+        raise ValueError("historical quota event must exist and be resolved")
+    if quota_resolved.get("reason") != ZHIHU_REVISION_REASON:
+        raise ValueError("resolved quota event reason mismatch")
+    legacy_resolved = next(
+        (e for e in resolved if e.get("id") == "legacy_interview_cta_deleted"),
+        None,
+    )
+    if not legacy_resolved or legacy_resolved.get("resolved") is not True:
+        raise ValueError("legacy interview CTA deletion event must be resolved")
+    if legacy_resolved.get("legacy_interview_cta_status") != STATUS_DELETED:
+        raise ValueError("resolved legacy CTA status must be deleted")
+    truth = ops.get("truthfulness_correction") or {}
+    if truth.get("external_wechat_deleted") is not False:
+        raise ValueError("external_wechat_deleted must be false")
+    if truth.get("external_zhihu_revision_pending") is not False:
+        raise ValueError("external_zhihu_revision_pending must be false")
+    if truth.get("legacy_interview_cta_status") != STATUS_DELETED:
+        raise ValueError("truthfulness legacy_interview_cta_status must be deleted")
     blob = json_dumps_safe(ops).lower()
     # Forbid recording live secret material; allow boolean privacy flags named *cookie*.
     if "cdn.weixin" in blob or "cdn.zhihu" in blob:
@@ -1634,6 +1784,31 @@ def validate_external_ops(ops: dict[str, Any]) -> None:
             raise ValueError(
                 f"must not record Antigravity account/email or quota clock: {needle}"
             )
+
+
+def assert_deleted_only_for_legacy_interview_cta(ops: dict[str, Any]) -> None:
+    """`deleted` may only label legacy interview CTA removal — never live configs/drafts."""
+    pieces = ops.get("pieces") or {}
+    autoreply = pieces.get(WECHAT_AUTOREPLY_PIECE_ID) or {}
+    wechat = pieces.get(WECHAT_TIEKU_PIECE_ID) or {}
+    zhihu = pieces.get(ZHIHU_SCENARIO_PIECE_ID) or {}
+    for label, value in (
+        ("autoreply.status", autoreply.get("status")),
+        ("autoreply.welcome.status", (autoreply.get("welcome") or {}).get("status")),
+        ("autoreply.keyword.status", (autoreply.get("keyword") or {}).get("status")),
+        ("wechat.status", wechat.get("status")),
+        ("wechat.draft_status", wechat.get("draft_status")),
+        ("wechat.schedule_status", wechat.get("schedule_status")),
+        ("zhihu.status", zhihu.get("status")),
+        ("zhihu.draft_status", zhihu.get("draft_status")),
+    ):
+        if value == STATUS_DELETED:
+            raise ValueError(
+                f"{label} must not be deleted; "
+                "deleted is only for legacy_interview_cta_status"
+            )
+    if zhihu.get("legacy_interview_cta_status") != STATUS_DELETED:
+        raise ValueError("legacy_interview_cta_status must be deleted")
 
 
 def assert_revision_pending_not_publishable(piece: dict[str, Any]) -> None:
@@ -1670,28 +1845,38 @@ def validate_schedule(schedule: dict[str, Any]) -> None:
     wechat_row = dates[WECHAT_TIEKU_DATE]
     zhihu_row = dates[ZHIHU_DATE]
     autoreply_row = dates.get(OPS_DATE) or {}
-    if wechat_row.get("status") in (STATUS_SCHEDULED, STATUS_PUBLISHED):
-        raise ValueError("WeChat calendar row must not be scheduled/published")
-    if wechat_row.get("status") != STATUS_DELETED:
-        raise ValueError("WeChat calendar status must be deleted")
+    if wechat_row.get("status") in (STATUS_SCHEDULED, STATUS_PUBLISHED, STATUS_DELETED):
+        raise ValueError("WeChat calendar row must not be scheduled/published/deleted")
+    if wechat_row.get("status") != STATUS_BLOCKED:
+        raise ValueError("WeChat calendar status must be blocked")
+    if wechat_row.get("draft_status") != STATUS_DRAFT_SAVED:
+        raise ValueError("WeChat calendar draft_status must be draft_saved")
     if wechat_row.get("employment_boundary_synced") is not True:
         raise ValueError("WeChat calendar employment_boundary_synced must be true")
+    if wechat_row.get("publish_blocked") is not True:
+        raise ValueError("WeChat calendar publish_blocked must be true")
+    if wechat_row.get("block_reason") != WECHAT_BLOCK_REASON:
+        raise ValueError("WeChat calendar block_reason mismatch")
     if wechat_row.get("scheduled") or wechat_row.get("published"):
         raise ValueError("WeChat calendar flags scheduled/published must be false")
-    if zhihu_row.get("status") in (STATUS_SCHEDULED, STATUS_PUBLISHED):
-        raise ValueError("Zhihu calendar row must not be scheduled/published")
-    if zhihu_row.get("status") != STATUS_REVISION_PENDING:
-        raise ValueError("Zhihu calendar status must be revision_pending")
-    if zhihu_row.get("publish_blocked") is not True:
-        raise ValueError("Zhihu calendar publish_blocked must be true")
-    if zhihu_row.get("employment_boundary_synced") is not False:
-        raise ValueError("Zhihu calendar employment_boundary_synced must be false")
-    if zhihu_row.get("block_reason") != ZHIHU_REVISION_REASON:
-        raise ValueError("Zhihu calendar block_reason mismatch")
+    if zhihu_row.get("status") in (STATUS_SCHEDULED, STATUS_PUBLISHED, STATUS_REVISION_PENDING):
+        raise ValueError("Zhihu calendar row must not be scheduled/published/revision_pending")
+    if zhihu_row.get("status") != STATUS_DRAFT_SAVED:
+        raise ValueError("Zhihu calendar status must be draft_saved")
+    if zhihu_row.get("publish_blocked") is not False:
+        raise ValueError("Zhihu calendar publish_blocked must be false")
+    if zhihu_row.get("employment_boundary_synced") is not True:
+        raise ValueError("Zhihu calendar employment_boundary_synced must be true")
+    if zhihu_row.get("revision_pending") is not False:
+        raise ValueError("Zhihu calendar revision_pending must be false")
+    if zhihu_row.get("legacy_interview_cta_status") != STATUS_DELETED:
+        raise ValueError("Zhihu calendar legacy_interview_cta_status must be deleted")
+    if zhihu_row.get("block_reason") not in (None, ""):
+        raise ValueError("Zhihu calendar active block_reason must be cleared")
     if zhihu_row.get("scheduled") or zhihu_row.get("published"):
         raise ValueError("Zhihu calendar flags scheduled/published must be false")
-    if autoreply_row.get("status") != STATUS_DELETED:
-        raise ValueError("autoreply calendar status must be deleted")
+    if autoreply_row.get("status") != STATUS_CONFIGURED:
+        raise ValueError("autoreply calendar status must be configured")
     if autoreply_row.get("employment_boundary_synced") is not True:
         raise ValueError("autoreply calendar employment_boundary_synced must be true")
     if "external_ops" in schedule:
