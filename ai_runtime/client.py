@@ -111,11 +111,13 @@ class LLMClient:
                 assert_supported_model(fb)
         self.max_retries = max_retries
         self.timeout = timeout
+        if "deepseek" in (self.model or "").lower() and timeout <= 60:
+            self.timeout = max(timeout, 120)
         self.tracker = _global_tracker
         self.eval_hook = _global_eval_hook
         self.logger = get_logger()
 
-        self._client = OpenAI(api_key=self.api_key, base_url=self.base_url)
+        self._client = OpenAI(api_key=self.api_key, base_url=self.base_url, timeout=self.timeout)
 
     # ------------------------------------------------------------------
     # Core API
@@ -204,11 +206,19 @@ class LLMClient:
             kwargs["max_tokens"] = max_tokens
         if response_format:
             kwargs["response_format"] = response_format
+        # DeepSeek V4 Pro may default to thinking and exhaust max_tokens with empty content.
+        # Structured JSON generation needs the final message content, so disable thinking.
+        if "deepseek" in model.lower() and response_format:
+            kwargs["extra_body"] = {"thinking": {"type": "disabled"}}
 
         response = self._client.chat.completions.create(**kwargs)
         latency_ms = int((time.time() - start) * 1000)
 
-        content = response.choices[0].message.content or ""
+        message = response.choices[0].message
+        content = message.content or ""
+        if not content:
+            # Fallback if provider still returns reasoning-only payload.
+            content = getattr(message, "reasoning_content", None) or ""
         usage = response.usage
         prompt_tokens = usage.prompt_tokens if usage else 0
         completion_tokens = usage.completion_tokens if usage else 0

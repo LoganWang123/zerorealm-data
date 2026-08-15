@@ -118,6 +118,31 @@ def repair_draft_once(
                 if text.strip("（已移除未授权实体）。. ") == "":
                     continue
 
+        # Style-aware soft rewrite: remove common AI filler without adding facts.
+        for filler in (
+            "值得注意的是，",
+            "值得注意的是",
+            "不难发现，",
+            "不难发现",
+            "从某种意义上说，",
+            "从某种意义上说",
+            "可以预见，",
+            "可以预见",
+            "在这个背景下，",
+            "在这个背景下",
+            "本质上，",
+            "换句话说，",
+            "这意味着，",
+            "未来值得期待。",
+            "未来值得期待",
+            "随着科技不断发展，",
+            "未来我们拭目以待。",
+            "未来我们拭目以待",
+        ):
+            if filler in text:
+                text = text.replace(filler, "")
+                draft.metadata.setdefault("style_repairs", []).append(filler)
+
         if "UNSUPPORTED_NUMERIC_CLAIM" in codes or "PSEUDO_PRECISION" in codes:
             # Remove statements whose numbers are not allowed
             nums = re.findall(

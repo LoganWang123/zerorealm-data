@@ -35,6 +35,12 @@ ALLOWED_STATEMENT_TYPES = frozenset(
 )
 
 PROMPT_PATH = Path(__file__).resolve().parent.parent / "config" / "prompts" / "controlled_content_generation.yaml"
+PROMPT_PATH_V2 = (
+    Path(__file__).resolve().parent.parent
+    / "config"
+    / "prompts"
+    / "controlled_content_generation_v2.yaml"
+)
 
 
 class GenerationError(Exception):
@@ -44,8 +50,14 @@ class GenerationError(Exception):
         super().__init__(f"{self.code}: {self.message}")
 
 
-def load_generation_prompt(path: Path | None = None) -> dict:
-    p = path or PROMPT_PATH
+def load_generation_prompt(path: Path | None = None, *, version: int | None = None) -> dict:
+    if path is not None:
+        p = path
+    elif version == 2 or str(os.getenv("CONTENT_GENERATOR_PROMPT_VERSION") or "") == "2":
+        p = PROMPT_PATH_V2
+    else:
+        # Historic default remains v1 unless CONTENT_GENERATOR_PROMPT_VERSION=2.
+        p = PROMPT_PATH
     data = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
     return data
 
