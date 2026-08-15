@@ -152,7 +152,12 @@ python scripts/build_ops_retrospective.py \
 ```bash
 python -m pytest -q
 ruff check .
+python scripts/check_canonical_contract.py
+python scripts/sync_website_canonical_mirror.py --check
 ```
+
+跨渠道内容契约（官网 / 微信 / 知乎）：见
+[cross-channel-canonical-contract.md](docs/architecture/cross-channel-canonical-contract.md)。
 
 ## 关联文档
 

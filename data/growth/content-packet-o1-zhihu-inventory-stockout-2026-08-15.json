@@ -153,5 +153,31 @@
   "local_packet_corrected": true,
   "legacy_interview_cta_status": "deleted",
   "scheduled": false,
-  "published": false
+  "published": false,
+  "canonical_id": "smart-cabinet-stockout-triage",
+  "canonical_version": 1,
+  "contract": {
+    "core_question": "柜机报警缺货后，是否应立刻按原货品补货？",
+    "core_conclusion": "缺货信号不等于真实缺货；应先排查再决定补货、调货或复盘选品。若同一货品连续两周真实缺货仍不调货/换品/改安全库存，则强制进入选品与结构复盘。",
+    "scope_guard": "口径为零域参考/企业内部实验口径，不是行业统一标准；不提供行业缺货率均值；不把小样本阅读或销售波动写成因果。",
+    "evidence_sources": [
+      {
+        "type": "combat_pack",
+        "piece_id": "w1-wechat-stockout",
+        "role": "primary_checklist"
+      },
+      {
+        "type": "tool_page",
+        "url": "https://zerorealm.tech/tools/smart-cabinet-weekly-review",
+        "role": "cta_surface"
+      }
+    ],
+    "cta_target": {
+      "tool_page": "https://zerorealm.tech/tools/smart-cabinet-weekly-review",
+      "campaign": "founder14d_20260813",
+      "keyword": "复盘表"
+    },
+    "consistency_means": "semantic_and_evidence_contract",
+    "not_verbatim": true
+  }
 }

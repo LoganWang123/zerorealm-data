@@ -120,5 +120,37 @@
     }
   ],
   "auto_publish": false,
-  "llm_api_used": false
+  "llm_api_used": false,
+  "canonical_id": "smart-cabinet-five-process-metrics",
+  "canonical_version": 1,
+  "contract": {
+    "core_question": "智能柜运营商每周该盯哪五个过程指标？",
+    "core_conclusion": "GMV 是结果指标；缺货率、补货及时率、设备在线率、SKU 动销率、库存准确率这五个过程指标用于定位终端经营质量。口径为零域参考/企业内部实验口径，不是行业统一标准。",
+    "scope_guard": "适用于智能柜/无人零售运营商与运营负责人；指标为零域参考/企业内部实验口径，不构成投资建议或经营结果保证；知乎侧无法做稳定的文章级归因。",
+    "evidence_sources": [
+      {
+        "type": "website_mdx",
+        "path": "content/insight/smart-cabinet-five-process-metrics.mdx",
+        "repo": "zerorealm-website",
+        "role": "primary_definition"
+      },
+      {
+        "type": "tool_page",
+        "url": "https://zerorealm.tech/tools/smart-cabinet-weekly-review",
+        "role": "operational_surface"
+      },
+      {
+        "type": "combat_pack",
+        "piece_id": "w1-zhihu-five-metrics",
+        "role": "channel_plan"
+      }
+    ],
+    "cta_target": {
+      "tool_page": "https://zerorealm.tech/tools/smart-cabinet-weekly-review",
+      "campaign": "founder14d_20260813",
+      "keyword": "复盘表"
+    },
+    "consistency_means": "semantic_and_evidence_contract",
+    "not_verbatim": true
+  }
 }

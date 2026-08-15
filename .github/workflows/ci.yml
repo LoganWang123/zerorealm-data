@@ -26,5 +26,25 @@ jobs:
       - name: Lint
         run: ruff check .
 
+      - name: Canonical contract (local SSoT + packets + mirror)
+        run: python scripts/check_canonical_contract.py
+
+      - name: Checkout website mirror (public, read-only)
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          repository: LoganWang123/zerorealm-website
+          path: .ci/zerorealm-website
+
+      - name: Canonical mirror drift vs website
+        run: |
+          if [ -f .ci/zerorealm-website/data/content-canonical.json ]; then
+            python scripts/sync_website_canonical_mirror.py --check --website-root .ci/zerorealm-website
+            python scripts/check_canonical_contract.py --website-root .ci/zerorealm-website --require-website
+          else
+            echo "Website checkout unavailable; verifying in-repo hashed mirror only"
+            python scripts/sync_website_canonical_mirror.py --check --skip-website
+          fi
+
       - name: Test
         run: python -m pytest -q

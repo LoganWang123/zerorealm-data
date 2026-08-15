@@ -16,6 +16,8 @@ data/*
 !data/growth/
 !data/growth/*.json
 data/growth/ops-out/
+!data/content-canonical/
+!data/content-canonical/**
 
 # logs
 logs/
@@ -62,3 +64,6 @@ build/
 # OS
 .DS_Store
 Thumbs.db
+
+# CI sibling checkouts
+.ci/

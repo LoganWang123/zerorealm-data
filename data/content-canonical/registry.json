@@ -1,0 +1,271 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-08-15",
+  "policy": {
+    "consistency_means": "semantic_and_evidence_contract",
+    "not_verbatim": true,
+    "allowed_channel_variance": [
+      "title",
+      "expression",
+      "structure",
+      "platform_formatting"
+    ],
+    "must_not_drift": [
+      "core_conclusion",
+      "evidence_sources_boundary",
+      "scope_guard",
+      "cta_target"
+    ]
+  },
+  "families": [
+    {
+      "canonical_id": "daily-2026-08-01",
+      "canonical_version": 1,
+      "status": "approved",
+      "title": "北京快递、外卖电动车专用号牌新规施行：相关智能柜补货需核查运力合规与时效",
+      "core_question": "北京快递外卖电动车专用号牌新规对智能柜补货有何影响？",
+      "core_conclusion": "影响仅适用于运营商自行使用电动自行车补货，或依赖北京快递、外卖即时配送运力的场景；不得泛化为全部智能柜补货规则。",
+      "evidence": {
+        "sources": [
+          {
+            "url": "https://sw.beijing.gov.cn/zwxx/2024zcwj/202607/t20260728_4793311.html",
+            "publisher": "北京市商务局等四部门",
+            "published_at": "2026-07-28",
+            "evidence_level": "A"
+          }
+        ],
+        "scope_guard": "仅适用于运营商自行使用电动自行车补货，或依赖北京快递、外卖即时配送运力的场景；不适用于所有智能柜补货。"
+      },
+      "cta": {
+        "target": {
+          "tool_page": null,
+          "campaign": null,
+          "keyword": null
+        },
+        "allowed_copy_by_channel": {}
+      },
+      "channels": {
+        "website": {
+          "status": "synced",
+          "refs": [
+            {
+              "kind": "daily_mdx",
+              "path": "content/daily/2026-08-01.mdx",
+              "repo": "zerorealm-website"
+            }
+          ]
+        },
+        "wechat": {
+          "status": "ready",
+          "refs": []
+        },
+        "zhihu": {
+          "status": "none",
+          "refs": []
+        }
+      }
+    },
+    {
+      "canonical_id": "smart-cabinet-five-process-metrics",
+      "canonical_version": 1,
+      "status": "approved",
+      "title": "智能柜五个过程指标周复盘",
+      "core_question": "智能柜运营商每周该盯哪五个过程指标？",
+      "core_conclusion": "GMV 是结果指标；缺货率、补货及时率、设备在线率、SKU 动销率、库存准确率这五个过程指标用于定位终端经营质量。口径为零域参考/企业内部实验口径，不是行业统一标准。",
+      "evidence": {
+        "sources": [
+          {
+            "type": "website_mdx",
+            "path": "content/insight/smart-cabinet-five-process-metrics.mdx",
+            "repo": "zerorealm-website",
+            "role": "primary_definition"
+          },
+          {
+            "type": "tool_page",
+            "url": "https://zerorealm.tech/tools/smart-cabinet-weekly-review",
+            "role": "operational_surface"
+          },
+          {
+            "type": "combat_pack",
+            "piece_id": "w1-zhihu-five-metrics",
+            "role": "channel_plan"
+          }
+        ],
+        "scope_guard": "适用于智能柜/无人零售运营商与运营负责人；指标为零域参考/企业内部实验口径，不构成投资建议或经营结果保证；知乎侧无法做稳定的文章级归因。"
+      },
+      "cta": {
+        "target": {
+          "tool_page": "https://zerorealm.tech/tools/smart-cabinet-weekly-review",
+          "campaign": "founder14d_20260813",
+          "keyword": "复盘表"
+        },
+        "allowed_copy_by_channel": {
+          "wechat": [
+            "关注公众号后回复「复盘表」，自助打开智能柜周经营复盘工具；可在工具页公开订阅经营清单"
+          ],
+          "zhihu": [
+            "关注公众号后回复「复盘表」，自助打开智能柜周经营复盘工具；可在工具页公开订阅经营清单"
+          ],
+          "website": [
+            "用五个过程指标做一次最小周复盘"
+          ]
+        }
+      },
+      "channels": {
+        "website": {
+          "status": "synced",
+          "refs": [
+            {
+              "kind": "insight_mdx",
+              "path": "content/insight/smart-cabinet-five-process-metrics.mdx",
+              "repo": "zerorealm-website"
+            },
+            {
+              "kind": "tool_binding",
+              "path": "data/tool-canonical/smart-cabinet-weekly-review.json",
+              "repo": "zerorealm-website"
+            }
+          ]
+        },
+        "wechat": {
+          "status": "planned",
+          "refs": []
+        },
+        "zhihu": {
+          "status": "published",
+          "refs": [
+            {
+              "kind": "content_packet",
+              "path": "data/growth/content-packet-w1-zhihu-five-metrics-2026-08-15.json",
+              "repo": "zerorealm-data"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "canonical_id": "smart-cabinet-stockout-triage",
+      "canonical_version": 1,
+      "status": "approved",
+      "title": "柜机缺货排查与补货决策",
+      "core_question": "柜机报警缺货后，是否应立刻按原货品补货？",
+      "core_conclusion": "缺货信号不等于真实缺货；应先排查再决定补货、调货或复盘选品。若同一货品连续两周真实缺货仍不调货/换品/改安全库存，则强制进入选品与结构复盘。",
+      "evidence": {
+        "sources": [
+          {
+            "type": "combat_pack",
+            "piece_id": "w1-wechat-stockout",
+            "role": "primary_checklist"
+          },
+          {
+            "type": "tool_page",
+            "url": "https://zerorealm.tech/tools/smart-cabinet-weekly-review",
+            "role": "cta_surface"
+          }
+        ],
+        "scope_guard": "口径为零域参考/企业内部实验口径，不是行业统一标准；不提供行业缺货率均值；不把小样本阅读或销售波动写成因果。"
+      },
+      "cta": {
+        "target": {
+          "tool_page": "https://zerorealm.tech/tools/smart-cabinet-weekly-review",
+          "campaign": "founder14d_20260813",
+          "keyword": "复盘表"
+        },
+        "allowed_copy_by_channel": {
+          "wechat": [
+            "关注公众号后回复「复盘表」，自助打开智能柜周经营复盘工具；可在工具页公开订阅经营清单"
+          ],
+          "zhihu": [
+            "关注公众号后回复「复盘表」，自助打开智能柜周经营复盘工具；可在工具页公开订阅经营清单"
+          ]
+        }
+      },
+      "channels": {
+        "website": {
+          "status": "none",
+          "refs": []
+        },
+        "wechat": {
+          "status": "draft",
+          "refs": [
+            {
+              "kind": "content_packet",
+              "path": "data/growth/content-packet-w1-wechat-stockout-2026-08-15.json",
+              "repo": "zerorealm-data"
+            },
+            {
+              "kind": "content_packet",
+              "path": "data/growth/content-packet-o1-wechat-stockout-tieku-2026-08-15.json",
+              "repo": "zerorealm-data"
+            }
+          ]
+        },
+        "zhihu": {
+          "status": "production_ready",
+          "refs": [
+            {
+              "kind": "content_packet",
+              "path": "data/growth/content-packet-o1-zhihu-inventory-stockout-2026-08-15.json",
+              "repo": "zerorealm-data"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "canonical_id": "smart-cabinet-point-contribution",
+      "canonical_version": 1,
+      "status": "approved",
+      "title": "单点贡献周表与点位决策",
+      "core_question": "点位有销量是否等于点位赚钱？",
+      "core_conclusion": "点位流水不等于赚钱；应先用自己的周表算清单点贡献，再决定调优或暂时撤点。公开材料无法核实全行业均值。",
+      "evidence": {
+        "sources": [
+          {
+            "type": "content_packet",
+            "path": "data/growth/content-packet-o1-wechat-point-contribution-2026-08-15.json",
+            "role": "primary_article"
+          },
+          {
+            "type": "public_disclosure",
+            "note": "友宝、日本大同饮料、富士电机等公开披露仅作假设支持，不作行业均值"
+          }
+        ],
+        "scope_guard": "不使用现任公司内部经营数据、客户名单或未公开案例；示例为公开/合成/匿名通用场景；不构成投资建议；不以雇主名义发言。"
+      },
+      "cta": {
+        "target": {
+          "tool_page": "https://zerorealm.tech/tools/smart-cabinet-weekly-review",
+          "campaign": "founder14d_20260813",
+          "keyword": "复盘表"
+        },
+        "allowed_copy_by_channel": {
+          "wechat": [
+            "回复「复盘表」打开周经营复盘工具",
+            "关注公众号后回复「复盘表」，自助打开智能柜周经营复盘工具；可在工具页公开订阅经营清单"
+          ]
+        }
+      },
+      "channels": {
+        "website": {
+          "status": "none",
+          "refs": []
+        },
+        "wechat": {
+          "status": "production_ready_revision",
+          "refs": [
+            {
+              "kind": "content_packet",
+              "path": "data/growth/content-packet-o1-wechat-point-contribution-2026-08-15.json",
+              "repo": "zerorealm-data"
+            }
+          ]
+        },
+        "zhihu": {
+          "status": "none",
+          "refs": []
+        }
+      }
+    }
+  ]
+}

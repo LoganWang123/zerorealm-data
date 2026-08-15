@@ -81,5 +81,30 @@
     "cancel_reason_code": "same_channel_topic_overlap_with_2026-08-15_article"
   },
   "prepared_at": "2026-08-15T13:12:53+00:00",
-  "owner_github": "LoganWang123"
+  "owner_github": "LoganWang123",
+  "canonical_id": "smart-cabinet-point-contribution",
+  "canonical_version": 1,
+  "contract": {
+    "core_question": "点位有销量是否等于点位赚钱？",
+    "core_conclusion": "点位流水不等于赚钱；应先用自己的周表算清单点贡献，再决定调优或暂时撤点。公开材料无法核实全行业均值。",
+    "scope_guard": "不使用现任公司内部经营数据、客户名单或未公开案例；示例为公开/合成/匿名通用场景；不构成投资建议；不以雇主名义发言。",
+    "evidence_sources": [
+      {
+        "type": "content_packet",
+        "path": "data/growth/content-packet-o1-wechat-point-contribution-2026-08-15.json",
+        "role": "primary_article"
+      },
+      {
+        "type": "public_disclosure",
+        "note": "友宝、日本大同饮料、富士电机等公开披露仅作假设支持，不作行业均值"
+      }
+    ],
+    "cta_target": {
+      "tool_page": "https://zerorealm.tech/tools/smart-cabinet-weekly-review",
+      "campaign": "founder14d_20260813",
+      "keyword": "复盘表"
+    },
+    "consistency_means": "semantic_and_evidence_contract",
+    "not_verbatim": true
+  }
 }
