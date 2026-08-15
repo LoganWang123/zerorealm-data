@@ -29,8 +29,19 @@ def _family(registry: dict, canonical_id: str) -> dict:
     raise KeyError(canonical_id)
 
 
+def _resolve_website_root_for_tests() -> Path | None:
+    candidates = [
+        ROOT.parent / "zerorealm-website",
+        ROOT / ".ci" / "zerorealm-website",
+    ]
+    for candidate in candidates:
+        if (candidate / "data" / "content-canonical.json").is_file():
+            return candidate
+    return None
+
+
 def test_registry_and_packets_pass_in_repo():
-    report = check_all(root=ROOT, website_root=ROOT.parent / "zerorealm-website")
+    report = check_all(root=ROOT, website_root=_resolve_website_root_for_tests())
     assert report.ok, "\n".join(i.format() for i in report.issues)
 
 

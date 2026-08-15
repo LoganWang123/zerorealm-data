@@ -493,11 +493,13 @@ def check_all(
     if site is not None:
         site_mirror = site / "data" / "content-canonical.json"
         if not site_mirror.is_file():
-            report.add(
-                "WEBSITE_MIRROR_MISSING",
-                str(site_mirror),
-                "website content-canonical.json missing",
-            )
+            if require_website:
+                report.add(
+                    "WEBSITE_MIRROR_MISSING",
+                    str(site_mirror),
+                    "website content-canonical.json missing",
+                )
+            # Incomplete/empty sibling paths are ignored unless require_website.
         else:
             remote = load_json(site_mirror)
             remote_report = validate_website_mirror(remote, registry=registry)
