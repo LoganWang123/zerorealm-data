@@ -11,6 +11,7 @@ Never generates bitmaps (status = awaiting_antigravity_images).
 
 from __future__ import annotations
 
+import json
 import re
 from datetime import datetime, timezone
 from html import unescape
@@ -39,6 +40,36 @@ WECHAT_TIEKU_DATE = "2026-08-17"
 ZHIHU_TITLE = "库存显示有货，为什么柜机还是缺货？"
 ZHIHU_DATE = "2026-08-18"
 KEYWORD_FUPAN = "复盘表"
+
+# External platform lifecycle (draft ≠ scheduled/published).
+STATUS_ASSETS_READY = "assets_ready"
+STATUS_DRAFT_SAVED = "draft_saved"
+STATUS_SCHEDULED = "scheduled"
+STATUS_PUBLISHED = "published"
+STATUS_BLOCKED = "blocked"
+STATUS_CONFIGURED = "configured"
+EXTERNAL_LIFECYCLE_STATUSES = frozenset(
+    {
+        STATUS_ASSETS_READY,
+        STATUS_DRAFT_SAVED,
+        STATUS_SCHEDULED,
+        STATUS_PUBLISHED,
+        STATUS_BLOCKED,
+        STATUS_CONFIGURED,
+    }
+)
+
+WECHAT_OA_ACCOUNT = "ZeroRealm零域AI"
+ZHIHU_ACCOUNT = "ZeroRealm AI"
+WECHAT_WELCOME_RULE_ID = "456828165"
+WECHAT_KEYWORD_RULE_ID = "456844465"
+WECHAT_TIEKU_APP_ID = "100000212"
+WECHAT_TIEKU_DATA_SEQ = "4650538271616466946"
+WECHAT_TIEKU_DRAFT_SAVED_AT = "2026-08-15T18:05:00+08:00"
+WECHAT_TIEKU_SCHEDULE_ATTEMPT_AT = "2026-08-17T20:30:00+08:00"
+WECHAT_BLOCK_REASON = "admin_qr_verification_required"
+ZHIHU_DRAFT_ID = "2072013992894149965"
+ZHIHU_PLANNED_WINDOW = "2026-08-18T20:30:00+08:00"
 
 CTA_BUTTON_TEXT = "打开智能柜周复盘工具页"
 CTA_SUPPORT_ZH = (
@@ -173,48 +204,60 @@ def continue_stop_metrics() -> dict[str, Any]:
 def browser_handoff_instructions() -> dict[str, Any]:
     return {
         "phase1_mutates_external_state": False,
+        "browser_manual_ops_recorded": True,
         "operator": OWNER_GITHUB,
         "steps": [
             {
                 "order": 1,
                 "surface": "wechat_oa_backend",
+                "status": STATUS_CONFIGURED,
                 "action": (
-                    "浏览器打开公众号后台 → 自动回复："
-                    "粘贴欢迎语与关键词「复盘表」配置包；"
-                    "链接用后台超链接/菜单，勿把完整网址写成可见纯文本；"
-                    "保存后自测关注与关键词，勿调用本仓发布接口。"
+                    "已核验：被关注回复与关键词「复盘表」精确匹配均已保存启用；"
+                    "中文富文本链接，无原始网址可见。后续勿用本仓接口改写。"
                 ),
             },
             {
                 "order": 2,
                 "surface": "wechat_oa_image_post",
+                "status": STATUS_BLOCKED,
                 "action": (
-                    f"待 Antigravity 贴图位图就绪后，于 {WECHAT_TIEKU_DATE} "
-                    f"人工发布《{WECHAT_TIEKU_TITLE}》；"
-                    "仅公众号公开面；禁止朋友圈/群/私发。"
+                    f"草稿《{WECHAT_TIEKU_TITLE}》已 draft_saved（5 图顺序完整）；"
+                    f"定时 {WECHAT_TIEKU_SCHEDULE_ATTEMPT_AT} 因 "
+                    f"{WECHAT_BLOCK_REASON} 阻塞并已安全退出。"
+                    "勿记为 scheduled/published；仅公众号公开面；禁止朋友圈/群/私发。"
                 ),
             },
             {
                 "order": 3,
                 "surface": "zhihu_editor",
+                "status": STATUS_DRAFT_SAVED,
                 "action": (
-                    f"于 {ZHIHU_DATE} 在知乎编辑器粘贴场景改写稿；"
-                    "文末仅保留一个指向周复盘工具的中文锚点链接；人工发布。"
+                    f"知乎草稿《{ZHIHU_TITLE}》已 draft_saved；"
+                    f"网页端不支持定时；计划窗口 {ZHIHU_PLANNED_WINDOW}；未提前发布。"
                 ),
             },
             {
                 "order": 4,
                 "surface": "ledger",
                 "action": (
-                    "发布日记入 organic-only 排期与实验台账："
-                    "是否单行动入口、是否禁用私域分发、图片状态。"
+                    "已回写 organic-only 排期与实验台账："
+                    "configured / draft_saved / blocked；草稿≠scheduled/published。"
                 ),
             },
         ],
         "antigravity": {
-            "image_status": IMAGE_STATUS,
-            "note": "Cursor 只准备 image briefs；位图由 Antigravity 生成并回写约定路径。",
+            "image_status": "images_ready",
+            "note": (
+                "公众号贴图 5 张与知乎封面已由 Antigravity（gemini-3.7-flash-high）"
+                "生成并验收 PASS；Cursor 仅回写路径/哈希/状态，不生成位图。"
+            ),
         },
+        "remaining_blockers": [
+            {
+                "piece_id": WECHAT_TIEKU_PIECE_ID,
+                "reason": WECHAT_BLOCK_REASON,
+            }
+        ],
     }
 
 
@@ -712,12 +755,115 @@ def build_wechat_autoreply_packet() -> dict[str, Any]:
     }
 
 
+def build_external_ops_verification() -> dict[str, Any]:
+    """Verified browser-ops facts only; never records CDN/token/cookie secrets."""
+    return {
+        "verified_at": WECHAT_TIEKU_DRAFT_SAVED_AT,
+        "via": "browser_manual",
+        "repo_api_mutation": False,
+        "privacy": {
+            "cdn_urls_recorded": False,
+            "login_tokens_recorded": False,
+            "cookies_recorded": False,
+            "raw_visible_urls_on_wechat": False,
+        },
+        "pieces": {
+            WECHAT_AUTOREPLY_PIECE_ID: {
+                "status": STATUS_CONFIGURED,
+                "account": WECHAT_OA_ACCOUNT,
+                "welcome": {
+                    "status": STATUS_CONFIGURED,
+                    "rule_id": WECHAT_WELCOME_RULE_ID,
+                    "enabled": True,
+                    "saved": True,
+                    "link_style": "chinese_rich_text_no_raw_url",
+                },
+                "keyword": {
+                    "keyword": KEYWORD_FUPAN,
+                    "match": "exact",
+                    "status": STATUS_CONFIGURED,
+                    "rule_id": WECHAT_KEYWORD_RULE_ID,
+                    "enabled": True,
+                    "saved": True,
+                    "link_style": "chinese_rich_text_no_raw_url",
+                },
+            },
+            WECHAT_TIEKU_PIECE_ID: {
+                "status": STATUS_BLOCKED,
+                "assets_status": STATUS_ASSETS_READY,
+                "draft_status": STATUS_DRAFT_SAVED,
+                "schedule_status": STATUS_BLOCKED,
+                "publish_status": "not_published",
+                "account": WECHAT_OA_ACCOUNT,
+                "title": WECHAT_TIEKU_TITLE,
+                "app_id": WECHAT_TIEKU_APP_ID,
+                "data_seq": WECHAT_TIEKU_DATA_SEQ,
+                "image_count": 5,
+                "image_order_complete": True,
+                "saved_at": WECHAT_TIEKU_DRAFT_SAVED_AT,
+                "scheduled": False,
+                "published": False,
+                "schedule_attempt": {
+                    "intended_at": WECHAT_TIEKU_SCHEDULE_ATTEMPT_AT,
+                    "result": STATUS_BLOCKED,
+                    "block_reason": WECHAT_BLOCK_REASON,
+                    "exited_safely": True,
+                },
+            },
+            ZHIHU_SCENARIO_PIECE_ID: {
+                "status": STATUS_DRAFT_SAVED,
+                "assets_status": STATUS_ASSETS_READY,
+                "draft_status": STATUS_DRAFT_SAVED,
+                "schedule_status": "unsupported_on_web",
+                "publish_status": "not_published",
+                "account": ZHIHU_ACCOUNT,
+                "title": ZHIHU_TITLE,
+                "draft_id": ZHIHU_DRAFT_ID,
+                "verified_fields": [
+                    "title",
+                    "cover",
+                    "body",
+                    "table",
+                    "single_cta",
+                ],
+                "scheduled": False,
+                "published": False,
+                "planned_publish_window": ZHIHU_PLANNED_WINDOW,
+                "note": (
+                    "知乎网页端不支持文章定时；计划窗口已记录，未提前发布。"
+                ),
+            },
+        },
+        "blockers": [
+            {
+                "piece_id": WECHAT_TIEKU_PIECE_ID,
+                "reason": WECHAT_BLOCK_REASON,
+                "detail": (
+                    f"尝试设置 {WECHAT_TIEKU_SCHEDULE_ATTEMPT_AT} 定时时触发管理员扫码验证，"
+                    "已安全退出；草稿仍为 draft_saved，未 scheduled/published。"
+                ),
+            }
+        ],
+    }
+
+
 def build_organic_only_schedule(
     *,
     wechat_packet: dict[str, Any],
     zhihu_packet: dict[str, Any],
     autoreply_packet: dict[str, Any],
+    external_ops: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+# Calendar lifecycle comes from verified external_ops; packet args keep API stable.
+    _ = (
+        wechat_packet.get("status"),
+        zhihu_packet.get("status"),
+        autoreply_packet.get("status"),
+    )
+    ops = external_ops or build_external_ops_verification()
+    autoreply_status = ops["pieces"][WECHAT_AUTOREPLY_PIECE_ID]["status"]
+    wechat_status = ops["pieces"][WECHAT_TIEKU_PIECE_ID]["status"]
+    zhihu_status = ops["pieces"][ZHIHU_SCENARIO_PIECE_ID]["status"]
     return {
         "schema_version": 1,
         "schedule_id": "organic_only_2026-08-15",
@@ -740,9 +886,9 @@ def build_organic_only_schedule(
             {
                 "date": OPS_DATE,
                 "channel": "wechat",
-                "action": "prepare_autoreply_config_packet",
+                "action": "configure_autoreply",
                 "piece_id": WECHAT_AUTOREPLY_PIECE_ID,
-                "status": autoreply_packet["status"],
+                "status": autoreply_status,
             },
             {
                 "date": WECHAT_TIEKU_DATE,
@@ -750,7 +896,12 @@ def build_organic_only_schedule(
                 "action": "publish_image_post_tieku",
                 "piece_id": WECHAT_TIEKU_PIECE_ID,
                 "title": WECHAT_TIEKU_TITLE,
-                "status": wechat_packet["status"],
+                "status": wechat_status,
+                "draft_status": STATUS_DRAFT_SAVED,
+                "assets_status": STATUS_ASSETS_READY,
+                "scheduled": False,
+                "published": False,
+                "block_reason": WECHAT_BLOCK_REASON,
             },
             {
                 "date": ZHIHU_DATE,
@@ -758,7 +909,12 @@ def build_organic_only_schedule(
                 "action": "publish_scenario_rewrite",
                 "piece_id": ZHIHU_SCENARIO_PIECE_ID,
                 "title": ZHIHU_TITLE,
-                "status": zhihu_packet["status"],
+                "status": zhihu_status,
+                "draft_status": STATUS_DRAFT_SAVED,
+                "assets_status": STATUS_ASSETS_READY,
+                "scheduled": False,
+                "published": False,
+                "planned_publish_window": ZHIHU_PLANNED_WINDOW,
             },
         ],
         "single_cta_rule": {
@@ -766,7 +922,8 @@ def build_organic_only_schedule(
             "campaign": CAMPAIGN,
             "max_cta_per_piece": 1,
         },
-        "image_status": IMAGE_STATUS,
+        "image_status": "images_ready",
+        "external_ops": ops,
         "external_state_mutated": False,
         "llm_api_used": False,
     }
@@ -774,6 +931,7 @@ def build_organic_only_schedule(
 
 def build_organic_experiment_ledger_update() -> dict[str, Any]:
     """Approved organic-only ledger overlay for the founder 14d experiment."""
+    external_ops = build_external_ops_verification()
     return {
         "schema_version": 1,
         "period": {
@@ -815,30 +973,66 @@ def build_organic_experiment_ledger_update() -> dict[str, Any]:
         },
         "organic_phase1": {
             "ops_date": OPS_DATE,
+            "external_ops": external_ops,
             "pieces": [
                 {
                     "piece_id": WECHAT_TIEKU_PIECE_ID,
                     "date": WECHAT_TIEKU_DATE,
                     "title": WECHAT_TIEKU_TITLE,
+                    "status": STATUS_BLOCKED,
+                    "assets_status": STATUS_ASSETS_READY,
+                    "draft_status": STATUS_DRAFT_SAVED,
+                    "scheduled": False,
+                    "published": False,
+                    "block_reason": WECHAT_BLOCK_REASON,
+                    "app_id": WECHAT_TIEKU_APP_ID,
+                    "data_seq": WECHAT_TIEKU_DATA_SEQ,
+                    "saved_at": WECHAT_TIEKU_DRAFT_SAVED_AT,
                 },
                 {
                     "piece_id": ZHIHU_SCENARIO_PIECE_ID,
                     "date": ZHIHU_DATE,
                     "title": ZHIHU_TITLE,
+                    "status": STATUS_DRAFT_SAVED,
+                    "assets_status": STATUS_ASSETS_READY,
+                    "draft_status": STATUS_DRAFT_SAVED,
+                    "scheduled": False,
+                    "published": False,
+                    "draft_id": ZHIHU_DRAFT_ID,
+                    "account": ZHIHU_ACCOUNT,
+                    "planned_publish_window": ZHIHU_PLANNED_WINDOW,
                 },
                 {
                     "piece_id": WECHAT_AUTOREPLY_PIECE_ID,
                     "keyword": KEYWORD_FUPAN,
                     "config_ready_date": OPS_DATE,
+                    "status": STATUS_CONFIGURED,
+                    "account": WECHAT_OA_ACCOUNT,
+                    "welcome_rule_id": WECHAT_WELCOME_RULE_ID,
+                    "keyword_rule_id": WECHAT_KEYWORD_RULE_ID,
                 },
             ],
         },
-        "alerts": [],
+        "alerts": [
+            {
+                "id": "wechat_tieku_admin_qr_block",
+                "severity": "ops",
+                "piece_id": WECHAT_TIEKU_PIECE_ID,
+                "reason": WECHAT_BLOCK_REASON,
+                "message": (
+                    "微信贴图草稿已保存但定时被管理员扫码验证阻塞；"
+                    "勿将 draft_saved 记为 scheduled/published。"
+                ),
+            }
+        ],
         "notes": (
             "2026-08-15 organic sprint phase 1: public WeChat OA 贴图 + Zhihu rewrite + "
-            "welcome/keyword「复盘表」config packets only. "
+            "welcome/keyword「复盘表」. "
+            "Browser manual ops verified: autoreply configured; WeChat 贴图 draft_saved "
+            f"but schedule blocked ({WECHAT_BLOCK_REASON}); Zhihu draft_saved "
+            f"(planned {ZHIHU_PLANNED_WINDOW}, web has no article schedule). "
             "No朋友圈, no groups, no personal/private distribution. "
-            "No external WeChat/Zhihu mutation in phase 1. "
+            "No CDN/token/cookie recorded. "
             "Keep channel_observed null until freshness gate passes. "
             "Do not claim Excel download for the weekly-review tool."
         ),
@@ -852,7 +1046,12 @@ def build_phase1_manifest(
     autoreply_packet: dict[str, Any],
     schedule: dict[str, Any],
     article_source_paths: dict[str, str],
+    external_ops: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    ops = external_ops or build_external_ops_verification()
+    wechat_ext = ops["pieces"][WECHAT_TIEKU_PIECE_ID]
+    zhihu_ext = ops["pieces"][ZHIHU_SCENARIO_PIECE_ID]
+    autoreply_ext = ops["pieces"][WECHAT_AUTOREPLY_PIECE_ID]
     return {
         "schema_version": 1,
         "ops_date": OPS_DATE,
@@ -860,7 +1059,7 @@ def build_phase1_manifest(
         "sprint": "organic",
         "owner_github": OWNER_GITHUB,
         "tz": TIMEZONE_LABEL,
-        "status": "phase1_packets_ready",
+        "status": "phase1_external_ops_recorded",
         "safety": {
             "publish": False,
             "mass_send": False,
@@ -870,6 +1069,10 @@ def build_phase1_manifest(
             "llm_api": False,
             "image_generation": False,
             "external_wechat_zhihu_mutation": False,
+            "browser_manual_ops": True,
+            "cdn_urls_recorded": False,
+            "tokens_recorded": False,
+            "cookies_recorded": False,
         },
         "packets": [
             {
@@ -880,7 +1083,16 @@ def build_phase1_manifest(
                 "publish_date": WECHAT_TIEKU_DATE,
                 "cta_url": wechat_packet["cta"]["url"],
                 "tracking_id": wechat_packet["cta"]["tracking_id"],
-                "image_status": IMAGE_STATUS,
+                "image_status": "images_ready",
+                "external_status": wechat_ext["status"],
+                "assets_status": wechat_ext["assets_status"],
+                "draft_status": wechat_ext["draft_status"],
+                "scheduled": False,
+                "published": False,
+                "block_reason": wechat_ext["schedule_attempt"]["block_reason"],
+                "app_id": wechat_ext["app_id"],
+                "data_seq": wechat_ext["data_seq"],
+                "saved_at": wechat_ext["saved_at"],
                 "image_brief_count": 5,
                 "panel_count": 4,
                 "panel_step_groups": ["1-2", "3-4", "5-6", "7"],
@@ -897,7 +1109,15 @@ def build_phase1_manifest(
                 "publish_date": ZHIHU_DATE,
                 "cta_url": zhihu_packet["cta"]["url"],
                 "tracking_id": zhihu_packet["cta"]["tracking_id"],
-                "image_status": IMAGE_STATUS,
+                "image_status": "images_ready",
+                "external_status": zhihu_ext["status"],
+                "assets_status": zhihu_ext["assets_status"],
+                "draft_status": zhihu_ext["draft_status"],
+                "scheduled": False,
+                "published": False,
+                "draft_id": zhihu_ext["draft_id"],
+                "account": zhihu_ext["account"],
+                "planned_publish_window": zhihu_ext["planned_publish_window"],
                 "packet_json": (
                     "data/growth/"
                     "content-packet-o1-zhihu-inventory-stockout-2026-08-15.json"
@@ -911,6 +1131,10 @@ def build_phase1_manifest(
                 "title": autoreply_packet["title"],
                 "keyword": KEYWORD_FUPAN,
                 "image_status": "not_applicable",
+                "external_status": autoreply_ext["status"],
+                "account": autoreply_ext["account"],
+                "welcome_rule_id": autoreply_ext["welcome"]["rule_id"],
+                "keyword_rule_id": autoreply_ext["keyword"]["rule_id"],
                 "packet_json": (
                     "data/growth/config-packet-o1-wechat-autoreply-2026-08-15.json"
                 ),
@@ -923,12 +1147,13 @@ def build_phase1_manifest(
         "tracking_ids": tracking_ids(),
         "continue_stop_metrics": continue_stop_metrics(),
         "browser_handoff": browser_handoff_instructions(),
+        "external_ops": ops,
         "single_cta_rule": {
             "tool_page": TOOL_PAGE_URL,
             "campaign": CAMPAIGN,
             "max_cta_per_piece": 1,
         },
-        "image_status": IMAGE_STATUS,
+        "image_status": "images_ready",
         "generated_at": _utc_now_iso(),
     }
 
@@ -1073,6 +1298,77 @@ def validate_autoreply_packet(packet: dict[str, Any]) -> None:
         raise ValueError("welcome visible text has Latin letters")
 
 
+def validate_external_ops(ops: dict[str, Any]) -> None:
+    privacy = ops.get("privacy") or {}
+    for key in ("cdn_urls_recorded", "login_tokens_recorded", "cookies_recorded"):
+        if privacy.get(key) is not False:
+            raise ValueError(f"external_ops.privacy.{key} must be false")
+    pieces = ops.get("pieces") or {}
+    for piece_id in (
+        WECHAT_AUTOREPLY_PIECE_ID,
+        WECHAT_TIEKU_PIECE_ID,
+        ZHIHU_SCENARIO_PIECE_ID,
+    ):
+        if piece_id not in pieces:
+            raise ValueError(f"external_ops missing piece {piece_id}")
+    autoreply = pieces[WECHAT_AUTOREPLY_PIECE_ID]
+    if autoreply.get("status") != STATUS_CONFIGURED:
+        raise ValueError("autoreply external status must be configured")
+    if autoreply.get("welcome", {}).get("rule_id") != WECHAT_WELCOME_RULE_ID:
+        raise ValueError("welcome rule_id mismatch")
+    if autoreply.get("keyword", {}).get("rule_id") != WECHAT_KEYWORD_RULE_ID:
+        raise ValueError("keyword rule_id mismatch")
+    if autoreply.get("keyword", {}).get("match") != "exact":
+        raise ValueError("keyword match must be exact")
+    wechat = pieces[WECHAT_TIEKU_PIECE_ID]
+    if wechat.get("status") != STATUS_BLOCKED:
+        raise ValueError("WeChat 贴图 overall status must be blocked")
+    if wechat.get("draft_status") != STATUS_DRAFT_SAVED:
+        raise ValueError("WeChat 贴图 draft_status must be draft_saved")
+    if wechat.get("assets_status") != STATUS_ASSETS_READY:
+        raise ValueError("WeChat 贴图 assets_status must be assets_ready")
+    if wechat.get("scheduled") or wechat.get("published"):
+        raise ValueError("WeChat 贴图 draft must not be marked scheduled/published")
+    if wechat.get("status") in (STATUS_SCHEDULED, STATUS_PUBLISHED):
+        raise ValueError("WeChat 贴图 must not use scheduled/published as overall status")
+    if wechat.get("app_id") != WECHAT_TIEKU_APP_ID:
+        raise ValueError("WeChat 贴图 app_id mismatch")
+    if wechat.get("data_seq") != WECHAT_TIEKU_DATA_SEQ:
+        raise ValueError("WeChat 贴图 data_seq mismatch")
+    if wechat.get("image_count") != 5 or not wechat.get("image_order_complete"):
+        raise ValueError("WeChat 贴图 must record 5 images in order")
+    attempt = wechat.get("schedule_attempt") or {}
+    if attempt.get("block_reason") != WECHAT_BLOCK_REASON:
+        raise ValueError("WeChat schedule block_reason mismatch")
+    if not attempt.get("exited_safely"):
+        raise ValueError("schedule attempt must record safe exit")
+    zhihu = pieces[ZHIHU_SCENARIO_PIECE_ID]
+    if zhihu.get("status") != STATUS_DRAFT_SAVED:
+        raise ValueError("Zhihu status must be draft_saved")
+    if zhihu.get("scheduled") or zhihu.get("published"):
+        raise ValueError("Zhihu draft must not be marked scheduled/published")
+    if zhihu.get("status") in (STATUS_SCHEDULED, STATUS_PUBLISHED):
+        raise ValueError("Zhihu must not use scheduled/published as status")
+    if zhihu.get("draft_id") != ZHIHU_DRAFT_ID:
+        raise ValueError("Zhihu draft_id mismatch")
+    if zhihu.get("planned_publish_window") != ZHIHU_PLANNED_WINDOW:
+        raise ValueError("Zhihu planned window mismatch")
+    blob = json_dumps_safe(ops).lower()
+    # Forbid recording live secret material; allow boolean privacy flags named *cookie*.
+    if "cdn.weixin" in blob or "cdn.zhihu" in blob:
+        raise ValueError("forbidden CDN host recorded in external_ops")
+    for needle in ("access_token=", "session_token=", "bearer ", "set-cookie:"):
+        if needle in blob:
+            raise ValueError(f"forbidden secret-like token recorded: {needle}")
+    # Reject non-false privacy flags already checked; also reject long opaque token blobs.
+    if '"cookie":' in blob or '"cookies":' in blob:
+        raise ValueError("must not record cookie values in external_ops")
+
+
+def json_dumps_safe(payload: dict[str, Any]) -> str:
+    return json.dumps(payload, ensure_ascii=False)
+
+
 def validate_schedule(schedule: dict[str, Any]) -> None:
     if not schedule.get("approved"):
         raise ValueError("organic-only schedule must be approved")
@@ -1084,6 +1380,25 @@ def validate_schedule(schedule: dict[str, Any]) -> None:
         raise ValueError("schedule missing 2026-08-17 WeChat 贴图")
     if dates.get(ZHIHU_DATE, {}).get("piece_id") != ZHIHU_SCENARIO_PIECE_ID:
         raise ValueError("schedule missing 2026-08-18 Zhihu rewrite")
+    wechat_row = dates[WECHAT_TIEKU_DATE]
+    zhihu_row = dates[ZHIHU_DATE]
+    autoreply_row = dates.get(OPS_DATE) or {}
+    if wechat_row.get("status") in (STATUS_SCHEDULED, STATUS_PUBLISHED):
+        raise ValueError("WeChat calendar row must not be scheduled/published while blocked")
+    if wechat_row.get("status") != STATUS_BLOCKED:
+        raise ValueError("WeChat calendar status must be blocked")
+    if wechat_row.get("scheduled") or wechat_row.get("published"):
+        raise ValueError("WeChat calendar flags scheduled/published must be false")
+    if zhihu_row.get("status") in (STATUS_SCHEDULED, STATUS_PUBLISHED):
+        raise ValueError("Zhihu calendar row must not be scheduled/published")
+    if zhihu_row.get("status") != STATUS_DRAFT_SAVED:
+        raise ValueError("Zhihu calendar status must be draft_saved")
+    if zhihu_row.get("scheduled") or zhihu_row.get("published"):
+        raise ValueError("Zhihu calendar flags scheduled/published must be false")
+    if autoreply_row.get("status") != STATUS_CONFIGURED:
+        raise ValueError("autoreply calendar status must be configured")
+    if "external_ops" in schedule:
+        validate_external_ops(schedule["external_ops"])
 
 
 def normalize_markdown(text: str) -> str:

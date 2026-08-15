@@ -30,9 +30,9 @@
     {
       "date": "2026-08-15",
       "channel": "wechat",
-      "action": "prepare_autoreply_config_packet",
+      "action": "configure_autoreply",
       "piece_id": "o1-wechat-autoreply-fupan",
-      "status": "production_ready_config"
+      "status": "configured"
     },
     {
       "date": "2026-08-17",
@@ -40,7 +40,12 @@
       "action": "publish_image_post_tieku",
       "piece_id": "o1-wechat-stockout-tieku",
       "title": "柜机缺货先查这7步",
-      "status": "production_ready_awaiting_images"
+      "status": "blocked",
+      "draft_status": "draft_saved",
+      "assets_status": "assets_ready",
+      "scheduled": false,
+      "published": false,
+      "block_reason": "admin_qr_verification_required"
     },
     {
       "date": "2026-08-18",
@@ -48,7 +53,12 @@
       "action": "publish_scenario_rewrite",
       "piece_id": "o1-zhihu-inventory-stockout",
       "title": "库存显示有货，为什么柜机还是缺货？",
-      "status": "production_ready_awaiting_images"
+      "status": "draft_saved",
+      "draft_status": "draft_saved",
+      "assets_status": "assets_ready",
+      "scheduled": false,
+      "published": false,
+      "planned_publish_window": "2026-08-18T20:30:00+08:00"
     }
   ],
   "single_cta_rule": {
@@ -56,7 +66,90 @@
     "campaign": "founder14d_20260813",
     "max_cta_per_piece": 1
   },
-  "image_status": "awaiting_antigravity_images",
+  "image_status": "images_ready",
+  "external_ops": {
+    "verified_at": "2026-08-15T18:05:00+08:00",
+    "via": "browser_manual",
+    "repo_api_mutation": false,
+    "privacy": {
+      "cdn_urls_recorded": false,
+      "login_tokens_recorded": false,
+      "cookies_recorded": false,
+      "raw_visible_urls_on_wechat": false
+    },
+    "pieces": {
+      "o1-wechat-autoreply-fupan": {
+        "status": "configured",
+        "account": "ZeroRealm零域AI",
+        "welcome": {
+          "status": "configured",
+          "rule_id": "456828165",
+          "enabled": true,
+          "saved": true,
+          "link_style": "chinese_rich_text_no_raw_url"
+        },
+        "keyword": {
+          "keyword": "复盘表",
+          "match": "exact",
+          "status": "configured",
+          "rule_id": "456844465",
+          "enabled": true,
+          "saved": true,
+          "link_style": "chinese_rich_text_no_raw_url"
+        }
+      },
+      "o1-wechat-stockout-tieku": {
+        "status": "blocked",
+        "assets_status": "assets_ready",
+        "draft_status": "draft_saved",
+        "schedule_status": "blocked",
+        "publish_status": "not_published",
+        "account": "ZeroRealm零域AI",
+        "title": "柜机缺货先查这7步",
+        "app_id": "100000212",
+        "data_seq": "4650538271616466946",
+        "image_count": 5,
+        "image_order_complete": true,
+        "saved_at": "2026-08-15T18:05:00+08:00",
+        "scheduled": false,
+        "published": false,
+        "schedule_attempt": {
+          "intended_at": "2026-08-17T20:30:00+08:00",
+          "result": "blocked",
+          "block_reason": "admin_qr_verification_required",
+          "exited_safely": true
+        }
+      },
+      "o1-zhihu-inventory-stockout": {
+        "status": "draft_saved",
+        "assets_status": "assets_ready",
+        "draft_status": "draft_saved",
+        "schedule_status": "unsupported_on_web",
+        "publish_status": "not_published",
+        "account": "ZeroRealm AI",
+        "title": "库存显示有货，为什么柜机还是缺货？",
+        "draft_id": "2072013992894149965",
+        "verified_fields": [
+          "title",
+          "cover",
+          "body",
+          "table",
+          "single_cta"
+        ],
+        "scheduled": false,
+        "published": false,
+        "planned_publish_window": "2026-08-18T20:30:00+08:00",
+        "note": "知乎网页端不支持文章定时；计划窗口已记录，未提前发布。"
+      }
+    },
+    "blockers": [
+      {
+        "piece_id": "o1-wechat-stockout-tieku",
+        "reason": "admin_qr_verification_required",
+        "detail": "尝试设置 2026-08-17T20:30:00+08:00 定时时触发管理员扫码验证，已安全退出；草稿仍为 draft_saved，未 scheduled/published。"
+      }
+    ]
+  },
   "external_state_mutated": false,
   "llm_api_used": false
 }

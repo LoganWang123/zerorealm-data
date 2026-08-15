@@ -1,10 +1,12 @@
 # Organic sprint phase 1 packets · 2026-08-15
 
-- Status: `phase1_packets_ready`
+- Status: `phase1_external_ops_recorded`
 - Image status: `images_ready`
-- External mutation: `False`
+- External API mutation (repo): `False`
+- Browser manual ops: `True`
 - LLM API: `False`
 - Friends circle / groups / private: forbidden
+- Secrets policy: no CDN URLs / login tokens / cookies recorded
 
 ## Packets
 
@@ -15,21 +17,41 @@
    - image briefs: 5（1:1 方封面 + 4×4:5 竖屏合步：1-2 / 3-4 / 5-6 / 7）
    - assets: `assets/generated/organic-sprint/2026-08-15/o1-wechat-stockout-tieku/`（cover + panel-1..4）
    - image_status: `images_ready`
+   - assets_status: `assets_ready`
+   - draft_status: `draft_saved`（app_id `100000212`，data_seq `4650538271616466946`，5 图顺序完整，2026-08-15 18:05 保存）
+   - external_status: `blocked`（尝试 2026-08-17 20:30 定时 → `admin_qr_verification_required`，已安全退出）
+   - scheduled / published: **false**（草稿不得记为 scheduled/published）
 
 2. **Zhihu 场景改写** `2026-08-18` 《库存显示有货，为什么柜机还是缺货？》
    - piece_id: `o1-zhihu-inventory-stockout`
    - tracking: `organic_20260818_zhihu_inventory_stockout`
    - packet: `data/growth/content-packet-o1-zhihu-inventory-stockout-2026-08-15.json`
+   - account: `ZeroRealm AI`
+   - draft_id: `2072013992894149965`
+   - assets_status: `assets_ready`
+   - external_status / draft_status: `draft_saved`（标题/封面/正文/表格/唯一 CTA 已核验）
+   - planned window: `2026-08-18 20:30`（网页端不支持文章定时；未提前发布）
+   - scheduled / published: **false**
 
 3. **公众号欢迎语 + 关键词「复盘表」**
    - piece_id: `o1-wechat-autoreply-fupan`
    - packet: `data/growth/config-packet-o1-wechat-autoreply-2026-08-15.json`
+   - account: `ZeroRealm零域AI`
+   - external_status: `configured`
+   - welcome rule_id: `456828165`（已保存启用）
+   - keyword「复盘表」exact rule_id: `456844465`（已保存启用）
+   - link style: 中文富文本，无原始网址可见
    - false Excel download claim: **no**
 
 ## Schedule / ledger
 
 - Approved organic-only schedule: `data/growth/organic-only-schedule-2026-08-15.json` (approved=True)
 - Experiment ledger overlay: `data/growth/organic-experiment-ledger-2026-08-15.json`
+- Manifest: `data/growth/organic-sprint-phase1-manifest-2026-08-15.json`
+
+## External ops blockers
+
+- `o1-wechat-stockout-tieku` · `admin_qr_verification_required`：设置 2026-08-17 20:30 定时时触发管理员扫码验证，已安全退出；草稿仍为 `draft_saved`
 
 ## Continue / Stop
 
@@ -45,10 +67,10 @@
 
 ## Browser handoff
 
-1. (wechat_oa_backend) 浏览器打开公众号后台 → 自动回复：粘贴欢迎语与关键词「复盘表」配置包；链接用后台超链接/菜单，勿把完整网址写成可见纯文本；保存后自测关注与关键词，勿调用本仓发布接口。
-2. (wechat_oa_image_post) 位图已就绪（images_ready）；于 2026-08-17 人工发布《柜机缺货先查这7步》；仅公众号公开面；禁止朋友圈/群/私发。
-3. (zhihu_editor) 于 2026-08-18 在知乎编辑器粘贴场景改写稿；文末仅保留一个指向周复盘工具的中文锚点链接；人工发布。
-4. (ledger) 发布日记入 organic-only 排期与实验台账：是否单行动入口、是否禁用私域分发、图片状态。
+1. (wechat_oa_backend · configured) 已核验：被关注回复与关键词「复盘表」精确匹配均已保存启用；中文富文本链接，无原始网址可见。后续勿用本仓接口改写。
+2. (wechat_oa_image_post · blocked) 草稿已 draft_saved（5 图顺序完整）；定时因 admin_qr_verification_required 阻塞并已安全退出。勿记为 scheduled/published。
+3. (zhihu_editor · draft_saved) 知乎草稿已 draft_saved；网页端不支持定时；计划窗口 2026-08-18 20:30；未提前发布。
+4. (ledger) 已回写 organic-only 排期与实验台账：configured / draft_saved / blocked；草稿≠scheduled/published。
 
 ## Antigravity
 

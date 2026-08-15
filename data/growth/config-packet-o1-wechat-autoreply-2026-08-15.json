@@ -42,8 +42,10 @@
       "可见文案仅中文",
       "每条回复仅一个工具页行动入口",
       "禁止声称可下载表格文件",
-      "本阶段只交付配置包，不调用公众号接口写入"
-    ]
+      "浏览器已保存启用：被关注回复与关键词「复盘表」精确匹配"
+    ],
+    "welcome_rule_id": "456828165",
+    "keyword_rule_id": "456844465"
   },
   "welcome_reply": {
     "visible_text_zh": "欢迎关注零域研究。\n这里分享智能柜运营可执行清单与周复盘方法。\n回复「复盘表」，获取智能柜周经营复盘工具入口（浏览器打开、本地计算，不上传经营数据）。\n打开智能柜周经营复盘工具页；订阅经营清单与预约运营商访谈入口在工具页内（人工跟进，不自动群发）。\n打开智能柜周复盘工具页",
@@ -108,5 +110,6 @@
   ],
   "auto_publish": false,
   "llm_api_used": false,
-  "external_state_mutated": false
+  "external_state_mutated": false,
+  "external_status": "configured"
 }

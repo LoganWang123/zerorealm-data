@@ -14,13 +14,27 @@ from growth.organic_sprint_phase1 import (
     IMAGE_STATUS,
     KEYWORD_FUPAN,
     OPS_DATE,
+    STATUS_ASSETS_READY,
+    STATUS_BLOCKED,
+    STATUS_CONFIGURED,
+    STATUS_DRAFT_SAVED,
+    STATUS_PUBLISHED,
+    STATUS_SCHEDULED,
     WECHAT_AUTOREPLY_PIECE_ID,
+    WECHAT_BLOCK_REASON,
+    WECHAT_KEYWORD_RULE_ID,
+    WECHAT_TIEKU_APP_ID,
+    WECHAT_TIEKU_DATA_SEQ,
     WECHAT_TIEKU_DATE,
     WECHAT_TIEKU_PIECE_ID,
     WECHAT_TIEKU_TITLE,
+    WECHAT_WELCOME_RULE_ID,
     ZHIHU_DATE,
+    ZHIHU_DRAFT_ID,
+    ZHIHU_PLANNED_WINDOW,
     ZHIHU_SCENARIO_PIECE_ID,
     ZHIHU_TITLE,
+    build_external_ops_verification,
     build_organic_experiment_ledger_update,
     build_organic_only_schedule,
     build_phase1_manifest,
@@ -28,6 +42,7 @@ from growth.organic_sprint_phase1 import (
     build_wechat_tieku_packet,
     build_zhihu_scenario_packet,
     validate_autoreply_packet,
+    validate_external_ops,
     validate_schedule,
     validate_wechat_tieku_packet,
     validate_zhihu_packet,
@@ -234,9 +249,13 @@ def test_committed_artifacts_match_phase1_contract():
 
     assert manifest["ops_date"] == OPS_DATE
     assert manifest["sprint"] == "organic"
-    assert manifest["status"] == "phase1_packets_ready"
+    assert manifest["status"] == "phase1_external_ops_recorded"
     assert manifest["image_status"] == IMAGES_READY
     assert manifest["safety"]["external_wechat_zhihu_mutation"] is False
+    assert manifest["safety"]["browser_manual_ops"] is True
+    assert manifest["safety"]["cdn_urls_recorded"] is False
+    assert manifest["safety"]["tokens_recorded"] is False
+    assert manifest["safety"]["cookies_recorded"] is False
     assert manifest["safety"]["llm_api"] is False
     assert manifest["safety"]["friends_circle"] is False
     assert manifest["safety"]["groups"] is False
@@ -246,6 +265,8 @@ def test_committed_artifacts_match_phase1_contract():
     validate_zhihu_packet(zhihu)
     validate_autoreply_packet(autoreply)
     validate_schedule(schedule)
+    validate_external_ops(manifest["external_ops"])
+    validate_external_ops(ledger["organic_phase1"]["external_ops"])
 
     assert ledger["organic_only"] is True
     assert wechat["schedule_intent"]["publish_date"] == "2026-08-17"
@@ -254,6 +275,14 @@ def test_committed_artifacts_match_phase1_contract():
     assert zhihu["title"] == "库存显示有货，为什么柜机还是缺货？"
     assert wechat["image_status"] == IMAGES_READY
     assert zhihu["image_status"] == IMAGES_READY
+    assert wechat["external_status"] == STATUS_BLOCKED
+    assert wechat["draft_status"] == STATUS_DRAFT_SAVED
+    assert wechat["scheduled"] is False
+    assert wechat["published"] is False
+    assert zhihu["external_status"] == STATUS_DRAFT_SAVED
+    assert zhihu["scheduled"] is False
+    assert zhihu["published"] is False
+    assert autoreply["external_status"] == STATUS_CONFIGURED
     assert len(wechat["image_briefs"]) == 5
     assert wechat["platform_formatting"]["panel_step_groups"] == [
         "1-2",
@@ -270,14 +299,44 @@ def test_committed_artifacts_match_phase1_contract():
     zhihu_entry = next(
         p for p in manifest["packets"] if p["piece_id"] == ZHIHU_SCENARIO_PIECE_ID
     )
+    autoreply_entry = next(
+        p for p in manifest["packets"] if p["piece_id"] == WECHAT_AUTOREPLY_PIECE_ID
+    )
     assert wechat_entry["image_status"] == IMAGES_READY
     assert zhihu_entry["image_status"] == IMAGES_READY
+    assert wechat_entry["external_status"] == STATUS_BLOCKED
+    assert wechat_entry["draft_status"] == STATUS_DRAFT_SAVED
+    assert wechat_entry["assets_status"] == STATUS_ASSETS_READY
+    assert wechat_entry["scheduled"] is False
+    assert wechat_entry["published"] is False
+    assert wechat_entry["block_reason"] == WECHAT_BLOCK_REASON
+    assert wechat_entry["app_id"] == WECHAT_TIEKU_APP_ID
+    assert wechat_entry["data_seq"] == WECHAT_TIEKU_DATA_SEQ
+    assert zhihu_entry["external_status"] == STATUS_DRAFT_SAVED
+    assert zhihu_entry["draft_id"] == ZHIHU_DRAFT_ID
+    assert zhihu_entry["planned_publish_window"] == ZHIHU_PLANNED_WINDOW
+    assert zhihu_entry["scheduled"] is False
+    assert zhihu_entry["published"] is False
+    assert autoreply_entry["external_status"] == STATUS_CONFIGURED
+    assert autoreply_entry["welcome_rule_id"] == WECHAT_WELCOME_RULE_ID
+    assert autoreply_entry["keyword_rule_id"] == WECHAT_KEYWORD_RULE_ID
     assert wechat_entry["image_brief_count"] == 5
     assert wechat_entry["panel_count"] == 4
     assert [k["keyword"] for k in autoreply["keyword_replies"]] == ["复盘表"]
 
     template = _load("data/growth/experiment-ledger.template.json")
     assert "organic sprint phase 1" in template["notes"]
+    assert "draft_saved" in template["notes"]
+    assert STATUS_SCHEDULED not in (
+        wechat_entry["external_status"],
+        zhihu_entry["external_status"],
+        autoreply_entry["external_status"],
+    )
+    assert STATUS_PUBLISHED not in (
+        wechat_entry["external_status"],
+        zhihu_entry["external_status"],
+        autoreply_entry["external_status"],
+    )
 
     report = (
         ROOT / "docs/reports/organic-sprint-phase1-2026-08-15.md"
@@ -285,6 +344,61 @@ def test_committed_artifacts_match_phase1_contract():
     assert IMAGES_READY in report
     assert "2026-08-17" in report
     assert "2026-08-18" in report
+    assert STATUS_CONFIGURED in report
+    assert STATUS_DRAFT_SAVED in report
+    assert WECHAT_BLOCK_REASON in report
+    assert "cdn" not in report.lower() or "no CDN" in report
+    assert "cookie" not in report.lower() or "cookies recorded" in report.lower()
+
+
+def test_external_ops_lifecycle_distinguishes_draft_from_scheduled_published():
+    ops = build_external_ops_verification()
+    validate_external_ops(ops)
+    assert ops["privacy"]["cdn_urls_recorded"] is False
+    assert ops["privacy"]["login_tokens_recorded"] is False
+    assert ops["privacy"]["cookies_recorded"] is False
+
+    autoreply = ops["pieces"][WECHAT_AUTOREPLY_PIECE_ID]
+    wechat = ops["pieces"][WECHAT_TIEKU_PIECE_ID]
+    zhihu = ops["pieces"][ZHIHU_SCENARIO_PIECE_ID]
+
+    assert autoreply["status"] == STATUS_CONFIGURED
+    assert autoreply["welcome"]["rule_id"] == WECHAT_WELCOME_RULE_ID
+    assert autoreply["keyword"]["rule_id"] == WECHAT_KEYWORD_RULE_ID
+    assert autoreply["keyword"]["match"] == "exact"
+
+    assert wechat["status"] == STATUS_BLOCKED
+    assert wechat["draft_status"] == STATUS_DRAFT_SAVED
+    assert wechat["assets_status"] == STATUS_ASSETS_READY
+    assert wechat["scheduled"] is False
+    assert wechat["published"] is False
+    assert wechat["status"] not in (STATUS_SCHEDULED, STATUS_PUBLISHED)
+    assert wechat["schedule_attempt"]["block_reason"] == WECHAT_BLOCK_REASON
+    assert wechat["schedule_attempt"]["exited_safely"] is True
+    assert wechat["app_id"] == WECHAT_TIEKU_APP_ID
+    assert wechat["data_seq"] == WECHAT_TIEKU_DATA_SEQ
+    assert wechat["image_count"] == 5
+
+    assert zhihu["status"] == STATUS_DRAFT_SAVED
+    assert zhihu["scheduled"] is False
+    assert zhihu["published"] is False
+    assert zhihu["status"] not in (STATUS_SCHEDULED, STATUS_PUBLISHED)
+    assert zhihu["draft_id"] == ZHIHU_DRAFT_ID
+    assert zhihu["planned_publish_window"] == ZHIHU_PLANNED_WINDOW
+    assert zhihu["verified_fields"] == [
+        "title",
+        "cover",
+        "body",
+        "table",
+        "single_cta",
+    ]
+    assert ops["blockers"][0]["reason"] == WECHAT_BLOCK_REASON
+
+    ledger = build_organic_experiment_ledger_update()
+    assert ledger["alerts"][0]["reason"] == WECHAT_BLOCK_REASON
+    assert "draft_saved" in ledger["notes"]
+    assert "admin_qr_verification_required" in ledger["notes"]
+
 
 
 def test_wechat_tieku_committed_assets_match_provenance_and_chinese_overlays():
@@ -394,4 +508,15 @@ def test_manifest_builder_wires_tracking_and_handoff():
     assert len(manifest["packets"]) == 3
     assert manifest["continue_stop_metrics"]["continue_all_of"]
     assert manifest["browser_handoff"]["phase1_mutates_external_state"] is False
+    assert manifest["browser_handoff"]["browser_manual_ops_recorded"] is True
+    assert manifest["status"] == "phase1_external_ops_recorded"
     assert manifest["tracking_ids"]["campaign"] == CAMPAIGN
+    assert manifest["packets"][0]["external_status"] == STATUS_BLOCKED
+    assert manifest["packets"][1]["external_status"] == STATUS_DRAFT_SAVED
+    assert manifest["packets"][2]["external_status"] == STATUS_CONFIGURED
+    validate_external_ops(manifest["external_ops"])
+    assert schedule["calendar"][0]["status"] == STATUS_CONFIGURED
+    assert schedule["calendar"][1]["status"] == STATUS_BLOCKED
+    assert schedule["calendar"][2]["status"] == STATUS_DRAFT_SAVED
+    assert schedule["calendar"][1]["scheduled"] is False
+    assert schedule["calendar"][2]["published"] is False
