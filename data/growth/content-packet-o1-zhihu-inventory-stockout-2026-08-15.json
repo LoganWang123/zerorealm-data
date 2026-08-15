@@ -146,14 +146,12 @@
   "external_status": "draft_saved",
   "draft_status": "draft_saved",
   "assets_status": "assets_ready",
-  "scheduled": false,
-  "published": false,
   "employment_boundary_synced": true,
   "publish_blocked": false,
   "block_reason": null,
-  "local_packet_corrected": true,
   "revision_pending": false,
-  "external_draft_accepted": true,
+  "local_packet_corrected": true,
   "legacy_interview_cta_status": "deleted",
-  "platform_draft_state": "draft"
+  "scheduled": false,
+  "published": false
 }

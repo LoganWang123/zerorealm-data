@@ -14,8 +14,11 @@ from growth.organic_sprint_phase1 import (
     IMAGE_STATUS,
     KEYWORD_FUPAN,
     OPS_DATE,
+    POINT_CONTRIBUTION_PIECE_ID,
+    POINT_CONTRIBUTION_TITLE,
     STATUS_ASSETS_READY,
     STATUS_BLOCKED,
+    STATUS_CANCELED,
     STATUS_CONFIGURED,
     STATUS_DELETED,
     STATUS_DRAFT_SAVED,
@@ -26,6 +29,7 @@ from growth.organic_sprint_phase1 import (
     WECHAT_BLOCK_REASON,
     WECHAT_KEYWORD_RULE_ID,
     WECHAT_TIEKU_APP_ID,
+    WECHAT_TIEKU_CANCEL_REASON,
     WECHAT_TIEKU_DATA_SEQ,
     WECHAT_TIEKU_DATE,
     WECHAT_TIEKU_PIECE_ID,
@@ -281,13 +285,16 @@ def test_committed_artifacts_match_phase1_contract():
     assert zhihu["title"] == "库存显示有货，为什么柜机还是缺货？"
     assert wechat["image_status"] == IMAGES_READY
     assert zhihu["image_status"] == IMAGES_READY
-    assert wechat["external_status"] == STATUS_BLOCKED
+    assert wechat["external_status"] == STATUS_CANCELED
+    assert wechat["cancel_reason"] == WECHAT_TIEKU_CANCEL_REASON
     assert wechat["draft_status"] == STATUS_DRAFT_SAVED
     assert wechat["employment_boundary_synced"] is True
     assert wechat["publish_blocked"] is True
-    assert wechat["block_reason"] == WECHAT_BLOCK_REASON
+    assert wechat["block_reason"] == WECHAT_TIEKU_CANCEL_REASON
     assert wechat["scheduled"] is False
     assert wechat["published"] is False
+    assert wechat["external_draft_deleted"] is False
+    assert wechat["provenance_retained"] is True
     assert zhihu["external_status"] == STATUS_DRAFT_SAVED
     assert zhihu["employment_boundary_synced"] is True
     assert zhihu["publish_blocked"] is False
@@ -320,12 +327,12 @@ def test_committed_artifacts_match_phase1_contract():
     )
     assert wechat_entry["image_status"] == IMAGES_READY
     assert zhihu_entry["image_status"] == IMAGES_READY
-    assert wechat_entry["external_status"] == STATUS_BLOCKED
+    assert wechat_entry["external_status"] == STATUS_CANCELED
     assert wechat_entry["draft_status"] == STATUS_DRAFT_SAVED
     assert wechat_entry["assets_status"] == STATUS_ASSETS_READY
     assert wechat_entry["employment_boundary_synced"] is True
     assert wechat_entry["publish_blocked"] is True
-    assert wechat_entry["block_reason"] == WECHAT_BLOCK_REASON
+    assert wechat_entry["block_reason"] == WECHAT_TIEKU_CANCEL_REASON
     assert wechat_entry["scheduled"] is False
     assert wechat_entry["published"] is False
     assert wechat_entry["app_id"] == WECHAT_TIEKU_APP_ID
@@ -374,8 +381,9 @@ def test_committed_artifacts_match_phase1_contract():
     assert "2026-08-18" in report
     assert STATUS_CONFIGURED in report
     assert STATUS_DRAFT_SAVED in report
-    assert STATUS_BLOCKED in report
-    assert WECHAT_BLOCK_REASON in report
+    assert STATUS_CANCELED in report
+    assert WECHAT_TIEKU_CANCEL_REASON in report
+    assert POINT_CONTRIBUTION_TITLE in report or "单点贡献" in report or "production_ready_revision" in report
     assert "legacy_interview_cta_status" in report
     assert STATUS_DELETED in report
     assert "resolved" in report.lower()
@@ -416,20 +424,26 @@ def test_external_ops_lifecycle_distinguishes_draft_from_scheduled_published():
     assert autoreply["welcome"]["status"] == STATUS_CONFIGURED
     assert autoreply["keyword"]["status"] == STATUS_CONFIGURED
 
-    assert wechat["status"] == STATUS_BLOCKED
+    assert wechat["status"] == STATUS_CANCELED
+    assert wechat["cancel_reason"] == WECHAT_TIEKU_CANCEL_REASON
     assert wechat["draft_status"] == STATUS_DRAFT_SAVED
     assert wechat["employment_boundary_synced"] is True
     assert wechat["publish_blocked"] is True
-    assert wechat["block_reason"] == WECHAT_BLOCK_REASON
+    assert wechat["block_reason"] == WECHAT_TIEKU_CANCEL_REASON
     assert wechat["assets_status"] == STATUS_ASSETS_READY
     assert wechat["scheduled"] is False
     assert wechat["published"] is False
+    assert wechat["external_draft_deleted"] is False
+    assert wechat["provenance_retained"] is True
     assert wechat["status"] not in (STATUS_SCHEDULED, STATUS_PUBLISHED, STATUS_DELETED)
-    assert wechat["schedule_attempt"]["block_reason"] == WECHAT_BLOCK_REASON
+    assert wechat["schedule_attempt"]["cancel_reason"] == WECHAT_TIEKU_CANCEL_REASON
+    assert wechat["schedule_attempt"]["prior_block_reason"] == WECHAT_BLOCK_REASON
     assert wechat["schedule_attempt"]["exited_safely"] is True
     assert wechat["app_id"] == WECHAT_TIEKU_APP_ID
     assert wechat["data_seq"] == WECHAT_TIEKU_DATA_SEQ
     assert wechat["image_count"] == 5
+    assert ops["blockers"] == []
+    assert ops["canceled_plans"][0]["reason"] == WECHAT_TIEKU_CANCEL_REASON
 
     assert zhihu["status"] == STATUS_DRAFT_SAVED
     assert zhihu["revision_pending"] is False
@@ -449,22 +463,30 @@ def test_external_ops_lifecycle_distinguishes_draft_from_scheduled_published():
     )
     assert zhihu["draft_id"] == ZHIHU_DRAFT_ID
     assert zhihu["planned_publish_window"] == ZHIHU_PLANNED_WINDOW
-    assert ops["blockers"][0]["reason"] == WECHAT_BLOCK_REASON
+    assert ops["blockers"] == []
+    assert ops["canceled_plans"][0]["reason"] == WECHAT_TIEKU_CANCEL_REASON
     assert all(e["resolved"] is True for e in ops["resolved_events"])
     assert any(
         e["id"] == "zhihu_revision_pending_quota" and e["reason"] == ZHIHU_REVISION_REASON
         for e in ops["resolved_events"]
     )
+    assert any(
+        e["id"] == "wechat_tieku_schedule_canceled_topic_overlap"
+        and e["reason"] == WECHAT_TIEKU_CANCEL_REASON
+        for e in ops["resolved_events"]
+    )
 
     ledger = build_organic_experiment_ledger_update()
-    assert ledger["alerts"][0]["reason"] == WECHAT_BLOCK_REASON
-    assert ledger["alerts"][0]["resolved"] is False
+    assert ledger["alerts"][0]["reason"] == WECHAT_TIEKU_CANCEL_REASON
+    assert ledger["alerts"][0]["resolved"] is True
     quota_alert = next(a for a in ledger["alerts"] if a["id"] == "zhihu_revision_pending_quota")
     assert quota_alert["resolved"] is True
     assert "employment_boundary_synced" in ledger["notes"]
     assert "antigravity_quota_temporarily_exhausted" in ledger["notes"]
     assert "resolved" in ledger["notes"]
     assert STATUS_CONFIGURED in ledger["notes"] or "configured" in ledger["notes"]
+    assert STATUS_CANCELED in ledger["notes"] or "canceled" in ledger["notes"]
+    assert WECHAT_TIEKU_CANCEL_REASON in ledger["notes"]
 
 
 def test_revision_pending_must_not_be_scheduled_or_published():
@@ -735,30 +757,40 @@ def test_manifest_builder_wires_tracking_and_handoff():
             WECHAT_AUTOREPLY_PIECE_ID: "c.md",
         },
     )
-    assert len(manifest["packets"]) == 3
+    assert len(manifest["packets"]) == 4
     assert manifest["continue_stop_metrics"]["continue_all_of"]
     assert manifest["browser_handoff"]["phase1_mutates_external_state"] is False
     assert manifest["browser_handoff"]["browser_manual_ops_recorded"] is True
     assert manifest["status"] == "phase1_external_ops_recorded"
     assert manifest["tracking_ids"]["campaign"] == CAMPAIGN
-    assert manifest["packets"][0]["external_status"] == STATUS_BLOCKED
-    assert manifest["packets"][1]["external_status"] == STATUS_DRAFT_SAVED
-    assert manifest["packets"][2]["external_status"] == STATUS_CONFIGURED
+    assert manifest["packets"][0]["external_status"] == STATUS_CANCELED
+    assert manifest["packets"][1]["external_status"] == "production_ready_revision"
+    assert manifest["packets"][1]["external_sync_status"] == "external_sync_pending"
+    assert manifest["packets"][2]["external_status"] == STATUS_DRAFT_SAVED
+    assert manifest["packets"][3]["external_status"] == STATUS_CONFIGURED
     assert manifest["packets"][0]["employment_boundary_synced"] is True
-    assert manifest["packets"][1]["employment_boundary_synced"] is True
-    assert manifest["packets"][1]["publish_blocked"] is False
-    assert manifest["packets"][1]["revision_pending"] is False
-    assert manifest["packets"][1]["legacy_interview_cta_status"] == STATUS_DELETED
     assert manifest["packets"][2]["employment_boundary_synced"] is True
+    assert manifest["packets"][2]["publish_blocked"] is False
+    assert manifest["packets"][2]["revision_pending"] is False
+    assert manifest["packets"][2]["legacy_interview_cta_status"] == STATUS_DELETED
+    assert manifest["packets"][3]["employment_boundary_synced"] is True
     validate_external_ops(manifest["external_ops"])
-    assert schedule["calendar"][0]["status"] == STATUS_CONFIGURED
-    assert schedule["calendar"][1]["status"] == STATUS_BLOCKED
-    assert schedule["calendar"][1]["draft_status"] == STATUS_DRAFT_SAVED
-    assert schedule["calendar"][2]["status"] == STATUS_DRAFT_SAVED
-    assert schedule["calendar"][1]["scheduled"] is False
-    assert schedule["calendar"][2]["published"] is False
-    assert schedule["calendar"][2]["publish_blocked"] is False
-    assert schedule["calendar"][2]["block_reason"] is None
-    assert manifest["browser_handoff"]["remaining_blockers"][0]["reason"] == (
-        WECHAT_BLOCK_REASON
+    by_piece = {row["piece_id"]: row for row in schedule["calendar"]}
+    assert by_piece[WECHAT_AUTOREPLY_PIECE_ID]["status"] == STATUS_CONFIGURED
+    assert by_piece[WECHAT_TIEKU_PIECE_ID]["status"] == STATUS_CANCELED
+    assert by_piece[WECHAT_TIEKU_PIECE_ID]["draft_status"] == STATUS_DRAFT_SAVED
+    assert by_piece[WECHAT_TIEKU_PIECE_ID]["cancel_reason"] == WECHAT_TIEKU_CANCEL_REASON
+    assert by_piece[ZHIHU_SCENARIO_PIECE_ID]["status"] == STATUS_DRAFT_SAVED
+    assert by_piece[WECHAT_TIEKU_PIECE_ID]["scheduled"] is False
+    assert by_piece[ZHIHU_SCENARIO_PIECE_ID]["published"] is False
+    assert by_piece[ZHIHU_SCENARIO_PIECE_ID]["publish_blocked"] is False
+    assert by_piece[ZHIHU_SCENARIO_PIECE_ID]["block_reason"] is None
+    assert by_piece[POINT_CONTRIBUTION_PIECE_ID]["status"] == "production_ready_revision"
+    assert by_piece[POINT_CONTRIBUTION_PIECE_ID]["external_sync_status"] == (
+        "external_sync_pending"
+    )
+    assert schedule["anti_duplication"]["cancel_reason_code"] == WECHAT_TIEKU_CANCEL_REASON
+    assert manifest["browser_handoff"]["remaining_blockers"] == []
+    assert manifest["browser_handoff"]["canceled_plans"][0]["reason"] == (
+        WECHAT_TIEKU_CANCEL_REASON
     )

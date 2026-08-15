@@ -18,7 +18,11 @@
       "私域群发",
       "一对一私发清单"
     ],
-    "auto_publish": false
+    "auto_publish": false,
+    "status": "canceled",
+    "cancel_reason": "same_channel_topic_overlap_with_2026-08-15_article",
+    "scheduled": false,
+    "published": false
   },
   "status": "production_ready_awaiting_images",
   "title": "柜机缺货先查这7步",
@@ -54,7 +58,8 @@
     "wechat_notes": [
       "仅公众号公开贴图/图文",
       "禁止朋友圈、群、个人号私发",
-      "人工审核后发布；本阶段不调用外部接口改状态"
+      "发布计划已 canceled（same_channel_topic_overlap_with_2026-08-15_article）",
+      "草稿、5 图与 provenance 保留；不删除外部草稿或素材"
     ]
   },
   "body_markdown": "# 柜机缺货先查这7步\n\n> 公开号贴图稿 · 计划发布日 2026-08-17（亚洲/上海）\n> 仅公众号公开面；禁止朋友圈、微信群/社群、个人号私发。\n> 口径：零域参考 / 企业内部实验口径，非行业统一标准。\n> 本包为生产就绪文案；位图状态：images_ready（Antigravity / gemini-3.7-flash-high 已生成并验收）。禁止本阶段调用外部接口改状态。\n\n## 贴图主旨\n\n柜机报警缺货，不等于立刻该补同一货品。先按七步排查，再决定补货、调货或复盘选品。\n\n## 五图叠字（按序）\n\n封面（方图）：柜机缺货先查这7步\n\n1. 竖屏合步：第1至2步 — 先定性信号；核对账实再加补\n2. 竖屏合步：第3至4步 — 畅销反复断货；补货是否超时\n3. 竖屏合步：第5至6步 — 设备在线可售；点位货品错配\n4. 竖屏合步：第7步 — 选定主动作，写下停止规则\n\n## 七步清单（文案口径）\n\n1. 先定性：是信号噪声，还是真实缺货\n2. 核对库存口径与账实，先校正再加补\n3. 确认是否畅销货品反复断货\n4. 检查补货任务是否超时\n5. 确认设备在线可售\n6. 检查点位与货品是否错配\n7. 选定主动作，并写下停止规则\n\n## 停止规则（写入周复盘）\n\n若同一货品连续两周出现真实缺货，仍不调货、不换品、不改安全库存，则本周强制进入选品与结构复盘，而不是第三次原样加补。\n\n## 唯一行动入口\n\n关注公众号后回复「复盘表」，自助打开智能柜周经营复盘工具；可在工具页公开订阅经营清单。\n\n可见文案只保留中文按钮「打开智能柜周复盘工具页」；追踪参数写在链接属性中，不把完整网址写成可见纯文本。\n",
@@ -312,12 +317,16 @@
   "auto_publish": false,
   "llm_api_used": false,
   "external_state_mutated": false,
-  "external_status": "blocked",
+  "external_status": "canceled",
+  "cancel_reason": "same_channel_topic_overlap_with_2026-08-15_article",
   "draft_status": "draft_saved",
   "assets_status": "assets_ready",
   "scheduled": false,
   "published": false,
   "employment_boundary_synced": true,
   "publish_blocked": true,
-  "block_reason": "admin_qr_verification_required"
+  "block_reason": "same_channel_topic_overlap_with_2026-08-15_article",
+  "external_draft_deleted": false,
+  "assets_deleted": false,
+  "provenance_retained": true
 }

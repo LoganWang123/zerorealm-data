@@ -52,6 +52,7 @@ STATUS_BLOCKED = "blocked"
 STATUS_CONFIGURED = "configured"
 STATUS_DELETED = "deleted"
 STATUS_REVISION_PENDING = "revision_pending"
+STATUS_CANCELED = "canceled"
 EXTERNAL_LIFECYCLE_STATUSES = frozenset(
     {
         STATUS_ASSETS_READY,
@@ -62,6 +63,7 @@ EXTERNAL_LIFECYCLE_STATUSES = frozenset(
         STATUS_CONFIGURED,
         STATUS_DELETED,
         STATUS_REVISION_PENDING,
+        STATUS_CANCELED,
     }
 )
 
@@ -74,6 +76,11 @@ WECHAT_TIEKU_DATA_SEQ = "4650538271616466946"
 WECHAT_TIEKU_DRAFT_SAVED_AT = "2026-08-15T18:05:00+08:00"
 WECHAT_TIEKU_SCHEDULE_ATTEMPT_AT = "2026-08-17T20:30:00+08:00"
 WECHAT_BLOCK_REASON = "admin_qr_verification_required"
+WECHAT_TIEKU_CANCEL_REASON = "same_channel_topic_overlap_with_2026-08-15_article"
+POINT_CONTRIBUTION_PIECE_ID = "o1-wechat-point-contribution"
+POINT_CONTRIBUTION_TITLE = "点位有销量却不赚钱？用一张周表算清单点贡献"
+POINT_CONTRIBUTION_DATE = "2026-08-15"
+SAME_CHANNEL_TOPIC_WINDOW_DAYS = 14
 ZHIHU_DRAFT_ID = "2072013992894149965"
 ZHIHU_PLANNED_WINDOW = "2026-08-18T20:30:00+08:00"
 ZHIHU_REVISION_REASON = "antigravity_quota_temporarily_exhausted"
@@ -97,9 +104,12 @@ WECHAT_AUTOREPLY_NOTE = (
     f"不得用 {STATUS_DELETED} 描述自动回复规则。"
 )
 WECHAT_TIEKU_NOTE = (
-    f"微信贴图草稿《{WECHAT_TIEKU_TITLE}》仍为 {STATUS_DRAFT_SAVED}（5 图顺序完整）；"
-    f"未定时未发布；发布仍被 {WECHAT_BLOCK_REASON} 阻塞；"
+    f"微信贴图《{WECHAT_TIEKU_TITLE}》发布计划已 {STATUS_CANCELED}；"
+    f"原因 {WECHAT_TIEKU_CANCEL_REASON}；"
+    f"草稿仍为 {STATUS_DRAFT_SAVED}（5 图顺序完整与 provenance 保留）；"
+    "scheduled=false；published=false；不删除外部草稿或素材文件；"
     "employment_boundary_synced=true。"
+    f"历史 {WECHAT_BLOCK_REASON} 仍记录为已安全退出的定时尝试，不再作为活跃发布计划。"
     f"不得用 {STATUS_DELETED} 描述贴图草稿。"
 )
 
@@ -232,8 +242,18 @@ def continue_stop_metrics() -> dict[str, Any]:
             {
                 "id": "organic_pieces_on_dates",
                 "rule": (
-                    f"{WECHAT_TIEKU_DATE} 公众号贴图《{WECHAT_TIEKU_TITLE}》"
-                    f"与 {ZHIHU_DATE} 知乎改写《{ZHIHU_TITLE}》均已人工发布"
+                    f"{POINT_CONTRIBUTION_DATE} 公众号文章《{POINT_CONTRIBUTION_TITLE}》"
+                    f"完成 Agy 同步后人工发布；"
+                    f"{WECHAT_TIEKU_DATE} 缺货贴图计划保持 {STATUS_CANCELED}；"
+                    f"{ZHIHU_DATE} 知乎改写《{ZHIHU_TITLE}》按计划人工发布"
+                ),
+            },
+            {
+                "id": "same_channel_14d_core_question_dedupe",
+                "rule": (
+                    f"同一公众号 {SAME_CHANNEL_TOPIC_WINDOW_DAYS} 天内"
+                    "核心问题高度相似内容禁止再发布；"
+                    f"冲突时取消后续计划并标注 {WECHAT_TIEKU_CANCEL_REASON}"
                 ),
             },
             {
@@ -308,23 +328,35 @@ def browser_handoff_instructions() -> dict[str, Any]:
             {
                 "order": 2,
                 "surface": "wechat_oa_image_post",
-                "status": STATUS_BLOCKED,
+                "status": STATUS_CANCELED,
                 "action": WECHAT_TIEKU_NOTE,
             },
             {
                 "order": 3,
+                "surface": "wechat_oa_article_revision",
+                "status": "external_sync_pending",
+                "action": (
+                    f"《{POINT_CONTRIBUTION_TITLE}》本地状态为 "
+                    "production_ready_revision / external_sync_pending；"
+                    "供 Agy 浏览器同步既有草稿；不得标已同步/已发布/已定时；"
+                    "不得操作公众号后台发表。"
+                ),
+            },
+            {
+                "order": 4,
                 "surface": "zhihu_editor",
                 "status": STATUS_DRAFT_SAVED,
                 "action": ZHIHU_ACCEPTED_NOTE,
             },
             {
-                "order": 4,
+                "order": 5,
                 "surface": "ledger",
                 "action": (
                     "已回写 organic-only 排期与实验台账："
                     "WeChat autoreply configured/enabled；"
-                    f"贴图 {STATUS_DRAFT_SAVED} + publish blocked by "
-                    f"{WECHAT_BLOCK_REASON}；"
+                    f"贴图计划 {STATUS_CANCELED}（{WECHAT_TIEKU_CANCEL_REASON}）；"
+                    f"草稿/5 图/provenance 保留为 {STATUS_DRAFT_SAVED}；"
+                    f"单点贡献稿 production_ready_revision / external_sync_pending；"
                     f"Zhihu {STATUS_DRAFT_SAVED} / publish_blocked=false / "
                     "employment_boundary_synced=true；"
                     f"legacy_interview_cta_status={STATUS_DELETED}；"
@@ -338,19 +370,25 @@ def browser_handoff_instructions() -> dict[str, Any]:
             "note": (
                 "公众号贴图 5 张与知乎封面已由 Antigravity（gemini-3.7-flash-high）"
                 "生成并验收 PASS；Cursor 仅回写路径/哈希/状态，不生成位图。"
+                "缺货贴图发布计划已 canceled，素材与 provenance 保留不删。"
                 "知乎外部草稿已由 Agy 新账号修订并核验；"
                 f"历史临时配额阻塞（{ZHIHU_REVISION_REASON}）已 resolved；"
                 "不记录登录账号、邮箱或配额恢复时刻。"
             ),
         },
-        "remaining_blockers": [
+        "remaining_blockers": [],
+        "canceled_plans": [
             {
                 "piece_id": WECHAT_TIEKU_PIECE_ID,
-                "reason": WECHAT_BLOCK_REASON,
-                "status": STATUS_BLOCKED,
-                "publish_blocked": True,
+                "status": STATUS_CANCELED,
+                "reason": WECHAT_TIEKU_CANCEL_REASON,
+                "scheduled": False,
+                "published": False,
                 "draft_status": STATUS_DRAFT_SAVED,
-                "employment_boundary_synced": True,
+                "assets_status": STATUS_ASSETS_READY,
+                "external_draft_deleted": False,
+                "assets_deleted": False,
+                "provenance_retained": True,
             }
         ],
     }
@@ -571,6 +609,10 @@ def build_wechat_tieku_packet(*, body_markdown: str) -> dict[str, Any]:
             "surface": "wechat_official_account_only",
             "forbidden_surfaces": list(FORBIDDEN_DISTRIBUTION),
             "auto_publish": False,
+            "status": STATUS_CANCELED,
+            "cancel_reason": WECHAT_TIEKU_CANCEL_REASON,
+            "scheduled": False,
+            "published": False,
         },
         "status": "production_ready_awaiting_images",
         "title": WECHAT_TIEKU_TITLE,
@@ -590,7 +632,8 @@ def build_wechat_tieku_packet(*, body_markdown: str) -> dict[str, Any]:
             "wechat_notes": [
                 "仅公众号公开贴图/图文",
                 "禁止朋友圈、群、个人号私发",
-                "人工审核后发布；本阶段不调用外部接口改状态",
+                f"发布计划已 {STATUS_CANCELED}（{WECHAT_TIEKU_CANCEL_REASON}）",
+                "草稿、5 图与 provenance 保留；不删除外部草稿或素材",
             ],
         },
         "body_markdown": body_markdown,
@@ -631,6 +674,18 @@ def build_wechat_tieku_packet(*, body_markdown: str) -> dict[str, Any]:
         "auto_publish": False,
         "llm_api_used": False,
         "external_state_mutated": False,
+        "external_status": STATUS_CANCELED,
+        "cancel_reason": WECHAT_TIEKU_CANCEL_REASON,
+        "draft_status": STATUS_DRAFT_SAVED,
+        "assets_status": STATUS_ASSETS_READY,
+        "scheduled": False,
+        "published": False,
+        "employment_boundary_synced": True,
+        "publish_blocked": True,
+        "block_reason": WECHAT_TIEKU_CANCEL_REASON,
+        "external_draft_deleted": False,
+        "assets_deleted": False,
+        "provenance_retained": True,
     }
 
 
@@ -728,6 +783,17 @@ def build_zhihu_scenario_packet(*, body_markdown: str) -> dict[str, Any]:
         "auto_publish": False,
         "llm_api_used": False,
         "external_state_mutated": False,
+        "external_status": STATUS_DRAFT_SAVED,
+        "draft_status": STATUS_DRAFT_SAVED,
+        "assets_status": STATUS_ASSETS_READY,
+        "employment_boundary_synced": True,
+        "publish_blocked": False,
+        "block_reason": None,
+        "revision_pending": False,
+        "local_packet_corrected": True,
+        "legacy_interview_cta_status": STATUS_DELETED,
+        "scheduled": False,
+        "published": False,
     }
 
 
@@ -853,6 +919,8 @@ def build_wechat_autoreply_packet() -> dict[str, Any]:
         "auto_publish": False,
         "llm_api_used": False,
         "external_state_mutated": False,
+        "external_status": STATUS_CONFIGURED,
+        "employment_boundary_synced": True,
     }
 
 
@@ -910,13 +978,14 @@ def build_external_ops_verification() -> dict[str, Any]:
                 },
             },
             WECHAT_TIEKU_PIECE_ID: {
-                "status": STATUS_BLOCKED,
+                "status": STATUS_CANCELED,
+                "cancel_reason": WECHAT_TIEKU_CANCEL_REASON,
                 "employment_boundary_synced": True,
                 "publish_blocked": True,
-                "block_reason": WECHAT_BLOCK_REASON,
+                "block_reason": WECHAT_TIEKU_CANCEL_REASON,
                 "assets_status": STATUS_ASSETS_READY,
                 "draft_status": STATUS_DRAFT_SAVED,
-                "schedule_status": STATUS_BLOCKED,
+                "schedule_status": STATUS_CANCELED,
                 "publish_status": "not_published",
                 "account": WECHAT_OA_ACCOUNT,
                 "title": WECHAT_TIEKU_TITLE,
@@ -927,11 +996,15 @@ def build_external_ops_verification() -> dict[str, Any]:
                 "saved_at": WECHAT_TIEKU_DRAFT_SAVED_AT,
                 "scheduled": False,
                 "published": False,
+                "external_draft_deleted": False,
+                "assets_deleted": False,
+                "provenance_retained": True,
                 "note": WECHAT_TIEKU_NOTE,
                 "schedule_attempt": {
                     "intended_at": WECHAT_TIEKU_SCHEDULE_ATTEMPT_AT,
-                    "result": STATUS_BLOCKED,
-                    "block_reason": WECHAT_BLOCK_REASON,
+                    "result": STATUS_CANCELED,
+                    "prior_block_reason": WECHAT_BLOCK_REASON,
+                    "cancel_reason": WECHAT_TIEKU_CANCEL_REASON,
                     "exited_safely": True,
                 },
             },
@@ -979,21 +1052,40 @@ def build_external_ops_verification() -> dict[str, Any]:
                 "note": ZHIHU_ACCEPTED_NOTE,
             },
         },
-        "blockers": [
+        "blockers": [],
+        "canceled_plans": [
             {
                 "piece_id": WECHAT_TIEKU_PIECE_ID,
-                "reason": WECHAT_BLOCK_REASON,
-                "status": STATUS_BLOCKED,
-                "publish_blocked": True,
+                "reason": WECHAT_TIEKU_CANCEL_REASON,
+                "status": STATUS_CANCELED,
+                "scheduled": False,
+                "published": False,
                 "draft_status": STATUS_DRAFT_SAVED,
-                "employment_boundary_synced": True,
+                "assets_status": STATUS_ASSETS_READY,
+                "external_draft_deleted": False,
+                "assets_deleted": False,
+                "provenance_retained": True,
                 "detail": (
-                    f"尝试设置 {WECHAT_TIEKU_SCHEDULE_ATTEMPT_AT} 定时时触发管理员扫码验证，"
-                    f"已安全退出；草稿仍为 {STATUS_DRAFT_SAVED}，未 scheduled/published。"
+                    f"{WECHAT_TIEKU_DATE} 公众号缺货贴图计划因与 "
+                    f"{POINT_CONTRIBUTION_DATE}《{POINT_CONTRIBUTION_TITLE}》"
+                    f"同一公众号核心问题高度相似而 {STATUS_CANCELED}；"
+                    f"草稿仍为 {STATUS_DRAFT_SAVED}，5 图与 provenance 保留，未删除外部草稿。"
                 ),
             }
         ],
         "resolved_events": [
+            {
+                "id": "wechat_tieku_schedule_canceled_topic_overlap",
+                "piece_id": WECHAT_TIEKU_PIECE_ID,
+                "reason": WECHAT_TIEKU_CANCEL_REASON,
+                "prior_status": STATUS_BLOCKED,
+                "resolved": True,
+                "resolution": STATUS_CANCELED,
+                "detail": (
+                    f"原活跃阻塞 {WECHAT_BLOCK_REASON} 之上，发布计划已改为 "
+                    f"{STATUS_CANCELED}（{WECHAT_TIEKU_CANCEL_REASON}）。"
+                ),
+            },
             {
                 "id": "zhihu_revision_pending_quota",
                 "piece_id": ZHIHU_SCENARIO_PIECE_ID,
@@ -1073,16 +1165,39 @@ def build_organic_only_schedule(
                 "action": "publish_image_post_tieku",
                 "piece_id": WECHAT_TIEKU_PIECE_ID,
                 "title": WECHAT_TIEKU_TITLE,
-                "status": wechat_ext["status"],
+                "status": STATUS_CANCELED,
+                "cancel_reason": WECHAT_TIEKU_CANCEL_REASON,
                 "draft_status": wechat_ext["draft_status"],
                 "assets_status": wechat_ext["assets_status"],
                 "employment_boundary_synced": wechat_ext[
                     "employment_boundary_synced"
                 ],
-                "publish_blocked": wechat_ext["publish_blocked"],
-                "block_reason": wechat_ext["block_reason"],
+                "publish_blocked": True,
+                "block_reason": WECHAT_TIEKU_CANCEL_REASON,
                 "scheduled": False,
                 "published": False,
+                "external_draft_deleted": False,
+                "assets_deleted": False,
+                "provenance_retained": True,
+                "note": WECHAT_TIEKU_NOTE,
+            },
+            {
+                "date": POINT_CONTRIBUTION_DATE,
+                "channel": "wechat",
+                "action": "revise_point_contribution_article",
+                "piece_id": POINT_CONTRIBUTION_PIECE_ID,
+                "title": POINT_CONTRIBUTION_TITLE,
+                "status": "production_ready_revision",
+                "external_sync_status": "external_sync_pending",
+                "scheduled": False,
+                "published": False,
+                "synced": False,
+                "core_question": (
+                    "点位流水不等于赚钱，先用周表算清单点贡献再决定调优或暂时撤点"
+                ),
+                "packet_json": (
+                    "data/growth/content-packet-o1-wechat-point-contribution-2026-08-15.json"
+                ),
             },
             {
                 "date": ZHIHU_DATE,
@@ -1111,6 +1226,16 @@ def build_organic_only_schedule(
             "tool_page": TOOL_PAGE_URL,
             "campaign": CAMPAIGN,
             "max_cta_per_piece": 1,
+        },
+        "anti_duplication": {
+            "channel": "wechat",
+            "window_days": SAME_CHANNEL_TOPIC_WINDOW_DAYS,
+            "rule": (
+                "同一公众号十四天内核心问题高度相似禁止发布；"
+                f"本轮已取消 {WECHAT_TIEKU_DATE} 缺货贴图，原因 "
+                f"{WECHAT_TIEKU_CANCEL_REASON}"
+            ),
+            "cancel_reason_code": WECHAT_TIEKU_CANCEL_REASON,
         },
         "image_status": "images_ready",
         "external_ops": ops,
@@ -1186,18 +1311,38 @@ def build_organic_experiment_ledger_update() -> dict[str, Any]:
                     "piece_id": WECHAT_TIEKU_PIECE_ID,
                     "date": WECHAT_TIEKU_DATE,
                     "title": WECHAT_TIEKU_TITLE,
-                    "status": STATUS_BLOCKED,
+                    "status": STATUS_CANCELED,
+                    "cancel_reason": WECHAT_TIEKU_CANCEL_REASON,
                     "assets_status": STATUS_ASSETS_READY,
                     "draft_status": STATUS_DRAFT_SAVED,
                     "employment_boundary_synced": True,
                     "publish_blocked": True,
-                    "block_reason": WECHAT_BLOCK_REASON,
+                    "block_reason": WECHAT_TIEKU_CANCEL_REASON,
                     "scheduled": False,
                     "published": False,
+                    "external_draft_deleted": False,
+                    "assets_deleted": False,
+                    "provenance_retained": True,
                     "app_id": WECHAT_TIEKU_APP_ID,
                     "data_seq": WECHAT_TIEKU_DATA_SEQ,
                     "saved_at": WECHAT_TIEKU_DRAFT_SAVED_AT,
                     "note": WECHAT_TIEKU_NOTE,
+                },
+                {
+                    "piece_id": POINT_CONTRIBUTION_PIECE_ID,
+                    "date": POINT_CONTRIBUTION_DATE,
+                    "title": POINT_CONTRIBUTION_TITLE,
+                    "status": "production_ready_revision",
+                    "external_sync_status": "external_sync_pending",
+                    "scheduled": False,
+                    "published": False,
+                    "synced": False,
+                    "app_id": "100000152",
+                    "data_seq": "4649592826320846849",
+                    "note": (
+                        "生产级修订就绪，等待 Agy 浏览器同步；"
+                        "不得标已同步/已发布/已定时。"
+                    ),
                 },
                 {
                     "piece_id": ZHIHU_SCENARIO_PIECE_ID,
@@ -1234,14 +1379,15 @@ def build_organic_experiment_ledger_update() -> dict[str, Any]:
         },
         "alerts": [
             {
-                "id": "wechat_tieku_admin_qr_block",
+                "id": "wechat_tieku_canceled_topic_overlap",
                 "severity": "ops",
                 "piece_id": WECHAT_TIEKU_PIECE_ID,
-                "reason": WECHAT_BLOCK_REASON,
-                "resolved": False,
+                "reason": WECHAT_TIEKU_CANCEL_REASON,
+                "resolved": True,
                 "message": (
-                    f"微信贴图草稿已 {STATUS_DRAFT_SAVED} 但定时/发布被管理员扫码验证阻塞；"
-                    f"勿将 {STATUS_DRAFT_SAVED} 记为 scheduled/published；"
+                    f"微信贴图发布计划已 {STATUS_CANCELED}（{WECHAT_TIEKU_CANCEL_REASON}）；"
+                    f"草稿仍为 {STATUS_DRAFT_SAVED}，5 图与 provenance 保留；"
+                    "scheduled=false；published=false；勿删除外部草稿；"
                     f"勿用 {STATUS_DELETED} 描述贴图草稿。"
                 ),
             },
@@ -1259,15 +1405,18 @@ def build_organic_experiment_ledger_update() -> dict[str, Any]:
         ],
         "notes": (
             "2026-08-15 organic sprint phase 1 external truthfulness: "
-            "public WeChat OA 贴图 + Zhihu rewrite + welcome/keyword「复盘表」. "
+            "public WeChat OA 单点贡献修订 + canceled 缺货贴图计划 + Zhihu rewrite + "
+            "welcome/keyword「复盘表」. "
             "Conversion: 公开内容 → 关注公众号 → 回复「复盘表」→ 自助周复盘工具. "
             "No interview / one-to-one / WeChat-add / company-site identity asks. "
             f"Professional boundaries: {PROFESSIONAL_BOUNDARIES_ZH} "
             "WeChat autoreply configured/enabled "
             "(employment_boundary_synced=true). "
-            f"WeChat 贴图 {STATUS_DRAFT_SAVED} (5 images) but publish blocked by "
-            f"{WECHAT_BLOCK_REASON}; employment_boundary_synced=true; "
+            f"WeChat 贴图计划 {STATUS_CANCELED} "
+            f"({WECHAT_TIEKU_CANCEL_REASON}); draft/5 images/provenance retained; "
             f"never mark autoreply/draft as {STATUS_DELETED}. "
+            "Point-contribution article: production_ready_revision / "
+            "external_sync_pending only (not synced/scheduled/published). "
             f"Zhihu draft {ZHIHU_DRAFT_ID} accepted: {STATUS_DRAFT_SAVED}, "
             "revision_pending=false, employment_boundary_synced=true, "
             "publish_blocked=false, scheduled=false, published=false; "
@@ -1355,8 +1504,12 @@ def build_phase1_manifest(
                 ],
                 "publish_blocked": wechat_ext.get("publish_blocked", True),
                 "block_reason": wechat_ext.get("block_reason"),
+                "cancel_reason": wechat_ext.get("cancel_reason"),
                 "scheduled": False,
                 "published": False,
+                "external_draft_deleted": wechat_ext.get("external_draft_deleted", False),
+                "assets_deleted": wechat_ext.get("assets_deleted", False),
+                "provenance_retained": wechat_ext.get("provenance_retained", True),
                 "app_id": wechat_ext["app_id"],
                 "data_seq": wechat_ext["data_seq"],
                 "saved_at": wechat_ext["saved_at"],
@@ -1368,6 +1521,29 @@ def build_phase1_manifest(
                 ),
                 "article_source": article_source_paths.get(WECHAT_TIEKU_PIECE_ID),
                 "assets": wechat_assets,
+            },
+            {
+                "piece_id": POINT_CONTRIBUTION_PIECE_ID,
+                "channel": "wechat",
+                "format": "article",
+                "title": POINT_CONTRIBUTION_TITLE,
+                "publish_date": POINT_CONTRIBUTION_DATE,
+                "external_status": "production_ready_revision",
+                "external_sync_status": "external_sync_pending",
+                "scheduled": False,
+                "published": False,
+                "synced": False,
+                "app_id": "100000152",
+                "data_seq": "4649592826320846849",
+                "packet_json": (
+                    "data/growth/content-packet-o1-wechat-point-contribution-2026-08-15.json"
+                ),
+                "article_source": (
+                    f"content/organic_packets/{OPS_DATE}/{POINT_CONTRIBUTION_PIECE_ID}.md"
+                ),
+                "agy_handoff": (
+                    f"docs/reports/wechat-point-contribution-revision-{OPS_DATE}.md"
+                ),
             },
             {
                 "piece_id": ZHIHU_SCENARIO_PIECE_ID,
@@ -1667,22 +1843,30 @@ def validate_external_ops(ops: dict[str, Any]) -> None:
     if autoreply.get("keyword", {}).get("status") != STATUS_CONFIGURED:
         raise ValueError("keyword status must be configured")
     wechat = pieces[WECHAT_TIEKU_PIECE_ID]
-    if wechat.get("status") != STATUS_BLOCKED:
-        raise ValueError("WeChat 贴图 overall status must be blocked")
+    if wechat.get("status") != STATUS_CANCELED:
+        raise ValueError("WeChat 贴图 overall status must be canceled")
+    if wechat.get("cancel_reason") != WECHAT_TIEKU_CANCEL_REASON:
+        raise ValueError("WeChat 贴图 cancel_reason mismatch")
     if wechat.get("draft_status") != STATUS_DRAFT_SAVED:
         raise ValueError("WeChat 贴图 draft_status must be draft_saved")
     if wechat.get("employment_boundary_synced") is not True:
         raise ValueError("WeChat 贴图 employment_boundary_synced must be true")
     if wechat.get("publish_blocked") is not True:
         raise ValueError("WeChat 贴图 publish_blocked must be true")
-    if wechat.get("block_reason") != WECHAT_BLOCK_REASON:
-        raise ValueError("WeChat 贴图 block_reason mismatch")
+    if wechat.get("block_reason") != WECHAT_TIEKU_CANCEL_REASON:
+        raise ValueError("WeChat 贴图 block_reason must be cancel reason")
     if wechat.get("assets_status") != STATUS_ASSETS_READY:
         raise ValueError("WeChat 贴图 assets_status must be assets_ready")
     if wechat.get("scheduled") or wechat.get("published"):
         raise ValueError("WeChat 贴图 must not be marked scheduled/published")
     if wechat.get("status") in (STATUS_SCHEDULED, STATUS_PUBLISHED):
         raise ValueError("WeChat 贴图 must not use scheduled/published as overall status")
+    if wechat.get("external_draft_deleted") is not False:
+        raise ValueError("WeChat 贴图 external draft must be retained")
+    if wechat.get("assets_deleted") is not False:
+        raise ValueError("WeChat 贴图 assets must be retained")
+    if wechat.get("provenance_retained") is not True:
+        raise ValueError("WeChat 贴图 provenance must be retained")
     if wechat.get("app_id") != WECHAT_TIEKU_APP_ID:
         raise ValueError("WeChat 贴图 app_id mismatch")
     if wechat.get("data_seq") != WECHAT_TIEKU_DATA_SEQ:
@@ -1690,8 +1874,10 @@ def validate_external_ops(ops: dict[str, Any]) -> None:
     if wechat.get("image_count") != 5 or not wechat.get("image_order_complete"):
         raise ValueError("WeChat 贴图 must record 5 images in order")
     attempt = wechat.get("schedule_attempt") or {}
-    if attempt.get("block_reason") != WECHAT_BLOCK_REASON:
-        raise ValueError("WeChat schedule block_reason mismatch")
+    if attempt.get("cancel_reason") != WECHAT_TIEKU_CANCEL_REASON:
+        raise ValueError("WeChat schedule cancel_reason mismatch")
+    if attempt.get("prior_block_reason") != WECHAT_BLOCK_REASON:
+        raise ValueError("WeChat schedule prior_block_reason mismatch")
     if not attempt.get("exited_safely"):
         raise ValueError("schedule attempt must record safe exit")
     zhihu = pieces[ZHIHU_SCENARIO_PIECE_ID]
@@ -1741,11 +1927,30 @@ def validate_external_ops(ops: dict[str, Any]) -> None:
         if counts.get(key) != 0:
             raise ValueError(f"Zhihu forbidden outreach count {key} must be 0")
     blockers = ops.get("blockers") or []
-    if not blockers or blockers[0].get("reason") != WECHAT_BLOCK_REASON:
-        raise ValueError("active blocker must be WeChat admin_qr_verification_required")
+    if blockers:
+        raise ValueError("active blockers must be empty after tieku cancel")
+    canceled = ops.get("canceled_plans") or []
+    if not canceled or canceled[0].get("reason") != WECHAT_TIEKU_CANCEL_REASON:
+        raise ValueError("canceled_plans must record topic-overlap cancel")
+    if canceled[0].get("status") != STATUS_CANCELED:
+        raise ValueError("canceled_plans status must be canceled")
+    if canceled[0].get("external_draft_deleted") is not False:
+        raise ValueError("canceled plan must retain external draft")
     if any(b.get("reason") == ZHIHU_REVISION_REASON for b in blockers):
         raise ValueError("quota reason must not remain an active blocker")
     resolved = ops.get("resolved_events") or []
+    cancel_resolved = next(
+        (
+            e
+            for e in resolved
+            if e.get("id") == "wechat_tieku_schedule_canceled_topic_overlap"
+        ),
+        None,
+    )
+    if not cancel_resolved or cancel_resolved.get("resolved") is not True:
+        raise ValueError("tieku cancel event must exist and be resolved")
+    if cancel_resolved.get("reason") != WECHAT_TIEKU_CANCEL_REASON:
+        raise ValueError("tieku cancel event reason mismatch")
     quota_resolved = next(
         (e for e in resolved if e.get("id") == "zhihu_revision_pending_quota"),
         None,
@@ -1837,28 +2042,54 @@ def validate_schedule(schedule: dict[str, Any]) -> None:
     policy = schedule["distribution_policy"]
     if policy.get("friends_circle") or policy.get("groups") or policy.get("personal_private"):
         raise ValueError("private distribution flags must be false")
-    dates = {row["date"]: row for row in schedule["calendar"]}
-    if dates.get(WECHAT_TIEKU_DATE, {}).get("piece_id") != WECHAT_TIEKU_PIECE_ID:
+    by_piece = {row["piece_id"]: row for row in schedule["calendar"]}
+    if WECHAT_TIEKU_PIECE_ID not in by_piece:
         raise ValueError("schedule missing 2026-08-17 WeChat 贴图")
-    if dates.get(ZHIHU_DATE, {}).get("piece_id") != ZHIHU_SCENARIO_PIECE_ID:
+    if ZHIHU_SCENARIO_PIECE_ID not in by_piece:
         raise ValueError("schedule missing 2026-08-18 Zhihu rewrite")
-    wechat_row = dates[WECHAT_TIEKU_DATE]
-    zhihu_row = dates[ZHIHU_DATE]
-    autoreply_row = dates.get(OPS_DATE) or {}
+    if WECHAT_AUTOREPLY_PIECE_ID not in by_piece:
+        raise ValueError("schedule missing WeChat autoreply")
+    wechat_row = by_piece[WECHAT_TIEKU_PIECE_ID]
+    zhihu_row = by_piece[ZHIHU_SCENARIO_PIECE_ID]
+    autoreply_row = by_piece[WECHAT_AUTOREPLY_PIECE_ID]
+    if wechat_row.get("date") != WECHAT_TIEKU_DATE:
+        raise ValueError("WeChat 贴图 date must be 2026-08-17")
+    if zhihu_row.get("date") != ZHIHU_DATE:
+        raise ValueError("Zhihu date must be 2026-08-18")
     if wechat_row.get("status") in (STATUS_SCHEDULED, STATUS_PUBLISHED, STATUS_DELETED):
         raise ValueError("WeChat calendar row must not be scheduled/published/deleted")
-    if wechat_row.get("status") != STATUS_BLOCKED:
-        raise ValueError("WeChat calendar status must be blocked")
+    if wechat_row.get("status") != STATUS_CANCELED:
+        raise ValueError("WeChat calendar status must be canceled")
+    if wechat_row.get("cancel_reason") != WECHAT_TIEKU_CANCEL_REASON:
+        raise ValueError("WeChat calendar cancel_reason mismatch")
     if wechat_row.get("draft_status") != STATUS_DRAFT_SAVED:
         raise ValueError("WeChat calendar draft_status must be draft_saved")
     if wechat_row.get("employment_boundary_synced") is not True:
         raise ValueError("WeChat calendar employment_boundary_synced must be true")
     if wechat_row.get("publish_blocked") is not True:
         raise ValueError("WeChat calendar publish_blocked must be true")
-    if wechat_row.get("block_reason") != WECHAT_BLOCK_REASON:
+    if wechat_row.get("block_reason") != WECHAT_TIEKU_CANCEL_REASON:
         raise ValueError("WeChat calendar block_reason mismatch")
     if wechat_row.get("scheduled") or wechat_row.get("published"):
         raise ValueError("WeChat calendar flags scheduled/published must be false")
+    if wechat_row.get("external_draft_deleted") is not False:
+        raise ValueError("WeChat calendar must retain external draft")
+    if wechat_row.get("provenance_retained") is not True:
+        raise ValueError("WeChat calendar must retain provenance")
+    point_row = by_piece.get(POINT_CONTRIBUTION_PIECE_ID)
+    if not point_row:
+        raise ValueError("schedule missing point-contribution revision row")
+    if point_row.get("status") != "production_ready_revision":
+        raise ValueError("point-contribution status must be production_ready_revision")
+    if point_row.get("external_sync_status") != "external_sync_pending":
+        raise ValueError("point-contribution sync must be external_sync_pending")
+    if point_row.get("scheduled") or point_row.get("published") or point_row.get("synced"):
+        raise ValueError("point-contribution must not be scheduled/published/synced")
+    anti = schedule.get("anti_duplication") or {}
+    if anti.get("window_days") != SAME_CHANNEL_TOPIC_WINDOW_DAYS:
+        raise ValueError("anti_duplication window_days must be 14")
+    if anti.get("cancel_reason_code") != WECHAT_TIEKU_CANCEL_REASON:
+        raise ValueError("anti_duplication cancel_reason_code mismatch")
     if zhihu_row.get("status") in (STATUS_SCHEDULED, STATUS_PUBLISHED, STATUS_REVISION_PENDING):
         raise ValueError("Zhihu calendar row must not be scheduled/published/revision_pending")
     if zhihu_row.get("status") != STATUS_DRAFT_SAVED:

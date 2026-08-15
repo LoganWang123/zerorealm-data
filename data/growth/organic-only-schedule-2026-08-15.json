@@ -41,14 +41,33 @@
       "action": "publish_image_post_tieku",
       "piece_id": "o1-wechat-stockout-tieku",
       "title": "柜机缺货先查这7步",
-      "status": "blocked",
+      "status": "canceled",
+      "cancel_reason": "same_channel_topic_overlap_with_2026-08-15_article",
       "draft_status": "draft_saved",
       "assets_status": "assets_ready",
       "employment_boundary_synced": true,
       "publish_blocked": true,
-      "block_reason": "admin_qr_verification_required",
+      "block_reason": "same_channel_topic_overlap_with_2026-08-15_article",
       "scheduled": false,
-      "published": false
+      "published": false,
+      "external_draft_deleted": false,
+      "assets_deleted": false,
+      "provenance_retained": true,
+      "note": "微信贴图《柜机缺货先查这7步》发布计划已 canceled；原因 same_channel_topic_overlap_with_2026-08-15_article；草稿仍为 draft_saved（5 图顺序完整与 provenance 保留）；scheduled=false；published=false；不删除外部草稿或素材文件；employment_boundary_synced=true。历史 admin_qr_verification_required 仍记录为已安全退出的定时尝试，不再作为活跃发布计划。不得用 deleted 描述贴图草稿。"
+    },
+    {
+      "date": "2026-08-15",
+      "channel": "wechat",
+      "action": "revise_point_contribution_article",
+      "piece_id": "o1-wechat-point-contribution",
+      "title": "点位有销量却不赚钱？用一张周表算清单点贡献",
+      "status": "production_ready_revision",
+      "external_sync_status": "external_sync_pending",
+      "scheduled": false,
+      "published": false,
+      "synced": false,
+      "core_question": "点位流水不等于赚钱，先用周表算清单点贡献再决定调优或暂时撤点",
+      "packet_json": "data/growth/content-packet-o1-wechat-point-contribution-2026-08-15.json"
     },
     {
       "date": "2026-08-18",
@@ -73,6 +92,12 @@
     "tool_page": "https://zerorealm.tech/tools/smart-cabinet-weekly-review",
     "campaign": "founder14d_20260813",
     "max_cta_per_piece": 1
+  },
+  "anti_duplication": {
+    "channel": "wechat",
+    "window_days": 14,
+    "rule": "同一公众号十四天内核心问题高度相似禁止发布；本轮已取消 2026-08-17 缺货贴图，原因 same_channel_topic_overlap_with_2026-08-15_article",
+    "cancel_reason_code": "same_channel_topic_overlap_with_2026-08-15_article"
   },
   "image_status": "images_ready",
   "external_ops": {
@@ -124,13 +149,14 @@
         }
       },
       "o1-wechat-stockout-tieku": {
-        "status": "blocked",
+        "status": "canceled",
+        "cancel_reason": "same_channel_topic_overlap_with_2026-08-15_article",
         "employment_boundary_synced": true,
         "publish_blocked": true,
-        "block_reason": "admin_qr_verification_required",
+        "block_reason": "same_channel_topic_overlap_with_2026-08-15_article",
         "assets_status": "assets_ready",
         "draft_status": "draft_saved",
-        "schedule_status": "blocked",
+        "schedule_status": "canceled",
         "publish_status": "not_published",
         "account": "ZeroRealm零域AI",
         "title": "柜机缺货先查这7步",
@@ -141,11 +167,15 @@
         "saved_at": "2026-08-15T18:05:00+08:00",
         "scheduled": false,
         "published": false,
-        "note": "微信贴图草稿《柜机缺货先查这7步》仍为 draft_saved（5 图顺序完整）；未定时未发布；发布仍被 admin_qr_verification_required 阻塞；employment_boundary_synced=true。不得用 deleted 描述贴图草稿。",
+        "external_draft_deleted": false,
+        "assets_deleted": false,
+        "provenance_retained": true,
+        "note": "微信贴图《柜机缺货先查这7步》发布计划已 canceled；原因 same_channel_topic_overlap_with_2026-08-15_article；草稿仍为 draft_saved（5 图顺序完整与 provenance 保留）；scheduled=false；published=false；不删除外部草稿或素材文件；employment_boundary_synced=true。历史 admin_qr_verification_required 仍记录为已安全退出的定时尝试，不再作为活跃发布计划。不得用 deleted 描述贴图草稿。",
         "schedule_attempt": {
           "intended_at": "2026-08-17T20:30:00+08:00",
-          "result": "blocked",
-          "block_reason": "admin_qr_verification_required",
+          "result": "canceled",
+          "prior_block_reason": "admin_qr_verification_required",
+          "cancel_reason": "same_channel_topic_overlap_with_2026-08-15_article",
           "exited_safely": true
         }
       },
@@ -193,18 +223,32 @@
         "note": "Agy 新账号已核验知乎草稿 2072013992894149965：文末为「打开智能柜周经营复盘工具页，在浏览器本地完成本周复盘：」；原唯一锚文本与 UTM 不变；访谈/人工跟进/加微信/一对一联系/身份征集均为 0；platform_draft_state=draft；draft_saved；revision_pending=false；employment_boundary_synced=true；publish_blocked=false；scheduled=false；published=false。历史临时配额阻塞（antigravity_quota_temporarily_exhausted）已 resolved；legacy_interview_cta_status=deleted（仅表示旧访谈文案已删，不表示草稿本身被删）。"
       }
     },
-    "blockers": [
+    "blockers": [],
+    "canceled_plans": [
       {
         "piece_id": "o1-wechat-stockout-tieku",
-        "reason": "admin_qr_verification_required",
-        "status": "blocked",
-        "publish_blocked": true,
+        "reason": "same_channel_topic_overlap_with_2026-08-15_article",
+        "status": "canceled",
+        "scheduled": false,
+        "published": false,
         "draft_status": "draft_saved",
-        "employment_boundary_synced": true,
-        "detail": "尝试设置 2026-08-17T20:30:00+08:00 定时时触发管理员扫码验证，已安全退出；草稿仍为 draft_saved，未 scheduled/published。"
+        "assets_status": "assets_ready",
+        "external_draft_deleted": false,
+        "assets_deleted": false,
+        "provenance_retained": true,
+        "detail": "2026-08-17 公众号缺货贴图计划因与 2026-08-15《点位有销量却不赚钱？用一张周表算清单点贡献》同一公众号核心问题高度相似而 canceled；草稿仍为 draft_saved，5 图与 provenance 保留，未删除外部草稿。"
       }
     ],
     "resolved_events": [
+      {
+        "id": "wechat_tieku_schedule_canceled_topic_overlap",
+        "piece_id": "o1-wechat-stockout-tieku",
+        "reason": "same_channel_topic_overlap_with_2026-08-15_article",
+        "prior_status": "blocked",
+        "resolved": true,
+        "resolution": "canceled",
+        "detail": "原活跃阻塞 admin_qr_verification_required 之上，发布计划已改为 canceled（same_channel_topic_overlap_with_2026-08-15_article）。"
+      },
       {
         "id": "zhihu_revision_pending_quota",
         "piece_id": "o1-zhihu-inventory-stockout",
