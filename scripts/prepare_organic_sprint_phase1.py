@@ -70,6 +70,7 @@ def render_report(
         f"   - piece_id: `{WECHAT_TIEKU_PIECE_ID}`",
         f"   - tracking: `{wechat['cta']['tracking_id']}`",
         f"   - packet: `{manifest['packets'][0]['packet_json']}`",
+        "   - image briefs: 5（1:1 方封面 + 4×4:5 竖屏合步：1-2 / 3-4 / 5-6 / 7）",
         "",
         f"2. **Zhihu 场景改写** `{ZHIHU_DATE}` 《{ZHIHU_TITLE}》",
         f"   - piece_id: `{ZHIHU_SCENARIO_PIECE_ID}`",

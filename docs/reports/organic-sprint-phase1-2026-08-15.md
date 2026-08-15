@@ -12,6 +12,7 @@
    - piece_id: `o1-wechat-stockout-tieku`
    - tracking: `organic_20260817_wechat_tieku_stockout7`
    - packet: `data/growth/content-packet-o1-wechat-stockout-tieku-2026-08-15.json`
+   - image briefs: 5（1:1 方封面 + 4×4:5 竖屏合步：1-2 / 3-4 / 5-6 / 7）
 
 2. **Zhihu 场景改写** `2026-08-18` 《库存显示有货，为什么柜机还是缺货？》
    - piece_id: `o1-zhihu-inventory-stockout`

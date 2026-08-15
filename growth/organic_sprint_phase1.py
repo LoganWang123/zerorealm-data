@@ -299,6 +299,7 @@ def _image_brief(
 
 
 def wechat_tieku_step_captions() -> list[dict[str, str]]:
+    """Seven checklist steps (caption/copy). Panels combine these into four frames."""
     return [
         {"step": "1", "caption": "先定性：是信号噪声，还是真实缺货"},
         {"step": "2", "caption": "核对库存口径与账实，先校正再加补"},
@@ -307,6 +308,40 @@ def wechat_tieku_step_captions() -> list[dict[str, str]]:
         {"step": "5", "caption": "确认设备在线可售"},
         {"step": "6", "caption": "检查点位与货品是否错配"},
         {"step": "7", "caption": "选定主动作，并写下停止规则"},
+    ]
+
+
+def wechat_tieku_panel_overlays() -> list[dict[str, Any]]:
+    """Exactly four vertical panels: steps 1-2, 3-4, 5-6, and 7."""
+    return [
+        {
+            "panel_index": 1,
+            "combined_steps": [1, 2],
+            "overlay_title": "第1至2步",
+            "overlay_subtitle": "先定性信号；核对账实再加补",
+            "section": "先定性信号；核对账实再加补",
+        },
+        {
+            "panel_index": 2,
+            "combined_steps": [3, 4],
+            "overlay_title": "第3至4步",
+            "overlay_subtitle": "畅销反复断货；补货是否超时",
+            "section": "畅销反复断货；补货是否超时",
+        },
+        {
+            "panel_index": 3,
+            "combined_steps": [5, 6],
+            "overlay_title": "第5至6步",
+            "overlay_subtitle": "设备在线可售；点位货品错配",
+            "section": "设备在线可售；点位货品错配",
+        },
+        {
+            "panel_index": 4,
+            "combined_steps": [7],
+            "overlay_title": "第7步",
+            "overlay_subtitle": "选定主动作，写下停止规则",
+            "section": "选定主动作，写下停止规则",
+        },
     ]
 
 
@@ -349,7 +384,7 @@ def build_wechat_tieku_packet(*, body_markdown: str) -> dict[str, Any]:
     tags = ["智能柜", "缺货", "补货", "运营清单", "周复盘"]
     caption = build_wechat_tieku_visible_caption()
     html_caption = build_wechat_tieku_html_caption(cta_url=cta_url)
-    steps = wechat_tieku_step_captions()
+    panels = wechat_tieku_panel_overlays()
     image_briefs = [
         _image_brief(
             content_id=WECHAT_TIEKU_PIECE_ID,
@@ -363,7 +398,7 @@ def build_wechat_tieku_packet(*, body_markdown: str) -> dict[str, Any]:
             overlay_subtitle="公开号贴图 · 七步排查",
         )
     ]
-    for item in steps:
+    for item in panels:
         image_briefs.append(
             _image_brief(
                 content_id=WECHAT_TIEKU_PIECE_ID,
@@ -373,9 +408,9 @@ def build_wechat_tieku_packet(*, body_markdown: str) -> dict[str, Any]:
                 width=1080,
                 height=1350,
                 aspect_ratio="4:5",
-                overlay_title=f"第{item['step']}步",
-                overlay_subtitle=item["caption"],
-                panel_index=int(item["step"]),
+                overlay_title=item["overlay_title"],
+                overlay_subtitle=item["overlay_subtitle"],
+                panel_index=int(item["panel_index"]),
             )
         )
     return {
@@ -400,10 +435,14 @@ def build_wechat_tieku_packet(*, body_markdown: str) -> dict[str, Any]:
         "tags": tags,
         "platform_formatting": {
             "style": "wechat_image_post_tieku",
-            "panel_count": 7,
-            "caption_max_hint": "短文案 + 七图叠字；可见文案仅中文",
+            "image_brief_count": 5,
+            "panel_count": 4,
+            "cover_aspect_ratio": "1:1",
+            "panel_aspect_ratio": "4:5",
+            "panel_step_groups": ["1-2", "3-4", "5-6", "7"],
+            "caption_max_hint": "短文案 + 五图叠字（方封面+四竖屏合步）；可见文案仅中文",
             "cta_rendering": "single_anchor_button_no_raw_url",
-            "sections": [s["caption"] for s in steps],
+            "sections": [p["section"] for p in panels],
             "wechat_notes": [
                 "仅公众号公开贴图/图文",
                 "禁止朋友圈、群、个人号私发",
@@ -842,6 +881,9 @@ def build_phase1_manifest(
                 "cta_url": wechat_packet["cta"]["url"],
                 "tracking_id": wechat_packet["cta"]["tracking_id"],
                 "image_status": IMAGE_STATUS,
+                "image_brief_count": 5,
+                "panel_count": 4,
+                "panel_step_groups": ["1-2", "3-4", "5-6", "7"],
                 "packet_json": (
                     "data/growth/content-packet-o1-wechat-stockout-tieku-2026-08-15.json"
                 ),
@@ -950,6 +992,32 @@ def validate_wechat_tieku_packet(packet: dict[str, Any]) -> None:
     assert_no_forbidden_distribution(packet["visible_caption_zh"])
     if packet["image_status"] != IMAGE_STATUS:
         raise ValueError("image status must be awaiting_antigravity_images")
+    briefs = packet.get("image_briefs") or []
+    if len(briefs) != 5:
+        raise ValueError("WeChat 贴图 must have exactly 5 image briefs")
+    cover, *panels = briefs
+    if cover.get("purpose") != "cover" or cover.get("aspect_ratio") != "1:1":
+        raise ValueError("first image brief must be square cover")
+    if len(panels) != 4:
+        raise ValueError("WeChat 贴图 must have exactly 4 vertical panels")
+    for panel in panels:
+        if panel.get("purpose") != "tieku_panel":
+            raise ValueError("non-cover briefs must be tieku_panel")
+        if panel.get("aspect_ratio") != "4:5":
+            raise ValueError("tieku panels must be vertical 4:5")
+        if panel.get("status") != IMAGE_STATUS:
+            raise ValueError("panel status must be awaiting_antigravity_images")
+    if cover.get("status") != IMAGE_STATUS:
+        raise ValueError("cover status must be awaiting_antigravity_images")
+    formatting = packet.get("platform_formatting") or {}
+    if formatting.get("panel_count") != 4 or formatting.get("image_brief_count") != 5:
+        raise ValueError("platform_formatting must declare 5 briefs / 4 panels")
+    if formatting.get("panel_step_groups") != ["1-2", "3-4", "5-6", "7"]:
+        raise ValueError("panel_step_groups must combine steps 1-2, 3-4, 5-6, 7")
+    for brief in briefs:
+        overlay = brief.get("text_overlay") or {}
+        for key in ("primary", "secondary", "privacy_note"):
+            assert_no_latin_visible(str(overlay.get(key) or ""), field=f"overlay.{key}")
     if packet.get("external_state_mutated") or packet.get("llm_api_used"):
         raise ValueError("phase1 packet must not mutate external state or call LLM")
 

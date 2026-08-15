@@ -66,6 +66,34 @@ def test_wechat_tieku_packet_chinese_only_single_cta_exact_date():
     assert packet["compliance"]["no_friends_circle"] is True
     assert packet["compliance"]["no_groups"] is True
     assert packet["compliance"]["no_personal_private_distribution"] is True
+    assert len(packet["image_briefs"]) == 5
+    assert packet["platform_formatting"]["panel_count"] == 4
+    assert packet["platform_formatting"]["image_brief_count"] == 5
+    assert packet["platform_formatting"]["panel_step_groups"] == [
+        "1-2",
+        "3-4",
+        "5-6",
+        "7",
+    ]
+    assert packet["image_briefs"][0]["purpose"] == "cover"
+    assert packet["image_briefs"][0]["aspect_ratio"] == "1:1"
+    assert [b["purpose"] for b in packet["image_briefs"][1:]] == [
+        "tieku_panel",
+        "tieku_panel",
+        "tieku_panel",
+        "tieku_panel",
+    ]
+    assert [b["aspect_ratio"] for b in packet["image_briefs"][1:]] == [
+        "4:5",
+        "4:5",
+        "4:5",
+        "4:5",
+    ]
+    for brief in packet["image_briefs"]:
+        overlay = brief["text_overlay"]
+        for key in ("primary", "secondary", "privacy_note"):
+            assert latin_tokens(overlay[key]) == []
+        assert brief["status"] == IMAGE_STATUS
 
 
 def test_zhihu_scenario_packet_exact_date_single_cta_no_raw_url_line():
@@ -170,6 +198,21 @@ def test_committed_artifacts_match_phase1_contract():
     assert zhihu["schedule_intent"]["publish_date"] == "2026-08-18"
     assert wechat["title"] == "柜机缺货先查这7步"
     assert zhihu["title"] == "库存显示有货，为什么柜机还是缺货？"
+    assert len(wechat["image_briefs"]) == 5
+    assert wechat["platform_formatting"]["panel_step_groups"] == [
+        "1-2",
+        "3-4",
+        "5-6",
+        "7",
+    ]
+    assert len(zhihu["image_briefs"]) == 1
+    assert zhihu["image_briefs"][0]["purpose"] == "cover"
+    assert zhihu["image_briefs"][0]["text_overlay"]["primary"] == "库存有货 ≠ 柜机可买"
+    wechat_entry = next(
+        p for p in manifest["packets"] if p["piece_id"] == WECHAT_TIEKU_PIECE_ID
+    )
+    assert wechat_entry["image_brief_count"] == 5
+    assert wechat_entry["panel_count"] == 4
     assert [k["keyword"] for k in autoreply["keyword_replies"]] == ["复盘表"]
 
     template = _load("data/growth/experiment-ledger.template.json")
