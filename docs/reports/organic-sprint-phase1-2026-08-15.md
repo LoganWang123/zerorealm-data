@@ -6,9 +6,10 @@
 - Browser manual ops: `True`
 - LLM API: `False`
 - Friends circle / groups / private: forbidden
-- Secrets policy: no CDN URLs / login tokens / cookies recorded
+- Secrets policy: no CDN URLs / login tokens / cookies recorded; no Antigravity account/email or quota recovery clock
 - Conversion: `公开内容 → 关注公众号 → 回复「复盘表」→ 自助使用周经营复盘工具；可公开订阅，无一对一/加微信/访谈`
 - Professional boundaries: declared in packet compliance
+- Truthfulness correction: WeChat external configs/drafts deleted (`employment_boundary_synced=true`); Zhihu external draft `revision_pending` / `publish_blocked=true` (`antigravity_quota_temporarily_exhausted`)
 
 ## Packets
 
@@ -19,17 +20,28 @@
    - image briefs: 5（1:1 方封面 + 4×4:5 竖屏合步：1-2 / 3-4 / 5-6 / 7）
    - assets: `assets/generated/organic-sprint/2026-08-15/o1-wechat-stockout-tieku/`（cover + panel-1..4）
    - image_status: `images_ready`
+   - external_status: `deleted`
+   - employment_boundary_synced: `true`
    - CTA: 关注公众号后回复「复盘表」，自助打开智能柜周经营复盘工具；可在工具页公开订阅经营清单
 
 2. **Zhihu 场景改写** `2026-08-18` 《库存显示有货，为什么柜机还是缺货？》
    - piece_id: `o1-zhihu-inventory-stockout`
    - tracking: `organic_20260818_zhihu_inventory_stockout`
    - packet: `data/growth/content-packet-o1-zhihu-inventory-stockout-2026-08-15.json`
+   - local packet: corrected (self-serve「复盘表」CTA)
+   - external draft id: `2072013992894149965`
+   - external_status: `revision_pending`
+   - employment_boundary_synced: `false`
+   - publish_blocked: `true`
+   - block_reason: `antigravity_quota_temporarily_exhausted`
+   - gate: 恢复后必须删除旧访谈/人工跟进 CTA，并重新验收后才可发布
    - CTA: 关注公众号后回复「复盘表」，自助打开智能柜周经营复盘工具；可在工具页公开订阅经营清单
 
 3. **公众号欢迎语 + 关键词「复盘表」**
    - piece_id: `o1-wechat-autoreply-fupan`
    - packet: `data/growth/config-packet-o1-wechat-autoreply-2026-08-15.json`
+   - external_status: `deleted`
+   - employment_boundary_synced: `true`
    - false Excel download claim: **no**
    - interview CTA: **removed**
 
@@ -38,6 +50,7 @@
 - Approved organic-only schedule: `data/growth/organic-only-schedule-2026-08-15.json` (approved=True)
 - Experiment ledger overlay: `data/growth/organic-experiment-ledger-2026-08-15.json`
 - Manifest: `data/growth/organic-sprint-phase1-manifest-2026-08-15.json`
+- Rule: `revision_pending` 内容不得 `scheduled` / `published`
 
 ## Anonymous 14d metrics
 
@@ -64,10 +77,10 @@
 
 ## Browser handoff
 
-1. (wechat_oa_backend · configured) 已核验：被关注回复与关键词「复盘表」精确匹配均已保存启用；中文富文本链接，无原始网址可见。后续勿用本仓接口改写。
-2. (wechat_oa_image_post · blocked) 草稿《柜机缺货先查这7步》已 draft_saved（5 图顺序完整）；定时 2026-08-17T20:30:00+08:00 因 admin_qr_verification_required 阻塞并已安全退出。勿记为 scheduled/published；仅公众号公开面；禁止朋友圈/群/私发。
-3. (zhihu_editor · draft_saved) 知乎草稿《库存显示有货，为什么柜机还是缺货？》已 draft_saved；网页端不支持定时；计划窗口 2026-08-18T20:30:00+08:00；未提前发布。
-4. (ledger) 已回写 organic-only 排期与实验台账：configured / draft_saved / blocked；草稿≠scheduled/published。
+1. (wechat_oa_backend · deleted) 公众号欢迎语与关键词「复盘表」线上配置已删除；employment_boundary_synced=true。
+2. (wechat_oa_image_post · deleted) 微信贴图草稿《柜机缺货先查这7步》已线上删除；employment_boundary_synced=true；勿记为 scheduled/published。此前定时曾因 admin_qr_verification_required 阻塞，现草稿已不存在。
+3. (zhihu_editor · revision_pending) 本地 packet 已改为自助「复盘表」/工具页 CTA；外部草稿 2072013992894149965 文末仍含旧「预约运营商访谈/人工跟进」表述，状态 revision_pending，原因 antigravity_quota_temporarily_exhausted。恢复后必须经浏览器删除旧访谈 CTA、重新验收后才可发布；不得记录 Antigravity 登录账号、邮箱或配额恢复的动态精确时间。
+4. (ledger) 已回写 organic-only 排期与实验台账：WeChat deleted + employment_boundary_synced；Zhihu revision_pending / publish_blocked；revision_pending ≠ scheduled/published。
 
 ## Antigravity
 
@@ -75,3 +88,4 @@
 - Generator / reviewer: Antigravity · model `gemini-3.7-flash-high`
 - Provenance: `assets/generated/organic-sprint/2026-08-15/provenance.json`
 - Cursor only rewrites paths / hashes / status; does not generate bitmaps.
+- Zhihu external draft revision blocked by `antigravity_quota_temporarily_exhausted` (no account/email/recovery clock recorded).

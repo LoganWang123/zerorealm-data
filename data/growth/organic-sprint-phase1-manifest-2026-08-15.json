@@ -30,12 +30,12 @@
       "cta_url": "https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=wechat&utm_medium=image_post&utm_campaign=founder14d_20260813&utm_content=stockout_7steps_tieku",
       "tracking_id": "organic_20260817_wechat_tieku_stockout7",
       "image_status": "images_ready",
-      "external_status": "blocked",
+      "external_status": "deleted",
       "assets_status": "assets_ready",
-      "draft_status": "draft_saved",
+      "draft_status": "deleted",
+      "employment_boundary_synced": true,
       "scheduled": false,
       "published": false,
-      "block_reason": "admin_qr_verification_required",
       "app_id": "100000212",
       "data_seq": "4650538271616466946",
       "saved_at": "2026-08-15T18:05:00+08:00",
@@ -66,9 +66,13 @@
       "cta_url": "https://zerorealm.tech/tools/smart-cabinet-weekly-review?utm_source=zhihu&utm_medium=article&utm_campaign=founder14d_20260813&utm_content=inventory_vs_stockout_qa",
       "tracking_id": "organic_20260818_zhihu_inventory_stockout",
       "image_status": "images_ready",
-      "external_status": "draft_saved",
+      "external_status": "revision_pending",
       "assets_status": "assets_ready",
       "draft_status": "draft_saved",
+      "employment_boundary_synced": false,
+      "publish_blocked": true,
+      "block_reason": "antigravity_quota_temporarily_exhausted",
+      "local_packet_corrected": true,
       "scheduled": false,
       "published": false,
       "draft_id": "2072013992894149965",
@@ -87,7 +91,8 @@
       "title": "公众号欢迎语与关键词自动回复（复盘表）",
       "keyword": "复盘表",
       "image_status": "not_applicable",
-      "external_status": "configured",
+      "external_status": "deleted",
+      "employment_boundary_synced": true,
       "account": "ZeroRealm零域AI",
       "welcome_rule_id": "456828165",
       "keyword_rule_id": "456844465",
@@ -221,35 +226,38 @@
       {
         "order": 1,
         "surface": "wechat_oa_backend",
-        "status": "configured",
-        "action": "已核验：被关注回复与关键词「复盘表」精确匹配均已保存启用；中文富文本链接，无原始网址可见。后续勿用本仓接口改写。"
+        "status": "deleted",
+        "action": "公众号欢迎语与关键词「复盘表」线上配置已删除；employment_boundary_synced=true。线上配置/草稿已删除，与自助漏斗及雇佣边界口径对齐；本地 packet 保留生产就绪文案，待边界同步后可重新配置/建稿。"
       },
       {
         "order": 2,
         "surface": "wechat_oa_image_post",
-        "status": "blocked",
-        "action": "草稿《柜机缺货先查这7步》已 draft_saved（5 图顺序完整）；定时 2026-08-17T20:30:00+08:00 因 admin_qr_verification_required 阻塞并已安全退出。勿记为 scheduled/published；仅公众号公开面；禁止朋友圈/群/私发。"
+        "status": "deleted",
+        "action": "微信贴图草稿《柜机缺货先查这7步》已线上删除；employment_boundary_synced=true；勿记为 scheduled/published。此前定时曾因 admin_qr_verification_required 阻塞，现草稿已不存在。"
       },
       {
         "order": 3,
         "surface": "zhihu_editor",
-        "status": "draft_saved",
-        "action": "知乎草稿《库存显示有货，为什么柜机还是缺货？》已 draft_saved；网页端不支持定时；计划窗口 2026-08-18T20:30:00+08:00；未提前发布。"
+        "status": "revision_pending",
+        "action": "本地 packet 已改为自助「复盘表」/工具页 CTA；外部草稿 2072013992894149965 文末仍含旧「预约运营商访谈/人工跟进」表述，状态 revision_pending，原因 antigravity_quota_temporarily_exhausted。恢复后必须经浏览器删除旧访谈 CTA、重新验收后才可发布；不得记录 Antigravity 登录账号、邮箱或配额恢复的动态精确时间。"
       },
       {
         "order": 4,
         "surface": "ledger",
-        "action": "已回写 organic-only 排期与实验台账：configured / draft_saved / blocked；草稿≠scheduled/published。"
+        "action": "已回写 organic-only 排期与实验台账：WeChat deleted + employment_boundary_synced；Zhihu revision_pending / publish_blocked；revision_pending ≠ scheduled/published。"
       }
     ],
     "antigravity": {
       "image_status": "images_ready",
-      "note": "公众号贴图 5 张与知乎封面已由 Antigravity（gemini-3.7-flash-high）生成并验收 PASS；Cursor 仅回写路径/哈希/状态，不生成位图。"
+      "note": "公众号贴图 5 张与知乎封面已由 Antigravity（gemini-3.7-flash-high）生成并验收 PASS；Cursor 仅回写路径/哈希/状态，不生成位图。知乎外部草稿修订受阻原因：antigravity_quota_temporarily_exhausted；不记录登录账号、邮箱或配额恢复时刻。"
     },
     "remaining_blockers": [
       {
-        "piece_id": "o1-wechat-stockout-tieku",
-        "reason": "admin_qr_verification_required"
+        "piece_id": "o1-zhihu-inventory-stockout",
+        "reason": "antigravity_quota_temporarily_exhausted",
+        "status": "revision_pending",
+        "publish_blocked": true,
+        "employment_boundary_synced": false
       }
     ]
   },
@@ -257,38 +265,52 @@
     "verified_at": "2026-08-15T18:05:00+08:00",
     "via": "browser_manual",
     "repo_api_mutation": false,
+    "truthfulness_correction": {
+      "topic": "employment_boundary_self_serve_funnel",
+      "local_packets_corrected": true,
+      "external_wechat_deleted": true,
+      "external_zhihu_revision_pending": true
+    },
     "privacy": {
       "cdn_urls_recorded": false,
       "login_tokens_recorded": false,
       "cookies_recorded": false,
-      "raw_visible_urls_on_wechat": false
+      "raw_visible_urls_on_wechat": false,
+      "antigravity_account_recorded": false,
+      "antigravity_email_recorded": false,
+      "quota_recovery_clock_recorded": false
     },
     "pieces": {
       "o1-wechat-autoreply-fupan": {
-        "status": "configured",
+        "status": "deleted",
+        "employment_boundary_synced": true,
+        "publish_blocked": false,
         "account": "ZeroRealm零域AI",
+        "note": "线上配置/草稿已删除，与自助漏斗及雇佣边界口径对齐；本地 packet 保留生产就绪文案，待边界同步后可重新配置/建稿。",
         "welcome": {
-          "status": "configured",
+          "status": "deleted",
           "rule_id": "456828165",
-          "enabled": true,
-          "saved": true,
+          "enabled": false,
+          "saved": false,
           "link_style": "chinese_rich_text_no_raw_url"
         },
         "keyword": {
           "keyword": "复盘表",
           "match": "exact",
-          "status": "configured",
+          "status": "deleted",
           "rule_id": "456844465",
-          "enabled": true,
-          "saved": true,
+          "enabled": false,
+          "saved": false,
           "link_style": "chinese_rich_text_no_raw_url"
         }
       },
       "o1-wechat-stockout-tieku": {
-        "status": "blocked",
+        "status": "deleted",
+        "employment_boundary_synced": true,
+        "publish_blocked": false,
         "assets_status": "assets_ready",
-        "draft_status": "draft_saved",
-        "schedule_status": "blocked",
+        "draft_status": "deleted",
+        "schedule_status": "deleted",
         "publish_status": "not_published",
         "account": "ZeroRealm零域AI",
         "title": "柜机缺货先查这7步",
@@ -299,15 +321,20 @@
         "saved_at": "2026-08-15T18:05:00+08:00",
         "scheduled": false,
         "published": false,
-        "schedule_attempt": {
+        "note": "线上配置/草稿已删除，与自助漏斗及雇佣边界口径对齐；本地 packet 保留生产就绪文案，待边界同步后可重新配置/建稿。",
+        "prior_schedule_attempt": {
           "intended_at": "2026-08-17T20:30:00+08:00",
           "result": "blocked",
           "block_reason": "admin_qr_verification_required",
-          "exited_safely": true
+          "exited_safely": true,
+          "superseded_by": "deleted"
         }
       },
       "o1-zhihu-inventory-stockout": {
-        "status": "draft_saved",
+        "status": "revision_pending",
+        "employment_boundary_synced": false,
+        "publish_blocked": true,
+        "local_packet_corrected": true,
         "assets_status": "assets_ready",
         "draft_status": "draft_saved",
         "schedule_status": "unsupported_on_web",
@@ -315,24 +342,35 @@
         "account": "ZeroRealm AI",
         "title": "库存显示有货，为什么柜机还是缺货？",
         "draft_id": "2072013992894149965",
+        "block_reason": "antigravity_quota_temporarily_exhausted",
         "verified_fields": [
           "title",
           "cover",
           "body",
-          "table",
-          "single_cta"
+          "table"
+        ],
+        "unverified_after_local_correction": [
+          "single_cta",
+          "interview_cta_removed"
+        ],
+        "revision_required": [
+          "delete_stale_interview_or_manual_followup_cta",
+          "re_accept_external_draft"
         ],
         "scheduled": false,
         "published": false,
         "planned_publish_window": "2026-08-18T20:30:00+08:00",
-        "note": "知乎网页端不支持文章定时；计划窗口已记录，未提前发布。"
+        "note": "本地 packet 已改为自助「复盘表」/工具页 CTA；外部草稿 2072013992894149965 文末仍含旧「预约运营商访谈/人工跟进」表述，状态 revision_pending，原因 antigravity_quota_temporarily_exhausted。恢复后必须经浏览器删除旧访谈 CTA、重新验收后才可发布；不得记录 Antigravity 登录账号、邮箱或配额恢复的动态精确时间。"
       }
     },
     "blockers": [
       {
-        "piece_id": "o1-wechat-stockout-tieku",
-        "reason": "admin_qr_verification_required",
-        "detail": "尝试设置 2026-08-17T20:30:00+08:00 定时时触发管理员扫码验证，已安全退出；草稿仍为 draft_saved，未 scheduled/published。"
+        "piece_id": "o1-zhihu-inventory-stockout",
+        "reason": "antigravity_quota_temporarily_exhausted",
+        "status": "revision_pending",
+        "publish_blocked": true,
+        "employment_boundary_synced": false,
+        "detail": "外部知乎草稿尚未删除旧访谈 CTA；revision_pending 内容不得 scheduled/published；恢复后须浏览器修订并重新验收。"
       }
     ]
   },

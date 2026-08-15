@@ -143,9 +143,13 @@
   "auto_publish": false,
   "llm_api_used": false,
   "external_state_mutated": false,
-  "external_status": "draft_saved",
+  "external_status": "revision_pending",
   "draft_status": "draft_saved",
   "assets_status": "assets_ready",
   "scheduled": false,
-  "published": false
+  "published": false,
+  "employment_boundary_synced": false,
+  "publish_blocked": true,
+  "block_reason": "antigravity_quota_temporarily_exhausted",
+  "local_packet_corrected": true
 }

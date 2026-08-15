@@ -115,5 +115,6 @@
   "auto_publish": false,
   "llm_api_used": false,
   "external_state_mutated": false,
-  "external_status": "configured"
+  "external_status": "deleted",
+  "employment_boundary_synced": true
 }
